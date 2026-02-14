@@ -1,0 +1,60 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('portfolio');
+  return projects.map((project) => ({
+    params: { slug: project.data.projectSlug },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await project.render();
+const data = project.data;
+
+const allProjects = (await getCollection('portfolio', ({ data }) => data.showProject))
+  .sort((a, b) => a.data.sortOrder - b.data.sortOrder);
+
+const currentIndex = allProjects.findIndex(p => p.data.projectSlug === data.projectSlug);
+const prev = currentIndex > 0 ? allProjects[currentIndex - 1] : null;
+const next = currentIndex < allProjects.length - 1 ? allProjects[currentIndex + 1] : null;
+---
+
+<BaseLayout title={`${data.title} — Alan Just`} currentPath={`/portfolio/${data.projectSlug}`}>
+  <article class="project-detail">
+    {data.heroImage && (
+      <img class="project-hero" src={data.heroImage} alt={data.title} />
+    )}
+
+    {data.category && <div class="project-meta">{data.category}</div>}
+
+    <h1 class="project-title">{data.title}</h1>
+
+    <div class="project-description">
+      <Content />
+    </div>
+
+    {data.additionalImages.length > 0 && (
+      <div class="project-gallery">
+        {data.additionalImages.map(src => (
+          <img src={src} alt={data.title} loading="lazy" />
+        ))}
+      </div>
+    )}
+
+    <nav class="project-nav">
+      <span>
+        {prev && (
+          <a href={`/portfolio/${prev.data.projectSlug}`}>&larr; {prev.data.title}</a>
+        )}
+      </span>
+      <span>
+        {next && (
+          <a href={`/portfolio/${next.data.projectSlug}`}>{next.data.title} &rarr;</a>
+        )}
+      </span>
+    </nav>
+  </article>
+</BaseLayout>

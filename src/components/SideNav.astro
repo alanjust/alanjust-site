@@ -1,0 +1,51 @@
+---
+interface Props {
+  currentPath?: string;
+}
+
+const { currentPath = '/' } = Astro.props;
+
+const navLinks = [
+  { href: '/',                                      label: 'Home' },
+  { href: '/what-is-art',                           label: 'What is Art?' },
+  { href: '/what-is-design',                        label: 'What is Design?' },
+  { href: '/the-difference-between-art-and-design', label: 'Art & Design Difference' },
+  { href: '/what-is-decorative-art',                label: 'What is Decorative Art?' },
+  { href: '/gallery-of-alans-art-and-design',       label: 'Gallery' },
+  { href: '/about',                                  label: 'About' },
+  { href: 'https://www.instagram.com/alanalanjustcom/', label: 'Follow', external: true },
+  { href: '/contact',                               label: 'Connect' },
+];
+
+function isCurrent(href: string) {
+  if (href.startsWith('http')) return false;
+  if (href === '/') return currentPath === '/';
+  return currentPath.startsWith(href);
+}
+---
+
+<div class="side-menu">
+  <nav class="navbar">
+    <div class="navbar-side">
+      <div class="container-3">
+        <div class="div-side-menu">
+          {navLinks.map((link, i) => (
+            <>
+              <a
+                href={link.href}
+                target={link.external ? '_blank' : undefined}
+                rel={link.external ? 'noopener noreferrer' : undefined}
+                class={`side-menu-text-link${isCurrent(link.href) ? ' w--current' : ''}`}
+              >
+                {link.label}
+              </a>
+              {i < navLinks.length - 1 && (
+                <div class={`divider-2-px${i === 0 ? ' _4px-space' : ' with-space'}`}></div>
+              )}
+            </>
+          ))}
+        </div>
+      </div>
+    </div>
+  </nav>
+</div>

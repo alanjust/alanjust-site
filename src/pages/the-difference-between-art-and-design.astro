@@ -1,0 +1,47 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SideNav from '../components/SideNav.astro';
+---
+
+<BaseLayout title="Art &amp; Design Difference — Alan Just" currentPath="/the-difference-between-art-and-design">
+  <section class="section">
+    <div class="section-with-left-menu">
+
+      <SideNav currentPath="/the-difference-between-art-and-design" />
+
+      <div class="div-right-side">
+        <h1 class="heading-h2">What's the difference between <a href="/what-is-art" style="color:var(--sky-blue);text-decoration:none;"><span class="art-color">Art</span></a> and <a href="/what-is-design" style="color:var(--burlywood);text-decoration:none;"><span class="design-color">Design</span></a>?</h1>
+
+        <a href="/contact" class="challenge-me-link">Please challenge me!</a>
+
+        <p class="main-text"><span class="art-color">Art</span> and <span class="design-color">design</span> are both creative fields that involve visual expression and aesthetics. However, there are significant differences between the two:</p>
+
+        <ol class="main-text" style="padding-left:2em;">
+          <li style="padding-bottom:16px;font-size:26px;line-height:2.8rem;color:rgba(255,255,255,0.7);">
+            <strong style="color:#fff;">Purpose</strong>: The primary purpose of <span class="art-color">art</span> is to express ideas, emotions, or feelings. <span class="art-color">Art</span> is created to evoke a response or reaction from the viewer, and it often has a subjective or personal meaning. On the other hand, the primary purpose of <span class="design-color">design</span> is to solve a specific problem or meet a specific need. <span class="design-color">Design</span> is created to be functional, efficient, and effective in achieving a particular goal.
+          </li>
+          <li style="padding-bottom:16px;font-size:26px;line-height:2.8rem;color:rgba(255,255,255,0.7);">
+            <strong style="color:#fff;">Process</strong>: <span class="art-color">Artistic</span> creation is often driven by intuition, personal expression, and experimentation. The <span class="art-color">artist</span> may have a general idea of what they want to create, but the final product is often shaped by the <span class="art-color">artist's</span> emotions, thoughts, and experiences. In contrast, <span class="design-color">design</span> is a more structured and systematic process that involves research, planning, and problem-solving. The <span class="design-color">designer</span> works to understand the needs of the audience, define the problem, and then develop solutions that are both functional and aesthetically pleasing.
+          </li>
+          <li style="padding-bottom:16px;font-size:26px;line-height:2.8rem;color:rgba(255,255,255,0.7);">
+            <strong style="color:#fff;">Outcome</strong>: <span class="art-color">Art</span> is often created for its own sake, and the outcome can be open to interpretation. The viewer may derive their own meaning from the <span class="art-color">work</span>, and there may be multiple valid interpretations. In contrast, <span class="design-color">design</span> has a specific outcome in mind, such as a <span class="design-color">product</span>, a <span class="design-color">logo</span>, or a <span class="design-color">website</span>. Or, to <span class="design-color">persuade</span>. The success of the <span class="design-color">design</span> is measured by how well it meets the intended goal or solves the intended problem.
+          </li>
+        </ol>
+
+        <p class="main-text">In summary, while <span class="art-color">art</span> and <span class="design-color">design</span> share some similarities, they have different purposes, processes, and outcomes. <span class="art-color">Art is subjective and expressive</span>, while <span class="design-color">design is more objective and functional</span>.</p>
+      </div><!-- /.div-right-side -->
+    </div><!-- /.section-with-left-menu -->
+  </section>
+</BaseLayout>
+
+<style>
+  .challenge-me-link {
+    color: var(--pale-green);
+    font-size: 20px;
+    font-style: italic;
+    font-weight: 500;
+    text-decoration: underline;
+    display: block;
+    margin-bottom: 13px;
+  }
+</style>

@@ -1,0 +1,121 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  currentPath?: string;
+}
+
+const {
+  title = 'Alan Just',
+  description = 'Art, Design, and portfolio of Alan Just — graphic designer and illustrator.',
+  currentPath = Astro.url.pathname,
+} = Astro.props;
+
+const navLinks = [
+  { href: '/',                                      label: 'Home' },
+  { href: '/what-is-art',                           label: 'What is Art?' },
+  { href: '/what-is-design',                        label: 'What is Design?' },
+  { href: '/the-difference-between-art-and-design', label: 'Art & Design Difference' },
+  { href: '/what-is-decorative-art',                label: 'What is Decorative Art?' },
+  { href: '/gallery-of-alans-art-and-design',       label: 'Gallery' },
+  { href: '/about',                                  label: 'About' },
+  { href: 'https://www.instagram.com/alanalanjustcom/', label: 'Follow', external: true },
+  { href: '/contact',                               label: 'Connect' },
+];
+
+function isCurrent(href: string) {
+  if (href.startsWith('http')) return false;
+  if (href === '/') return currentPath === '/';
+  return currentPath.startsWith(href);
+}
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- IBM Plex Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+
+    <!-- Logo -->
+    <section class="section home-logo">
+      <a href="/" class="nav-logo-link-block" aria-label="Alan Just — home">
+        <img
+          src="/images/alan-just-logotype-white.svg"
+          loading="lazy"
+          alt="Alan Just"
+          class="alanjust-logo-white"
+        />
+      </a>
+    </section>
+
+    <!-- Gallery Banner -->
+    <div class="gallery-banner">
+      <a href="/gallery-of-alans-art-and-design" class="gallery-banner-link">
+        <span class="heading-h2">Gallery</span>
+        <span class="main-text gallery-breakpoint-text">Alan's Portfolio</span>
+      </a>
+      <!-- Mobile hamburger (only visible ≤991px via CSS) -->
+      <button class="mobile-hamburger" id="nav-toggle" aria-label="Open navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+
+    <!-- Mobile Nav Overlay -->
+    <div class="mobile-nav-overlay" id="mobile-nav" role="dialog" aria-label="Navigation">
+      <button class="mobile-nav-close" id="nav-close" aria-label="Close navigation">&times;</button>
+      <ul class="mobile-nav-list">
+        {navLinks.map(link => (
+          <li>
+            <a
+              href={link.href}
+              target={link.external ? '_blank' : undefined}
+              rel={link.external ? 'noopener noreferrer' : undefined}
+              aria-current={isCurrent(link.href) ? 'page' : undefined}
+            >
+              {link.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <!-- Page content (each page provides its own layout section) -->
+    <slot />
+
+    <div class="bottom-section"></div>
+
+    <script>
+      const toggle = document.getElementById('nav-toggle');
+      const overlay = document.getElementById('mobile-nav');
+      const closeBtn = document.getElementById('nav-close');
+
+      toggle?.addEventListener('click', () => {
+        overlay?.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      });
+
+      function closeNav() {
+        overlay?.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+
+      closeBtn?.addEventListener('click', closeNav);
+      overlay?.addEventListener('click', (e) => {
+        if (e.target === overlay) closeNav();
+      });
+    </script>
+  </body>
+</html>

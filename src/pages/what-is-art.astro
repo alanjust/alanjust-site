@@ -1,0 +1,74 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SideNav from '../components/SideNav.astro';
+---
+
+<BaseLayout title="What is Art? — Alan Just" currentPath="/what-is-art">
+  <section class="section">
+    <div class="section-with-left-menu">
+
+      <SideNav currentPath="/what-is-art" />
+
+      <div class="div-right-side">
+        <h2 class="heading-h2">What is <span class="art-color">Art</span>?</h2>
+
+        <a href="/contact" class="challenge-me-link">Please challenge me!</a>
+
+        <p class="main-text"><strong>Well, <span class="art-color">Art </span>is an act. But it's not just any action. It's a conscious, deliberate endeavor with the power to reshape the human mind.</strong></p>
+
+        <p class="main-text">Now, you might ask, "What about <span class="deco-color">Decorative Art</span>? Is that different?" Yes. <a href="/what-is-decorative-art" style="color:var(--sky-blue);text-decoration:underline;font-style:italic;">Learn what makes decorative art different.</a></p>
+
+        <p class="main-text"><span class="design-color">Design</span>? That's a whole different thing. Its purpose, its driving force, is to tackle problems, find solutions.</p>
+
+        <p class="main-text"><span class="art-color">Art</span>, in its essence, is anything that is intentionally crafted to captivate the human mind. It has the capacity to transport our imaginations and emotions to unbounded heights.</p>
+
+        <p class="main-text"><span class="art-color">Art objects </span>and<span class="art-color"> performances </span>often stem from a place of self-expression. And the desired response from its audience is to accept this expression, to feel that sense of shared human experience, that "we are all in this together." Whether it's the infectious energy of Beyoncé or the profound depth of Michelangelo, <span class="art-color">Art</span> can be a source of shared feelings and significance.</p>
+
+        <p class="main-text">As a <span class="art-color">Fine Artist</span>, I have no interest in making the wall happy – that's the domain of <span class="deco-color">Decorative Art</span>. My primary concern with space comes into play when it impacts the viewer's interaction with the <span class="art-color">Art</span>, particularly when it disrupts the auditory, tactile, or visual focus. <strong><span class="art-color">Art</span>, by its nature, is immersive.</strong> Any elements that distract from this immersive experience should be reduced or eliminated. Consider a carefully orchestrated environment like a music concert, where every facet, from sound volume to lighting, to the performance itself (imagine the dynamism of Mick Jagger), contributes to dominating the sensory experience.</p>
+
+        <p class="main-text">But let's consider the difference between <span class="art-color">Art</span> and <span class="design-color">Design</span>. With <span class="art-color">Art</span> there is no structural consequence for failing other than receiving withering opinions and a lack of sales. <span class="design-color">Design</span>, however, is a different story. A <span class="design-color">Design</span> failure can lead to collapsing bridges or a business strategy that misses, directly affecting people's lives and well-being.</p>
+
+        <div class="more-terms">
+          <hr class="divider" />
+
+          <p class="main-text lead"><strong>I identify as </strong><span class="art-color"><strong>Artist</strong></span><strong>.</strong> My <span class="design-color">Designer</span> and <span class="deco-color">Illustrator</span> identities are secondary.</p>
+
+          <p class="main-text lead"><strong>What</strong> I am (an <span class="art-color">Artist</span>) is different from <strong>who</strong> I am. Who I am is quite changeable. Some days I am kind and giving. On other days I am a self-absorbed jerk. You see, our inconsistent behavior plagues our lives. We struggle to prevent those behaviors from defining us. But I am always an <span class="art-color">Artist</span>.</p>
+
+          <p class="main-text lead"><strong>How does this happen?</strong></p>
+
+          <h1 class="heading nick-cave">
+            <a href="https://www.theredhandfiles.com/" target="_blank" rel="noopener noreferrer">Nick Cave's advice on being an artist:</a>
+          </h1>
+
+          <div class="main-text text-link aqua">
+            <p class="main-text"><strong style="color:#fff;">You don't need to know who you are to become an artist.</strong> Art moulds us into the shape it wants us to be and the thing that serves it best. As a songwriter, I have come to understand that the more I try to make art that somehow reflects what I perceive myself to be, or the identity I wish to project upon the world, the more my art resists. Art doesn't like being told what to do. It doesn't like me getting in the way. When I attempt to impose my will upon it, the work becomes diminished and art takes its better ideas elsewhere.</p>
+
+            <p class="main-text">Art is a divine and mysterious force that runs through all of us. It is a thing of supreme spiritual potential that only comes into its true and full being if we abandon all those cherished ideas about who we think we are or are not. Art is entirely indifferent to our self-annihilating excuses, special case pleas and circumstantial grievances. We must cease to concern ourselves with our unique suffering – whether we are happy or sad, fortunate or unfortunate, good or bad – and give up our neurotic and debilitating journeys of self-discovery. Art of true value requires, like a jealous and possessive god, nothing less than our complete obedience. It insists that we retract our ego, our sense of self, the cosmetics of identity and let it do its thing. <strong style="color:#fff;">We are in service to art, not the other way around.</strong></p>
+
+            <p class="main-text">... if you want to create, sit down, lower your head in deference to the task ahead and get to work. But get out of art's way! Art will, in time, show you who you are. One day you will be labouring away, lost in the flow, a glorious and unfathomable thing unfolding before your eyes, and art will suddenly and outrageously turn to you and, like a master pleased with his vassal, say, 'Look. Look who you are. <em>You are an artist</em>.'</p>
+
+            <p class="main-text">Love, Nick</p>
+          </div>
+        </div>
+      </div><!-- /.div-right-side -->
+    </div><!-- /.section-with-left-menu -->
+  </section>
+</BaseLayout>
+
+<style>
+  .challenge-me-link {
+    color: var(--pale-green);
+    font-size: 20px;
+    font-style: italic;
+    font-weight: 500;
+    text-decoration: underline;
+    display: block;
+    margin-bottom: 13px;
+  }
+  .divider {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    margin: 24px 0;
+  }
+</style>

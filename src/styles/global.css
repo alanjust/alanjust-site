@@ -1,0 +1,761 @@
+/* =================================================================
+   Alan Just — global.css
+   Values transcribed directly from the Webflow production stylesheet
+   ================================================================= */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ── CSS custom properties (exact Webflow values) ──────────── */
+:root {
+  --white:            white;
+  --black:            black;
+  --sky-blue:         #4cdaf3;   /* art-color  */
+  --burlywood:        #ebbc65;   /* design-color */
+  --light-coral:      #ec6668;   /* deco-color */
+  --dark-art-blue:    #1a5661;
+  --dark-design-gold: #644917;
+  --pale-green:       #7dff8ab3;
+  --maroon:           #881e4a;
+}
+
+/* ── Base ────────────────────────────────────────────────────── */
+html { height: 100%; }
+
+body {
+  background-color: var(--black);
+  color: var(--white);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  margin: 0;
+  min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+p { margin: 0 0 10px; }
+ol, ul { margin: 0 0 10px; padding-left: 40px; }
+h1, h2, h3, h4, h5, h6 { margin-bottom: 10px; font-weight: bold; }
+
+/* ── Color utility classes ───────────────────────────────────── */
+.art-color    { color: var(--sky-blue); }
+.design-color { color: var(--burlywood); text-decoration: none; }
+.deco-color   { color: var(--light-coral); font-size: 27px; text-decoration: none; }
+
+.art-link    { color: var(--sky-blue);   font-size: 30px; text-decoration: underline; }
+.design-link { color: var(--burlywood);  font-size: 30px; text-decoration: underline; }
+.deco-link   { font-size: 26px; text-decoration: underline; }
+.url-link    { color: rgba(255,255,255,0.7); text-decoration: underline; }
+.main-text-link { font-weight: 300; text-decoration: underline; }
+.italic-text-2  { color: rgba(255,255,255,0.71); text-decoration: underline; }
+
+/* ── Logo link ────────────────────────────────────────────────── */
+.nav-logo-link-block {
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.alanjust-logo-white {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: auto;
+}
+.alanjust-logo-white:hover {
+  opacity: 0.8;
+  filter: blur(5px);
+}
+
+/* ── Gallery banner strip ─────────────────────────────────────── */
+.gallery-banner {
+  background-color: var(--maroon);
+  text-align: center;
+  padding-top: 7px;
+  padding-bottom: 7px;
+}
+.gallery-banner-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+.heading-h2 {
+  color: #fff;
+  margin-top: 0;
+  margin-bottom: 0;
+  display: inline-block;
+}
+.heading-h2.main {
+  margin-top: 43px;
+  padding-top: 0;
+  padding-bottom: 0;
+  font-size: 50px;
+}
+.design-heading-h2 {
+  color: #fff;
+  margin-top: 3px;
+}
+.design-heading-h2.sub-heading {
+  margin-bottom: -2px;
+  padding-top: 13px;
+}
+
+/* ── Section wrappers ────────────────────────────────────────── */
+.section {
+  background-color: #000;
+  display: flex;
+}
+.section.home-logo { display: block; }
+.section.about { margin-top: 32px; }
+.bottom-section { height: 100px; }
+
+/* ── Homepage: main-section-grid (sidebar + what-is-div) ─────── */
+.main-section-grid {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: flex-start;
+  margin-left: 2px;
+  margin-right: 0;
+}
+
+/* ── Sidebar (left nav column) ───────────────────────────────── */
+.side-menu {
+  padding-left: 26px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.side-menu.hidden { display: none; }
+
+.navbar {
+  text-align: left;
+  background-color: transparent;
+  flex-direction: row;
+  align-items: flex-start;
+  width: auto;
+  padding-left: 0;
+  padding-right: 22px;
+  display: flex;
+}
+.navbar-side {
+  float: none;
+  margin-top: 42px;
+  display: inline-block;
+}
+.container-3 {
+  margin-right: 0;
+  padding-left: 0;
+  display: flex;
+}
+
+.div-side-menu {
+  color: var(--white);
+  margin-right: -1px;
+  padding-bottom: 22px;
+  padding-right: 0;
+}
+.side-menu-text-link {
+  opacity: 0.8;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 0;
+  font-size: 20px;
+  line-height: 1.7rem;
+  display: inline-block;
+  position: relative;
+  color: var(--white);
+  text-decoration: none;
+}
+.side-menu-text-link:hover { opacity: 1; }
+.side-menu-text-link.w--current {
+  color: rgba(255,255,255,0.47);
+  font-size: 20px;
+}
+
+/* Divider bar between nav items */
+.divider-2-px {
+  background-color: var(--white);
+  opacity: 0.6;
+  height: 2px;
+  margin-top: 7px;
+  padding: 0;
+}
+.divider-2-px._4px-space  { margin-bottom: 16px; }
+.divider-2-px.with-space  { margin-bottom: 12px; }
+
+/* ── Section with left menu (essay pages) ───────────────────── */
+.section-with-left-menu {
+  align-items: flex-start;
+  margin-left: 28px;
+  display: flex;
+}
+.div-right-side {
+  padding-left: 16px;
+  padding-right: 48px;
+  display: inline-block;
+}
+
+/* ── What-is-div (homepage content area) ────────────────────── */
+.what-is-div {
+  object-fit: fill;
+  align-items: flex-start;
+  margin-top: 0;
+  padding-left: 30px;
+  padding-right: 28px;
+  display: flex;
+  position: static;
+}
+.portrait-link {
+  flex-direction: row;
+  width: 50%;
+  height: auto;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-shrink: 0;
+}
+.home-headshot {
+  object-fit: fill;
+  border-radius: 8px;
+  order: -1;
+  width: 100%;
+  margin-top: 26px;
+  margin-left: auto;
+  margin-right: auto;
+  position: static;
+}
+
+/* Intro text column (right side on homepage) */
+.main-div.intro-div {
+  background-color: transparent;
+  width: 100%;
+  padding-bottom: 7px;
+  padding-left: 43px;
+  padding-right: 43px;
+}
+
+/* ── Lead sentence (homepage h1) ─────────────────────────────── */
+.lead-sentence {
+  color: #f2d3bd;
+  margin-bottom: 32px;
+  font-size: 50px;
+  line-height: 2rem;
+}
+
+/* ── Main body text ─────────────────────────────────────────── */
+.main-text {
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 19px;
+  font-size: 26px;
+  line-height: 2.8rem;
+  text-decoration: none;
+  display: block;
+}
+.main-text.gallery-breakpoint-text {
+  margin-bottom: 0;
+  padding-left: 16px;
+  display: inline-block;
+}
+.main-text.about {
+  margin-bottom: 39px;
+  font-size: 26px;
+  line-height: 2.5rem;
+}
+.main-text.text-link {
+  background-color: var(--dark-art-blue);
+  margin-bottom: 36px;
+  padding: 28px;
+}
+.main-text.text-link.aqua {
+  margin-bottom: 36px;
+  padding-bottom: 34px;
+}
+.main-text.text-link.olive {
+  background-color: var(--dark-design-gold);
+}
+.main-text.portfolio-description-block {
+  background-color: var(--dark-art-blue);
+  border-radius: 8px;
+  margin-bottom: 29px;
+  padding: 25px;
+}
+.main-text.leading-adjustment {
+  margin-top: -15px;
+  margin-bottom: 17px;
+  padding-left: 34px;
+}
+.main-text.smaller-text {
+  font-size: 26px;
+  line-height: 2.4rem;
+}
+.main-text.challenge-text {
+  color: var(--pale-green);
+  margin-top: -1px;
+  margin-bottom: 13px;
+  font-size: 20px;
+  font-style: italic;
+  font-weight: 500;
+  text-decoration: underline;
+}
+.main-text.lead {
+  margin-bottom: 13px;
+  padding-top: 6px;
+}
+.main-text strong { color: rgba(255,255,255,0.86); }
+.main-text a { color: inherit; }
+
+.main-text-list-item {
+  padding-bottom: 12px;
+  font-size: 30px;
+  line-height: 2.6rem;
+}
+.main-text-list-item.number-list { font-size: 26px; }
+
+/* ── Headings ───────────────────────────────────────────────── */
+.heading {
+  color: var(--white);
+  margin-top: 0;
+  margin-bottom: 0;
+  padding: 39px 0;
+}
+.heading.nick-cave {
+  padding-top: 13px;
+  padding-bottom: 28px;
+}
+.heading.terms { /* used for glossary section headings in essays */ }
+
+.heading-2 {
+  color: var(--white);
+  margin-top: 30px;
+  margin-bottom: 24px;
+  font-size: 40px;
+  font-weight: 500;
+}
+.heading-2.about { margin-top: 0; }
+
+/* ── Nick Cave quote block ──────────────────────────────────── */
+.aqua {
+  background-color: var(--dark-art-blue);
+  padding: 25px 30px;
+}
+.more-terms {
+  background-color: transparent;
+  margin-top: -11px;
+  margin-bottom: 0;
+  padding-bottom: 40px;
+  padding-left: 0;
+  padding-right: 0;
+  display: block;
+}
+.more-terms.nick-cave { margin-top: 31px; }
+
+/* Term link blocks (what-is-design) */
+.bold-text-2 {
+  color: #fff;
+  padding-bottom: 8px;
+  display: flex;
+}
+
+/* ── About page sections ─────────────────────────────────────── */
+.main-div {
+  background-color: var(--dark-art-blue);
+  width: 40%;
+  height: auto;
+  padding: 32px;
+  display: inline-block;
+}
+.main-div.art-div,
+.main-div.design-div {
+  width: 100%;
+}
+.design-div {
+  background-color: var(--dark-design-gold);
+  width: 40%;
+  padding: 32px;
+  display: inline-block;
+}
+
+/* ── Contact form ───────────────────────────────────────────── */
+.contact-container {
+  flex: 0 auto;
+  justify-content: space-between;
+  width: 40%;
+  margin-top: 46px;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+.form-block {
+  flex: 0 auto;
+  align-self: auto;
+  width: auto;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 115px;
+  padding-left: 0;
+  display: block;
+}
+label {
+  display: block;
+  color: rgba(255,255,255,0.8);
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.w-input,
+.textarea {
+  display: block;
+  width: 100%;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 16px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.w-input:focus,
+.textarea:focus {
+  border-color: var(--sky-blue);
+}
+.w-input::placeholder,
+.textarea::placeholder { color: rgba(255,255,255,0.3); }
+.textarea {
+  height: 160px;
+  min-height: auto;
+  overflow: visible;
+  resize: vertical;
+}
+.submit-button {
+  background-color: var(--maroon);
+  color: #fff;
+  border: none;
+  padding: 9px 15px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 16px;
+  cursor: pointer;
+  float: none;
+  text-align: left;
+  transition: opacity 0.2s;
+}
+.submit-button:hover { opacity: 0.85; }
+.success { color: #1f7702; }
+.w-form-done {
+  background-color: #ddd;
+  padding: 20px;
+  text-align: center;
+  display: none;
+}
+.w-form-done.visible { display: block; }
+.w-form-fail {
+  background-color: #ffdede;
+  padding: 10px;
+  margin-top: 10px;
+  display: none;
+}
+
+/* ── Gallery / Portfolio page ───────────────────────────────── */
+.portfolio-div {
+  margin: 29px;
+  display: block;
+}
+.collection-list-wrapper {
+  column-count: 3;
+  column-gap: 2rem;
+  width: 100%;
+}
+.collection-item-image {
+  -webkit-text-fill-color: inherit;
+  background-clip: content-box;
+  border-radius: 8px;
+  width: 100%;
+  margin-bottom: 2rem;
+  display: block;
+}
+
+/* ── Category filter bar ─────────────────────────────────────── */
+.category-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.category-filter button {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.7);
+  padding: 5px 14px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+.category-filter button:hover,
+.category-filter button.active {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.6);
+  color: #fff;
+}
+
+/* ── Project detail pages ────────────────────────────────────── */
+.project-detail {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px;
+}
+.project-hero {
+  width: 100%;
+  border-radius: 6px;
+  margin-bottom: 28px;
+}
+.project-meta {
+  font-size: 13px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--burlywood);
+  margin-bottom: 10px;
+}
+.project-title {
+  color: #fff;
+  font-size: clamp(24px, 4vw, 42px);
+  font-weight: 700;
+  margin-bottom: 24px;
+  line-height: 1.2;
+}
+.project-description {
+  font-size: 20px;
+  line-height: 1.75;
+  color: rgba(255,255,255,0.7);
+  max-width: 720px;
+}
+.project-description p { margin-bottom: 1em; }
+.project-description strong { color: rgba(255,255,255,0.9); }
+.project-description em { font-style: italic; }
+.project-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 32px;
+}
+.project-gallery img { width: 100%; height: auto; }
+.project-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,0.12);
+  font-size: 13px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+}
+.project-nav a { color: rgba(255,255,255,0.5); transition: color 0.2s; }
+.project-nav a:hover { color: #fff; }
+
+/* ── Mobile nav overlay ──────────────────────────────────────── */
+.mobile-nav-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 200;
+  flex-direction: column;
+  padding: 24px;
+  overflow-y: auto;
+}
+.mobile-nav-overlay.open { display: flex; }
+.mobile-nav-close {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 32px;
+  cursor: pointer;
+  align-self: flex-end;
+  line-height: 1;
+  margin-bottom: 32px;
+}
+.mobile-nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.mobile-nav-list li {
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+.mobile-nav-list a {
+  display: block;
+  font-size: 24px;
+  color: #fff;
+  padding: 16px 0;
+  opacity: 0.85;
+}
+.mobile-nav-list a:hover,
+.mobile-nav-list a[aria-current="page"] { opacity: 1; }
+.mobile-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  flex-direction: column;
+  gap: 5px;
+}
+.mobile-hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: #fff;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+/* ≤991px */
+@media screen and (max-width: 991px) {
+  .nav-logo-link-block { padding: 24px 20px; }
+  .section.about { margin-top: 0; }
+  .main-div { padding: 20px; }
+  .main-div.intro-div { padding-left: 1px; padding-right: 1px; }
+  .heading-h2 { font-size: 22px; }
+  .heading-h2.main { margin-top: 13px; font-size: 29px; }
+  .design-heading-h2.sub-heading { margin-top: 0; padding-top: 0; font-size: 22px; }
+  .main-text { margin-bottom: 14px; font-size: 19px; line-height: 1.7em; display: block; }
+  .main-text.gallery-breakpoint-text { padding-left: 11px; display: inline-block; }
+  .main-text.about { margin-bottom: 31px; font-size: 26px; line-height: 2.5rem; }
+  .main-text.text-link.aqua { padding-bottom: 28px; }
+  .main-text.portfolio-description-block { margin-bottom: 22px; }
+  .main-text.leading-adjustment { padding-left: 20px; }
+  .main-text.smaller-text { font-size: 16px; line-height: 1.8rem; }
+  .main-text.challenge-text { font-size: 15px; }
+  .nav-logo-link-block { padding: 18px; }
+  .heading { margin-top: 13px; padding-top: 9px; padding-bottom: 16px; font-size: 28px; line-height: 1.5rem; }
+  .heading.terms { font-size: 29px; line-height: 2.4rem; }
+  .heading.nick-cave { font-size: 28px; }
+  .main-text-list-item { margin-left: -17px; font-size: 22px; line-height: 1.5rem; }
+  .main-text-list-item.number-list { margin-left: -18px; font-size: 19px; line-height: 1.7rem; }
+  .art-color { font-size: 19px; }
+  .art-color.art-link { font-size: 29px; text-decoration: none; }
+  .art-color.home, .design-color { font-size: 19px; }
+  .design-color.design-link { font-size: 29px; }
+  .design-color.home { font-size: 19px; }
+  .div-right-side { order: -1; margin-right: -10px; padding-left: 0; padding-right: 0; }
+  .section-with-left-menu { padding-left: 0; display: flex; }
+  .side-menu { margin-top: -5px; padding-top: 11px; padding-left: 22px; display: none; }
+  .side-menu-text-link { font-size: 16px; line-height: 1.3rem; }
+  .navbar { float: right; width: auto; margin-top: 5px; padding-right: 19px; display: flex; position: relative; }
+  .navbar-side { background-color: var(--black); display: block; }
+  .container-3 { display: inline-block; }
+  .gallery-banner { text-align: left; justify-content: space-between; padding-left: 19px; display: flex; }
+  .heading-2 { margin-top: 19px; font-size: 30px; line-height: 3rem; }
+  .heading-2.about { font-size: 26px; line-height: 2.5rem; }
+  .more-terms { margin-top: 9px; }
+  .contact-container { width: 84%; }
+  .form-block { margin-right: 0; }
+  .collection-list-wrapper { column-count: 2; column-gap: 1.5rem; }
+  .collection-item-image { margin-bottom: 1.5rem; }
+  .portfolio-div { margin: 23px; display: flex; }
+  .what-is-div { flex-direction: column; }
+  .home-headshot { margin-top: 18px; }
+  .portrait-link { width: 100%; }
+  .lead-sentence { margin-top: 8px; margin-bottom: 12px; font-size: 43px; }
+  .art-link.home, .design-link.home, .deco-color, .deco-link, .deco-link.home { font-size: 19px; }
+  .aqua { padding: 12px 20px; }
+  .mobile-hamburger { display: flex; }
+  .collection-list-wrapper { column-count: 2; }
+}
+
+/* ≤767px */
+@media screen and (max-width: 767px) {
+  .nav-logo-link-block { padding: 18px; }
+  .main-div { padding: 16px; }
+  .main-div.art-div, .main-div.design-div { padding-top: 0; padding-bottom: 0; }
+  .heading-h2 { margin-bottom: 1px; font-size: 16px; }
+  .heading-h2.main { margin-top: 26px; font-size: 23px; }
+  .design-heading-h2.sub-heading { font-size: 19px; }
+  .main-text { font-size: 17px; line-height: 1.7em; }
+  .main-text.about { margin-bottom: 21px; font-size: 22px; line-height: 2.1rem; }
+  .main-text.text-link { margin-bottom: 24px; padding-left: 18px; padding-right: 18px; }
+  .main-text.text-link.aqua, .main-text.text-link.olive { margin-bottom: 24px; padding: 15px 18px; }
+  .main-text.portfolio-description-block { margin-bottom: 17px; }
+  .main-text.leading-adjustment { padding-left: 19px; }
+  .main-text.smaller-text { font-size: 14px; line-height: 1.6rem; }
+  .main-text.challenge-text { font-size: 12px; }
+  .nav-logo-link-block { padding: 12px; }
+  .main-text-link { font-size: 17px; }
+  .heading { margin-right: 22px; font-size: 19px; }
+  .heading.terms { line-height: 1.8rem; }
+  .main-text-list-item { margin-left: -23px; font-size: 17px; line-height: 1.5rem; }
+  .main-text-list-item.number-list { margin-left: -20px; font-size: 17px; line-height: 1.5rem; }
+  .art-color { font-size: 17px; }
+  .art-color.art-link { font-size: 23px; }
+  .art-color.home, .design-color { font-size: 17px; }
+  .design-color.design-link { font-size: 23px; }
+  .design-color.home { font-size: 17px; }
+  .div-right-side { margin-right: -15px; padding-left: 0; padding-right: 0; }
+  .section-with-left-menu { margin-left: 22px; }
+  .side-menu { margin-top: 0; padding-top: 0; }
+  .side-menu-text-link { font-size: 14px; line-height: 1.1rem; }
+  .divider-2-px { margin-top: 3px; }
+  .navbar { margin-top: 7px; display: inline-block; }
+  .gallery-banner { padding-top: 2px; padding-bottom: 2px; }
+  .heading-2 { margin-top: 9px; margin-bottom: 12px; line-height: 2.5rem; }
+  .heading-2.about { font-size: 22px; line-height: 2.1rem; }
+  .form-block { margin-right: -11px; }
+  .collection-list-wrapper { column-gap: 1rem; }
+  .collection-item-image { margin-bottom: 1rem; }
+  .portfolio-div { margin: 15px; }
+  .what-is-div { flex-direction: column; padding-left: 22px; padding-right: 22px; }
+  .home-headshot { width: 100%; margin-top: 14px; padding-bottom: 7px; }
+  .lead-sentence { font-size: 34px; }
+  .art-link, .art-link.home, .design-link, .design-link.home { font-size: 17px; }
+  .deco-color, .deco-link, .deco-link.home { font-size: 17px; }
+}
+
+/* ≤479px */
+@media screen and (max-width: 479px) {
+  .section.home-logo { padding-top: 10px; }
+  .nav-logo-link-block { padding: 8px 8px 14px; }
+  .main-div.intro-div { padding-left: 0; padding-right: 0; }
+  .heading-h2.main { margin-top: 0; padding-top: 0; padding-bottom: 3px; font-size: 28px; line-height: 2.1rem; }
+  .design-heading-h2.sub-heading { padding-top: 4px; font-size: 18px; line-height: 1.3rem; }
+  .main-text { padding-left: 0; font-size: 18px; line-height: 1.5em; }
+  .main-text.about { font-size: 15px; line-height: 1.5rem; }
+  .main-text.smaller-text { font-size: 15px; line-height: 1.4rem; }
+  .main-text.lead { margin-bottom: 4px; }
+  .nav-logo-link-block { padding: 8px 8px 14px; }
+  .main-text-link { font-size: 17px; }
+  .heading { margin-top: -2px; padding-bottom: 10px; font-size: 17px; }
+  .heading.terms { font-size: 21px; }
+  .main-text-list-item { margin-left: 10px; padding-left: 0; font-size: 18px; line-height: 1.4rem; }
+  .main-text-list-item.number-list { margin-left: 16px; font-size: 18px; line-height: 1.6rem; }
+  .art-color { font-size: 18px; }
+  .art-color.art-link { font-size: 28px; }
+  .art-color.home, .design-color { font-size: 18px; }
+  .design-color.design-link { font-size: 28px; }
+  .design-color.home { font-size: 18px; }
+  .div-right-side { margin-top: 26px; margin-right: -17px; }
+  .section-with-left-menu { margin-left: 0; padding-left: 23px; }
+  .side-menu { margin-top: 4px; padding-left: 11px; padding-right: 9px; }
+  .side-menu-text-link { font-size: 16px; line-height: 1.1rem; }
+  .side-menu-text-link.w--current { color: gray; font-size: 16px; line-height: 1.1rem; }
+  .navbar { margin-top: 4px; }
+  .navbar-side { margin-top: 31px; margin-left: 0; margin-right: 14px; }
+  .div-side-menu { margin-left: 20px; margin-right: 21px; padding-top: 8px; }
+  .gallery-banner { padding-top: 0; padding-bottom: 0; }
+  .heading-2 { margin-top: 0; font-size: 21px; line-height: 1.8rem; }
+  .heading-2.about { font-size: 15px; line-height: 1.5rem; }
+  .collection-list-wrapper { column-count: 1; }
+  .home-headshot { margin-top: 12px; padding-bottom: 0; }
+  .lead-sentence { margin-top: 0; margin-bottom: 5px; font-size: 33px; }
+  .deco-color { font-size: 18px; }
+}

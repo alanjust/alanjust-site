@@ -1,0 +1,96 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SideNav from '../components/SideNav.astro';
+---
+
+<BaseLayout title="Connect — Alan Just" currentPath="/contact">
+  <section class="section">
+    <div class="section-with-left-menu">
+
+      <SideNav currentPath="/contact" />
+
+      <div class="div-right-side">
+        <div class="contact-container">
+          <h2 class="heading-2">Connect</h2>
+
+          <form
+            class="contact-form"
+            id="contact-form"
+            name="connect"
+            method="POST"
+            data-netlify="true"
+          >
+            <input type="hidden" name="form-name" value="connect" />
+
+            <label for="name">Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              class="w-input"
+              placeholder="Enter your name"
+              maxlength="256"
+              autofocus
+            />
+
+            <label for="email">Email Address</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="w-input"
+              placeholder="name@something.com"
+              maxlength="256"
+              required
+            />
+
+            <label for="message">Message</label>
+            <textarea
+              id="message"
+              name="message"
+              class="textarea"
+              placeholder="Questions or Comments?"
+              maxlength="5000"
+              required
+            ></textarea>
+
+            <button type="submit" class="submit-button">Submit</button>
+          </form>
+
+          <div class="form-success" id="form-success">
+            <p class="main-text" style="text-align:center;">Thank you! Your message has been received.</p>
+          </div>
+        </div>
+      </div><!-- /.div-right-side -->
+    </div><!-- /.section-with-left-menu -->
+  </section>
+</BaseLayout>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement | null;
+  const success = document.getElementById('form-success');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = new FormData(form);
+    try {
+      await fetch('/', { method: 'POST', body: data });
+      form.style.display = 'none';
+      success?.classList.add('visible');
+    } catch {
+      // fallback: just submit normally
+      form.submit();
+    }
+  });
+</script>
+
+<style>
+  .form-success {
+    display: none;
+    padding: 20px;
+    text-align: center;
+  }
+  .form-success.visible {
+    display: block;
+  }
+</style>

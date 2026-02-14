@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SideNav from '../components/SideNav.astro';
+---
+
+<BaseLayout title="About — Alan Just" currentPath="/about">
+  <section class="section about">
+    <div class="section-with-left-menu">
+
+      <SideNav currentPath="/about" />
+
+      <div class="div-right-side">
+
+        <div class="main-div art-div">
+          <h1 class="heading-2 about">Oh boy, this creative shit's hard!</h1>
+          <p class="main-text about">When I first dipped my toes into the world of art and design, I dreamt of being "that guy" - you know, the one who's adored, praised, and as inspirational as a double rainbow. And, more importantly, be predictable. But, surprise, surprise! It didn't quite pan out that way.</p>
+          <p class="main-text about">Instead, I found myself chasing after new ideas, techniques, and art forms like a cat after a laser pointer. I dove down more rabbit holes than Alice herself, and explored countless creative warrens. The tantalizing question of "What if..." has always been my constant companion—and goad. And happily we're still dancing together.</p>
+          <p class="main-text about">Through it all, I've picked up a treasure trove of knowledge about the ins and outs of the art and design biz. And that, my friends, is why I like to kick off conversations with the ultimate head-scratchers: "What is Art?" and "What is Design?" So let's get talking, laughing, and pondering the wonderfully perplexing world of creativity!</p>
+        </div>
+
+        <div class="main-div design-div" style="background-color:var(--dark-design-gold);">
+          <h1 class="heading-2 about">Client list... sort of.</h1>
+          <p class="main-text about">Throughout my journey I've enjoyed working with many clients, such as Pabst Brewing, Petsmart, Lisa Franks, and Harry and David's Gift Packaging Group.</p>
+          <p class="main-text about">I've also served as a Packaging Art Director for a large Midwest agency, lending my expertise to Breyer's Ice Cream, Huggies, and Kleenex/Cottonelle consumer product packaging brands.</p>
+          <p class="main-text about">My favorite client is Scott Laboratories. They are delightful. I am thrilled to design, illustrate, and produce their Winemaking and Cidermaking Fermentation Handbooks. They bring out my best.</p>
+          <p class="main-text about">My client list is long and, to some degree, boring. What I really want is for my art and design to be more interesting than my business conquests.</p>
+        </div>
+
+      </div><!-- /.div-right-side -->
+    </div><!-- /.section-with-left-menu -->
+  </section>
+</BaseLayout>
