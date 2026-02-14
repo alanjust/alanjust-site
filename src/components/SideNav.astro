@@ -15,6 +15,7 @@ const navLinks = [
   { href: '/about',                                  label: 'About' },
   { href: 'https://www.instagram.com/alanalanjustcom/', label: 'Follow', external: true },
   { href: '/contact',                               label: 'Connect' },
+  { href: '/art-wheel',                             label: 'Art Wheel' },
 ];
 
 function isCurrent(href: string) {
@@ -27,25 +28,19 @@ function isCurrent(href: string) {
 <div class="side-menu">
   <nav class="navbar">
     <div class="navbar-side">
-      <div class="container-3">
+      {navLinks.map((link, i) => (
         <div class="div-side-menu">
-          {navLinks.map((link, i) => (
-            <>
-              <a
-                href={link.href}
-                target={link.external ? '_blank' : undefined}
-                rel={link.external ? 'noopener noreferrer' : undefined}
-                class={`side-menu-text-link${isCurrent(link.href) ? ' w--current' : ''}`}
-              >
-                {link.label}
-              </a>
-              {i < navLinks.length - 1 && (
-                <div class={`divider-2-px${i === 0 ? ' _4px-space' : ' with-space'}`}></div>
-              )}
-            </>
-          ))}
+          <a
+            href={link.href}
+            target={link.external ? '_blank' : undefined}
+            rel={link.external ? 'noopener noreferrer' : undefined}
+            class={`side-menu-text-link${isCurrent(link.href) ? ' w--current' : ''}`}
+          >
+            {link.label}
+          </a>
+          <div class={`divider-2-px${i === 0 ? ' _4px-space' : ' with-space'}`}></div>
         </div>
-      </div>
+      ))}
     </div>
   </nav>
 </div>
