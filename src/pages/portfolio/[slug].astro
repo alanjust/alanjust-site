@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { sortProjects } from '../../lib/portfolio';
 
 export async function getStaticPaths() {
   const projects = await getCollection('portfolio');
@@ -14,8 +15,7 @@ const { project } = Astro.props;
 const { Content } = await project.render();
 const data = project.data;
 
-const allProjects = (await getCollection('portfolio', ({ data }) => data.showProject))
-  .sort((a, b) => a.data.sortOrder - b.data.sortOrder);
+const allProjects = sortProjects(await getCollection('portfolio', ({ data }) => data.showProject));
 
 const currentIndex = allProjects.findIndex(p => p.data.projectSlug === data.projectSlug);
 const prev = currentIndex > 0 ? allProjects[currentIndex - 1] : null;

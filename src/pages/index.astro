@@ -2,9 +2,10 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SideNav from '../components/SideNav.astro';
 import { getCollection } from 'astro:content';
+import { sortProjects } from '../lib/portfolio';
 
 const allProjects = await getCollection('portfolio', ({ data }) => data.showProject);
-const projects = allProjects.sort((a, b) => a.data.sortOrder - b.data.sortOrder);
+const projects = sortProjects(allProjects);
 // Filters by kind of work, in this order. Fine Art always last.
 const categoryOrder = ['Packaging', 'Identity', 'Catalogs & Print', 'Illustration', 'Fine Art'];
 const used = new Set(projects.map(p => p.data.category));
