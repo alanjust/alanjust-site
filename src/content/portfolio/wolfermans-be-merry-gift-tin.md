@@ -1,7 +1,7 @@
 ---
 title: "Wolferman's \"Be Merry\" Gift Tin"
 projectSlug: wolfermans-be-merry-gift-tin
-category: "Harry and David"
+category: "Packaging"
 sortOrder: 50
 featured: false
 showProject: true

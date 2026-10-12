@@ -1,7 +1,7 @@
 ---
 title: "PBR Light - Concept for Rebrand"
 projectSlug: pbr-light-concept
-category: "Pabst"
+category: "Packaging"
 sortOrder: 150
 featured: false
 showProject: true

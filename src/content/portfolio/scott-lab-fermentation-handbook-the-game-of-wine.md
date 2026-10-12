@@ -1,7 +1,7 @@
 ---
 title: "Scott Lab Fermentation Handbook the Game Of Wine"
 projectSlug: scott-lab-fermentation-handbook-the-game-of-wine
-category: "Scott Labs"
+category: "Catalogs & Print"
 sortOrder: 190
 featured: false
 showProject: true

@@ -1,7 +1,7 @@
 ---
 title: "Petsmart's Simply Nourish SOURCE Petfood Packaging"
 projectSlug: petsmarts-simply-nourish-source-petfood-packaging
-category: "Petsmart"
+category: "Packaging"
 sortOrder: 70
 featured: false
 showProject: true

@@ -1,7 +1,7 @@
 ---
 title: "Colt Premium Beer Identity"
 projectSlug: colt-premium-beer-identity
-category: "Pabst"
+category: "Identity"
 sortOrder: 220
 featured: false
 showProject: true

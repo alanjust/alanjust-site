@@ -1,7 +1,7 @@
 ---
 title: "Old Milwaukee Sweepstakes"
 projectSlug: old-milwaukee-sweepstakes
-category: "Pabst"
+category: "Catalogs & Print"
 sortOrder: 240
 featured: false
 showProject: true

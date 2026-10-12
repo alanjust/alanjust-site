@@ -1,44 +1,33 @@
 ---
+import { navGroups, isCurrent } from '../lib/nav';
+
 interface Props {
   currentPath?: string;
 }
 
 const { currentPath = '/' } = Astro.props;
-
-const navLinks = [
-  { href: '/',                                      label: 'Home' },
-  { href: '/what-is-art',                           label: 'What is Art?' },
-  { href: '/what-is-design',                        label: 'What is Design?' },
-  { href: '/the-difference-between-art-and-design', label: 'Art & Design Difference' },
-  { href: '/what-is-decorative-art',                label: 'What is Decorative Art?' },
-  { href: '/gallery-of-alans-art-and-design',       label: 'Gallery' },
-  { href: '/about',                                  label: 'About' },
-  { href: 'https://www.instagram.com/alanalanjustcom/', label: 'Follow', external: true },
-  { href: '/contact',                               label: 'Connect' },
-  { href: '/art-wheel',                             label: 'Art Wheel' },
-];
-
-function isCurrent(href: string) {
-  if (href.startsWith('http')) return false;
-  if (href === '/') return currentPath === '/';
-  return currentPath.startsWith(href);
-}
 ---
 
 <div class="side-menu">
-  <nav class="navbar">
+  <nav class="navbar" aria-label="Main">
     <div class="navbar-side">
-      {navLinks.map((link, i) => (
-        <div class="div-side-menu">
-          <a
-            href={link.href}
-            target={link.external ? '_blank' : undefined}
-            rel={link.external ? 'noopener noreferrer' : undefined}
-            class={`side-menu-text-link${isCurrent(link.href) ? ' w--current' : ''}`}
-          >
-            {link.label}
-          </a>
-          <div class={`divider-2-px${i === 0 ? ' _4px-space' : ' with-space'}`}></div>
+      {navGroups.map((group, g) => (
+        <div class={`side-menu-group${g > 0 ? ' spaced' : ''}`}>
+          {group.heading && <p class="side-menu-group-label">{group.heading}</p>}
+          {group.links.map((link, i) => (
+            <div class="div-side-menu">
+              <a
+                href={link.href}
+                target={link.external ? '_blank' : undefined}
+                rel={link.external ? 'noopener noreferrer' : undefined}
+                aria-current={isCurrent(link.href, currentPath) ? 'page' : undefined}
+                class={`side-menu-text-link${isCurrent(link.href, currentPath) ? ' w--current' : ''}`}
+              >
+                {link.label}
+              </a>
+              <div class={`divider-2-px${g === 0 && i === 0 ? ' _4px-space' : ' with-space'}`}></div>
+            </div>
+          ))}
         </div>
       ))}
     </div>

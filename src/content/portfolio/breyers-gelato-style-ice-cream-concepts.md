@@ -1,7 +1,7 @@
 ---
 title: "Breyer's Gelato Style Ice Cream - Concepts"
 projectSlug: breyers-gelato-style-ice-cream-concepts
-category: "Agency"
+category: "Packaging"
 sortOrder: 160
 featured: false
 showProject: true

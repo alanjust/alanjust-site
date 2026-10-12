@@ -1,7 +1,7 @@
 ---
 title: "Scott Lab Fermentation 2009 Handbook"
 projectSlug: scott-lab-fermentation-2009-handbook
-category: "Scott Labs"
+category: "Catalogs & Print"
 sortOrder: 210
 featured: false
 showProject: true

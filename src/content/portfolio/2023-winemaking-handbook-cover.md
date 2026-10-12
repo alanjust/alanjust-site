@@ -1,7 +1,7 @@
 ---
 title: "Scott Laboratories 2023 Winemaking Handbook Cover"
 projectSlug: 2023-winemaking-handbook-cover
-category: "Illustrations"
+category: "Illustration"
 sortOrder: 3
 featured: true
 showProject: true

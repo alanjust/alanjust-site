@@ -1,7 +1,7 @@
 ---
 title: "Tempus Cellars Wine Labels"
 projectSlug: tempus-cellars-wine-labels
-category: "Wine Packaging"
+category: "Packaging"
 sortOrder: 30
 featured: true
 showProject: true

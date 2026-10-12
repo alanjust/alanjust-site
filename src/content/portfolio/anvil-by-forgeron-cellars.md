@@ -1,7 +1,7 @@
 ---
 title: "Anvil by Forgeron Cellars"
 projectSlug: anvil-by-forgeron-cellars
-category: "Wine Packaging"
+category: "Packaging"
 sortOrder: 200
 featured: false
 showProject: true

@@ -1,7 +1,7 @@
 ---
 title: "Old Style Beer Cubs Ivy Can"
 projectSlug: old-style-beer-cubs-ivy-can
-category: "Pabst"
+category: "Packaging"
 sortOrder: 230
 featured: false
 showProject: true

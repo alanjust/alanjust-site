@@ -1,0 +1,90 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SideNav from '../components/SideNav.astro';
+
+const title = 'Design Services | Alan Just, Graphic Designer, Medford, Oregon';
+const description = 'Packaging design, brand identity, catalogs, illustration and website updates from Alan Just, a graphic designer in Medford, Oregon, with 40 years of experience.';
+const url = 'https://alanjust.com/design-services/';
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: 'Alan Just',
+  description,
+  url,
+  email: 'alan@alanjust.com',
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Medford',
+    addressRegion: 'OR',
+    addressCountry: 'US',
+  },
+  areaServed: 'Oregon',
+};
+---
+
+<BaseLayout title={title} description={description} currentPath="/design-services">
+  <Fragment slot="head">
+    <link rel="canonical" href={url} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={url} />
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+  </Fragment>
+
+  <section class="section">
+    <div class="section-with-left-menu">
+
+      <SideNav currentPath="/design-services" />
+
+      <div class="div-right-side">
+        <article class="services-page">
+
+          <h1 class="heading-2 services-title">Design Services</h1>
+
+          <p class="main-text">I'm a graphic designer and illustrator in Medford, Oregon. I've been doing this for 40 years.</p>
+
+          <p class="main-text">Most of that time has gone into packaging. The label, the carton, the bag somebody picks up off a shelf and decides about in about three seconds.</p>
+
+          <p class="cta-line">Have a project? <a href="mailto:alan@alanjust.com" class="cta-link">alan@alanjust.com</a></p>
+
+          <h2 class="services-heading">What I do</h2>
+
+          <p class="main-text"><strong>Packaging design.</strong> Labels, cartons, bags and whole product families. I deliver print-ready files and work directly with your printer.</p>
+
+          <p class="main-text"><strong>Brand identity.</strong> Logos, and the rules that keep them consistent once they're out in the world.</p>
+
+          <p class="main-text"><strong>Catalogs and print.</strong> Product catalogs, sell sheets and the rest of the paper a business needs.</p>
+
+          <p class="main-text"><strong>Illustration.</strong> Drawn and digital, for packaging, print and the web.</p>
+
+          <p class="main-text"><strong>Website content and updates.</strong> New pages, product information, images and copy for sites you already have. I work in modern static sites, and I build to current accessibility standards (WCAG 2.1 AA).</p>
+
+          <h2 class="services-heading">Selected work</h2>
+
+          <p class="main-text"><strong>Pabst Blue Ribbon.</strong> Independent contractor, working directly with the VP of Marketing.</p>
+
+          <p class="main-text"><strong>Breyers.</strong> Art director on the brand at a large agency. Seasonal ice cream packaging and packaging concepts.</p>
+
+          <p class="main-text"><strong>Java Jacket.</strong> The logo for the original cardboard coffee cup sleeve, developed with a small agency.</p>
+
+          <p class="main-text"><strong>Scott Laboratories.</strong> Product catalog, as a direct client.</p>
+
+          <p class="main-text"><strong>Harry &amp; David and PetSmart.</strong> In-house designer.</p>
+
+          <h2 class="services-heading">How I work</h2>
+
+          <p class="main-text">I work from my own studio in Medford, on my own equipment. Most clients never see the studio. They see proofs.</p>
+
+          <p class="main-text">Defined projects get a fixed price, agreed before I start. Ongoing work is billed hourly with a cap.</p>
+
+          <h2 class="services-heading">Start a project</h2>
+
+          <p class="main-text">Email me at <a href="mailto:alan@alanjust.com" class="cta-link">alan@alanjust.com</a>. Tell me what you're making, when you need it and what it has to do.</p>
+
+        </article>
+      </div><!-- /.div-right-side -->
+    </div><!-- /.section-with-left-menu -->
+  </section>
+</BaseLayout>

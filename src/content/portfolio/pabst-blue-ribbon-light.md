@@ -1,7 +1,7 @@
 ---
 title: "PBR Light Bottle and Can Packaging"
 projectSlug: pabst-blue-ribbon-light
-category: "Pabst"
+category: "Packaging"
 sortOrder: 10
 featured: true
 showProject: true

@@ -1,7 +1,7 @@
 ---
 title: "Wolferman's Holiday Tote and Muffin Labels"
 projectSlug: wolfermans-holiday-tote-and-muffin-labels
-category: "Harry and David"
+category: "Packaging"
 sortOrder: 110
 featured: false
 showProject: true

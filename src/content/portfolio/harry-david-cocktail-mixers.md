@@ -1,7 +1,7 @@
 ---
 title: "Harry & David Cocktail Mixers"
 projectSlug: harry-david-cocktail-mixers
-category: "Harry and David"
+category: "Packaging"
 sortOrder: 100
 featured: false
 showProject: true

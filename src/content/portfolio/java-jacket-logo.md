@@ -1,7 +1,7 @@
 ---
 title: "Java Jacket Logo"
 projectSlug: java-jacket-logo
-category: "Logos and Identities"
+category: "Identity"
 sortOrder: 90
 featured: false
 showProject: true

@@ -1,7 +1,7 @@
 ---
 title: "Premium Products for Cidermaking"
 projectSlug: 2022-cidermaking-handbook
-category: "Illustrations"
+category: "Illustration"
 sortOrder: 60
 featured: false
 showProject: true
