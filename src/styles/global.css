@@ -646,8 +646,13 @@ label {
   width: 100%;
 }
 
+/* inline-block + width 100% keeps each item's bottom margin with it.
+   As a plain block, Safari carries that margin to the top of the next
+   column, which pushes that column's first picture down. */
 .masonry-item {
-  display: block;
+  display: inline-block;
+  width: 100%;
+  vertical-align: top;
   break-inside: avoid;
   position: relative;
   margin-bottom: 1.5rem;
