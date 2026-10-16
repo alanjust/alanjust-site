@@ -3,11 +3,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SideNav from '../components/SideNav.astro';
 import { getCollection } from 'astro:content';
 import { sortProjects } from '../lib/portfolio';
+import sharp from 'sharp';
+import path from 'node:path';
 
 const allProjects = await getCollection('portfolio', ({ data }) => data.showProject);
 const projects = sortProjects(allProjects);
+
+// Image sizes, so each picture's height is known before it loads.
+// The row-order layout script below depends on these.
+const sizes = await Promise.all(projects.map(async p => {
+  if (!p.data.heroImage) return null;
+  const { width, height } = await sharp(path.join(process.cwd(), 'public', p.data.heroImage)).metadata();
+  return { width, height };
+}));
 // Filters by kind of work, in this order. Fine Art always last.
-const categoryOrder = ['Packaging', 'Identity', 'Catalogs & Print', 'Illustration', 'Fine Art'];
+const categoryOrder = ['Packaging', 'Identity', 'Catalogs & Print', 'Illustration', 'Web & Apps', 'Fine Art'];
 const used = new Set(projects.map(p => p.data.category));
 const categories = ['All', ...categoryOrder.filter(c => used.has(c))];
 ---
@@ -39,7 +49,7 @@ const categories = ['All', ...categoryOrder.filter(c => used.has(c))];
 
         <!-- Masonry columns container -->
         <div class="masonry" id="masonry">
-          {projects.map(project => (
+          {projects.map((project, i) => (
             <a
               href={`/portfolio/${project.data.projectSlug}`}
               class="masonry-item"
@@ -49,6 +59,8 @@ const categories = ['All', ...categoryOrder.filter(c => used.has(c))];
                 <img
                   src={project.data.heroImage}
                   alt={project.data.title}
+                  width={sizes[i]?.width}
+                  height={sizes[i]?.height}
                   loading="lazy"
                 />
               )}
@@ -72,6 +84,39 @@ const categories = ['All', ...categoryOrder.filter(c => used.has(c))];
   const filterBar = document.getElementById('category-filter');
   const masonry = document.getElementById('masonry');
 
+  // Row-order masonry: each picture goes, in order, into whichever column
+  // is shortest, so the gallery reads left to right. Without this script
+  // the CSS columns still show everything, just in column order.
+  let lastWidth = 0;
+  function layout(force = false) {
+    if (!masonry) return;
+    const width = masonry.clientWidth;
+    if (!force && width === lastWidth) return;
+    lastWidth = width;
+
+    const style = getComputedStyle(masonry);
+    const cols = parseInt(style.getPropertyValue('--cols'), 10) || 3;
+    const gap = parseFloat(style.getPropertyValue('--gap')) || 24;
+    const colWidth = (width - gap * (cols - 1)) / cols;
+    const items = [...masonry.querySelectorAll<HTMLElement>('.masonry-item:not(.hidden)')];
+
+    masonry.classList.add('is-laid-out');
+    items.forEach(item => { item.style.width = `${colWidth}px`; });
+    const heights = items.map(item => item.offsetHeight);
+
+    const colHeights = new Array(cols).fill(0);
+    items.forEach((item, i) => {
+      const col = colHeights.indexOf(Math.min(...colHeights));
+      item.style.left = `${col * (colWidth + gap)}px`;
+      item.style.top = `${colHeights[col]}px`;
+      colHeights[col] += heights[i] + gap;
+    });
+    masonry.style.height = `${Math.max(0, Math.max(...colHeights) - gap)}px`;
+  }
+
+  layout(true);
+  new ResizeObserver(() => layout()).observe(masonry!);
+
   filterBar?.addEventListener('click', (e) => {
     const btn = (e.target as HTMLElement).closest('button');
     if (!btn) return;
@@ -86,10 +131,10 @@ const categories = ['All', ...categoryOrder.filter(c => used.has(c))];
     btn.classList.add('active');
     btn.setAttribute('aria-pressed', 'true');
 
-    // Show/hide items — using class toggle so CSS columns reflow naturally
     masonry?.querySelectorAll<HTMLElement>('.masonry-item').forEach(item => {
       const match = filter === 'All' || item.dataset.category === filter;
       item.classList.toggle('hidden', !match);
     });
+    layout(true);
   });
 </script>
