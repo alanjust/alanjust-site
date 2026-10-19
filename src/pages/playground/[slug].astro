@@ -1,0 +1,107 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SideNav from '../../components/SideNav.astro';
+import { playgroundProjects, playgroundTypes, DEMOS_ORIGIN, type PlaygroundProject } from '../../lib/playground';
+
+export async function getStaticPaths() {
+  return (await playgroundProjects()).map(project => ({ params: { slug: project.slug }, props: { project } }));
+}
+
+const { project } = Astro.props as { project: PlaygroundProject };
+const { Content } = await project.render();
+const data = project.data;
+const url = `https://alanjust.com/playground/${project.slug}/`;
+const title = `${data.title} | Playground | Alan Just`;
+const demoUrl = `${DEMOS_ORIGIN}/${project.slug}/`;
+const iterations = [...data.iterations].sort((a, b) => b.date.getTime() - a.date.getTime());
+const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+const ogImage = data.cover ? new URL(data.cover, 'https://alanjust.com').toString() : undefined;
+---
+
+<BaseLayout title={title} description={data.summary} currentPath="/playground">
+  <Fragment slot="head">
+    <link rel="canonical" href={url} />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content={data.title} />
+    <meta property="og:description" content={data.summary} />
+    <meta property="og:url" content={url} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    {data.draft && <meta name="robots" content="noindex" />}
+  </Fragment>
+
+  <section class="section">
+    <div class="section-with-left-menu">
+      <SideNav currentPath="/playground" />
+      <div class="div-right-side">
+        <article class="playground-page playground-project" data-playground-project data-slug={project.slug}>
+          <p class="portal-crumb"><a href="/playground/">Playground</a></p>
+          <p class="playground-type">{playgroundTypes[data.type]}{data.draft && ' · Draft'}</p>
+          <h1 class="heading-2 playground-title">{data.title}</h1>
+          <p class="playground-summary">{data.summary}</p>
+          <p class="portal-meta">{fmt(data.date)}</p>
+
+          {data.demo && (
+            <figure class="playground-demo">
+              <iframe
+                src={demoUrl}
+                title={`${data.title}, live demo`}
+                style={`--demo-height: ${data.demoHeight}px`}
+                sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock allow-popups allow-modals"
+                allow="fullscreen; clipboard-write; accelerometer; gyroscope"
+                loading="lazy"
+              ></iframe>
+              <figcaption class="portal-links">
+                <a class="cta-link" href={demoUrl} target="_blank" rel="noopener">Open full screen</a>
+              </figcaption>
+            </figure>
+          )}
+
+          <div class="project-description playground-writeup">
+            <Content />
+          </div>
+
+          {iterations.length > 0 && (
+            <section class="playground-iterations" aria-labelledby="iterations-heading">
+              <h2 class="services-heading" id="iterations-heading">How it's going</h2>
+              <ol class="playground-timeline">
+                {iterations.map((it, i) => (
+                  <li class="playground-iteration">
+                    <p class="portal-meta">{fmt(it.date)}{i === 0 && ' · latest'}</p>
+                    <a href={it.image} target="_blank" rel="noopener">
+                      <img src={it.image} alt={`${data.title}, ${fmt(it.date)}`} loading={i === 0 ? 'eager' : 'lazy'} />
+                    </a>
+                    {it.note && <p class="playground-iteration-note">{it.note}</p>}
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )}
+
+          <!-- Comments: shown only to people who opened Alan's invite link -->
+          <section class="playground-comments" id="playground-comments" aria-labelledby="comments-heading" hidden>
+            <h2 class="services-heading" id="comments-heading">Comments</h2>
+            <p class="portal-meta">Only you and the other people Alan invited can see these.</p>
+            <ol class="portal-comments" id="playground-comment-list"></ol>
+            <form class="portal-comment-form" id="playground-comment-form">
+              <label class="portal-label">Your name
+                <input type="text" name="name" maxlength="60" required autocomplete="name" />
+              </label>
+              <label class="portal-label">Comment
+                <textarea name="body" rows="4" maxlength="4000" required></textarea>
+              </label>
+              <p class="portal-error" role="alert" hidden></p>
+              <button type="submit" class="portal-button">Post comment</button>
+            </form>
+          </section>
+          <p class="portal-meta" id="playground-invite-expired" hidden>This invite link has been replaced. Ask Alan for the new one.</p>
+
+          <p class="portal-back"><a class="cta-link" href="/playground/">← All Playground projects</a></p>
+        </article>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import '../../scripts/playground-comments';
+</script>

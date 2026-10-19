@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SideNav from '../../components/SideNav.astro';
+import { playgroundProjects, playgroundTypes } from '../../lib/playground';
+
+// Alan's page for Playground invite links and comments. The Worker only
+// serves it to him.
+const projects = await playgroundProjects({ includeDrafts: true });
+---
+
+<BaseLayout title="Playground invites | Client Portal" description="Private." currentPath="/portal">
+  <Fragment slot="head"><meta name="robots" content="noindex, nofollow" /></Fragment>
+  <section class="section">
+    <div class="section-with-left-menu">
+      <SideNav currentPath="/portal" />
+      <div class="div-right-side">
+        <div class="portal-page" data-playground-admin>
+          <p class="portal-crumb"><a href="/portal/">Client Portal</a></p>
+          <h1 class="heading-2 portal-title">Playground invites</h1>
+          <p class="main-text">Each project can have one invite link. Anyone with the link can read and add comments; nobody else sees them. Reset a link if it travels too far, and the old one stops working.</p>
+          <p class="portal-error" id="pg-admin-error" role="alert" hidden></p>
+          <ul class="playground-admin-list">
+            {projects.map(p => (
+              <li class="playground-admin-item" data-slug={p.slug}>
+                <p class="playground-type">{playgroundTypes[p.data.type]}{p.data.draft && ' · Draft (not on the live site)'}</p>
+                <h2><a href={`/playground/${p.slug}/`}>{p.data.title}</a></h2>
+                <div class="playground-admin-link" data-link-area></div>
+                <details class="portal-earlier" data-comments>
+                  <summary>Comments</summary>
+                  <ol class="portal-comments"></ol>
+                </details>
+              </li>
+            ))}
+          </ul>
+          {projects.length === 0 && <p class="portal-empty">No Playground projects yet.</p>}
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import '../../scripts/playground-admin';
+</script>

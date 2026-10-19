@@ -1,0 +1,16 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  // demos.alanjust.com: Playground demos live here, apart from the main site,
+  // so experimental code can't reach alanjust.com's pages or the client portal.
+  // Static files only—no Worker code. Each demo is a folder in site/.
+  "name": "alanjust-demos",
+  "account_id": "66aecc29fb325281e6f09817253c4207",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./site",
+    "not_found_handling": "404-page"
+  },
+  "routes": [
+    { "pattern": "demos.alanjust.com", "custom_domain": true }
+  ]
+}

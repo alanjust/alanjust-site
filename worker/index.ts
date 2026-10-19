@@ -4,6 +4,7 @@
 
 import { getUser, canSee } from './auth';
 import { handlePortalApi, cleanUp } from './portal';
+import { handlePlaygroundApi, handlePlaygroundAdmin } from './playground';
 import { findClient } from '../src/lib/portal';
 
 const privateHeaders = {
@@ -40,7 +41,9 @@ export default {
       if (!user) return Response.json({ error: 'Please sign in again.' }, { status: 401, headers: privateHeaders });
       const path = url.pathname.slice('/api/portal/'.length).split('/').filter(Boolean).map(decodeURIComponent);
       try {
-        const res = await handlePortalApi(request, env, user, path);
+        const res = path[0] === 'playground'
+          ? await handlePlaygroundAdmin(request, env, user, path.slice(1))
+          : await handlePortalApi(request, env, user, path);
         for (const [k, v] of Object.entries(privateHeaders)) if (!res.headers.has(k)) res.headers.set(k, v);
         return res;
       } catch (err) {
@@ -53,12 +56,27 @@ export default {
       const user = await getUser(request, env);
       if (!user) return notAllowed();
       const clientId = url.pathname.split('/')[2];
-      if (clientId && (!findClient(clientId) || !canSee(user, clientId))) return notAllowed();
+      if (clientId === 'playground') {
+        if (!user.isAdmin) return notAllowed();
+      } else if (clientId && (!findClient(clientId) || !canSee(user, clientId))) {
+        return notAllowed();
+      }
 
       const asset = await env.ASSETS.fetch(request);
       const res = new Response(asset.body, asset);
       for (const [k, v] of Object.entries(privateHeaders)) res.headers.set(k, v);
       return res;
+    }
+
+    // Playground comments: public address, but every request needs an invite token.
+    if (url.pathname.startsWith('/api/playground/')) {
+      const path = url.pathname.slice('/api/playground/'.length).split('/').filter(Boolean).map(decodeURIComponent);
+      try {
+        return await handlePlaygroundApi(request, env, path);
+      } catch (err) {
+        console.error('playground api', url.pathname, err);
+        return Response.json({ error: 'Something went wrong on the server.' }, { status: 500 });
+      }
     }
 
     if (url.pathname.startsWith('/api/')) {

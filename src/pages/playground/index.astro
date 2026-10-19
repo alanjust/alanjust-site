@@ -1,0 +1,58 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SideNav from '../../components/SideNav.astro';
+import { playgroundProjects, playgroundTypes } from '../../lib/playground';
+
+const projects = await playgroundProjects();
+const title = 'Playground | Alan Just';
+const description = 'Experiments, code sketches and works in progress from Alan Just, a designer and illustrator in Medford, Oregon.';
+const url = 'https://alanjust.com/playground/';
+const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+---
+
+<BaseLayout title={title} description={description} currentPath="/playground">
+  <Fragment slot="head">
+    <link rel="canonical" href={url} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={url} />
+    {projects.length === 0 && <meta name="robots" content="noindex" />}
+  </Fragment>
+
+  <section class="section">
+    <div class="section-with-left-menu">
+      <SideNav currentPath="/playground" />
+      <div class="div-right-side">
+        <div class="playground-page">
+          <h1 class="heading-2 playground-title">Playground</h1>
+          <p class="main-text playground-intro">Things I'm trying out. Some are bits of code you can poke at, some are pictures still being worked on. None of it is finished, which is the point.</p>
+
+          {projects.length === 0 ? (
+            <p class="portal-empty">Nothing here yet. Check back soon.</p>
+          ) : (
+            <ul class="playground-grid">
+              {projects.map(p => (
+                <li>
+                  <a class="playground-card" href={`/playground/${p.slug}/`}>
+                    <span class="playground-card-cover">
+                      {p.data.cover
+                        ? <img src={p.data.cover} alt="" loading="lazy" />
+                        : <span class="playground-card-blank">{playgroundTypes[p.data.type]}</span>}
+                    </span>
+                    <span class="playground-card-body">
+                      <span class="playground-type">{playgroundTypes[p.data.type]}{p.data.draft && ' · Draft'}</span>
+                      <span class="playground-card-title">{p.data.title}</span>
+                      <span class="playground-card-summary">{p.data.summary}</span>
+                      <span class="portal-meta">{fmt(p.data.date)}</span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

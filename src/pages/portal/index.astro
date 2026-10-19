@@ -35,6 +35,10 @@ import SideNav from '../../components/SideNav.astro';
       return;
     }
     document.getElementById('portal-signed-in')!.textContent = `Signed in as ${me.email}.`;
+    if (me.isAdmin) {
+      list.append(el('p', { class: 'main-text' },
+        el('a', { class: 'cta-link', href: '/portal/playground/' }, 'Playground invite links and comments')));
+    }
     for (const c of me.clients) {
       list.append(el('section', { class: 'portal-client' },
         el('h2', { class: 'services-heading' }, el('a', { href: `/portal/${c.id}/` }, c.name)),

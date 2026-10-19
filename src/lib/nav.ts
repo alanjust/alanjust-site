@@ -1,6 +1,8 @@
 // Site navigation—one list shared by the desktop side menu (SideNav.astro)
 // and the mobile overlay (BaseLayout.astro).
 
+import { hasPublishedPlayground } from './playground';
+
 export interface NavLink {
   href: string;
   label: string;
@@ -28,6 +30,8 @@ export const navGroups: NavGroup[] = [
   {
     links: [
       { href: '/portal', label: 'Client Portal' },
+      // Appears once the first Playground project is published.
+      ...(hasPublishedPlayground ? [{ href: '/playground', label: 'Playground' }] : []),
     ],
   },
   {

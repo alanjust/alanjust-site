@@ -1,0 +1,6 @@
+# Demos may only be framed by alanjust.com (and the local preview), and stay
+# out of search: the Playground page on alanjust.com is what Google should find.
+/*
+  Content-Security-Policy: frame-ancestors 'self' https://alanjust.com https://www.alanjust.com http://localhost:8787
+  X-Robots-Tag: noindex
+  X-Content-Type-Options: nosniff
