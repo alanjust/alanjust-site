@@ -1,0 +1,78 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import SideNav from '../../../components/SideNav.astro';
+import { portalClients, FILE_RETENTION_DAYS, type PortalClient, type PortalSpace } from '../../../lib/portal';
+
+// The Worker only serves this page to people allowed to see this client.
+export function getStaticPaths() {
+  return portalClients.flatMap(client =>
+    client.spaces.map(space => ({ params: { client: client.id, space: space.id }, props: { client, space } })),
+  );
+}
+
+const { client, space } = Astro.props as { client: PortalClient; space: PortalSpace };
+---
+
+<BaseLayout title={`${space.name} | ${client.name}`} description="Private client area." currentPath="/portal">
+  <Fragment slot="head"><meta name="robots" content="noindex, nofollow" /></Fragment>
+  <section class="section">
+    <div class="section-with-left-menu">
+      <SideNav currentPath="/portal" />
+      <div class="div-right-side">
+        <div class="portal-page" data-portal-space data-client={client.id} data-space={space.id}>
+          <p class="portal-crumb"><a href={`/portal/${client.id}/`}>{client.name}</a></p>
+          <h1 class="heading-2 portal-title">{space.name}</h1>
+
+          <div class="portal-tabs" role="tablist" aria-label="Sections">
+            <button type="button" role="tab" id="tab-files" data-tab="files" aria-controls="panel-files" aria-selected="true">Files</button>
+            <button type="button" role="tab" id="tab-reviews" data-tab="reviews" aria-controls="panel-reviews" aria-selected="false">Reviews</button>
+          </div>
+
+          <!-- Files: two-way transfer -->
+          <div class="portal-panel" role="tabpanel" id="panel-files" aria-labelledby="tab-files">
+            <p class="main-text">A drop box for anything that needs to go back and forth: Illustrator files, fonts, Word documents, zip files. Files are deleted automatically after {FILE_RETENTION_DAYS} days, so keep your own copy.</p>
+            <label class="portal-drop" id="portal-drop">
+              <input type="file" id="portal-file-input" multiple class="portal-visually-hidden" />
+              <span class="portal-drop-text">Drop files here, or <span class="cta-link">choose files</span></span>
+              <span class="portal-meta">Up to 2 GB each</span>
+            </label>
+            <ul class="portal-upload-queue" id="portal-upload-queue"></ul>
+            <p class="portal-error" id="portal-files-error" role="alert" hidden></p>
+            <div id="portal-file-list"><p class="portal-empty">Loading…</p></div>
+          </div>
+
+          <!-- Reviews: proofs and shared comments -->
+          <div class="portal-panel" role="tabpanel" id="panel-reviews" aria-labelledby="tab-reviews" hidden>
+            <p class="main-text">Proofs to look over. Everyone on your team sees every comment, so read what's already there before adding yours.</p>
+
+            <form class="portal-post-proof" id="portal-post-proof" hidden>
+              <h2 class="portal-form-title">Post a proof</h2>
+              <label class="portal-label">This is
+                <select name="proof"><option value="">A new proof</option></select>
+              </label>
+              <label class="portal-label" id="portal-title-field">Title
+                <input type="text" name="title" maxlength="140" placeholder="Cider label, front" />
+              </label>
+              <label class="portal-label">File (PDF, JPEG or PNG)
+                <input type="file" name="file" accept="application/pdf,image/jpeg,image/png" required />
+              </label>
+              <label class="portal-label">Note for reviewers (optional)
+                <textarea name="note" rows="2" maxlength="1000"></textarea>
+              </label>
+              <progress max="1" value="0" hidden></progress>
+              <p class="portal-error" role="alert" hidden></p>
+              <button type="submit" class="portal-button">Post proof</button>
+            </form>
+
+            <p class="portal-error" id="portal-reviews-error" role="alert" hidden></p>
+            <div id="portal-proof-list"><p class="portal-empty">Loading…</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import '../../../scripts/portal-space';
+</script>

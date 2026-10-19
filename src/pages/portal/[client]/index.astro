@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import SideNav from '../../../components/SideNav.astro';
+import { portalClients, type PortalClient } from '../../../lib/portal';
+
+// The Worker only serves this page to people allowed to see this client.
+export function getStaticPaths() {
+  return portalClients.map(client => ({ params: { client: client.id }, props: { client } }));
+}
+
+const { client } = Astro.props as { client: PortalClient };
+---
+
+<BaseLayout title={`${client.name} | Client Portal`} description="Private client area." currentPath="/portal">
+  <Fragment slot="head"><meta name="robots" content="noindex, nofollow" /></Fragment>
+  <section class="section">
+    <div class="section-with-left-menu">
+      <SideNav currentPath="/portal" />
+      <div class="div-right-side">
+        <div class="portal-page">
+          <p class="portal-crumb">Client Portal</p>
+          <h1 class="heading-2 portal-title">{client.name}</h1>
+          <p class="main-text">Pick a project area. Each one has a place to swap files and a place to review proofs.</p>
+          <ul class="portal-space-cards">
+            {client.spaces.map(space => (
+              <li>
+                <a class="portal-space-card" href={`/portal/${client.id}/${space.id}/`}>
+                  <span class="portal-space-name">{space.name}</span>
+                  <span class="portal-meta">{space.blurb}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

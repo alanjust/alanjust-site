@@ -35,5 +35,16 @@
     }
   ],
 
+  // Who runs the portal, and which Cloudflare Access app guards it.
+  // ACCESS_* come from Zero Trust → Access → Applications → alanjust portal.
+  "vars": {
+    "ADMIN_EMAIL": "alan@alanjust.com",
+    "ACCESS_TEAM_DOMAIN": "",
+    "ACCESS_AUD": ""
+  },
+
+  // Daily cleanup of old transfer files and abandoned uploads (3 a.m. Pacific)
+  "triggers": { "crons": ["0 10 * * *"] },
+
   "observability": { "enabled": true }
 }

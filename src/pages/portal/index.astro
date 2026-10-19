@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SideNav from '../../components/SideNav.astro';
+// Which clients someone sees comes from the server after sign-in, so client
+// names never appear in this page or its script.
+---
+
+<BaseLayout title="Client Portal | Alan Just" description="Private client area." currentPath="/portal">
+  <Fragment slot="head"><meta name="robots" content="noindex, nofollow" /></Fragment>
+  <section class="section">
+    <div class="section-with-left-menu">
+      <SideNav currentPath="/portal" />
+      <div class="div-right-side">
+        <div class="portal-page">
+          <h1 class="heading-2 portal-title">Client Portal</h1>
+          <p class="main-text" id="portal-signed-in"></p>
+          <div id="portal-clients"></div>
+          <p class="portal-error" id="portal-error" role="alert" hidden></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { api, el } from '../../scripts/portal-api';
+
+  interface Me { email: string; isAdmin: boolean; clients: { id: string; name: string; spaces: { id: string; name: string; blurb: string }[] }[] }
+
+  const list = document.getElementById('portal-clients')!;
+  const error = document.getElementById('portal-error')!;
+  api<Me>('me').then(me => {
+    if (me.clients.length === 1 && !me.isAdmin) {
+      location.replace(`/portal/${me.clients[0].id}/`);
+      return;
+    }
+    document.getElementById('portal-signed-in')!.textContent = `Signed in as ${me.email}.`;
+    for (const c of me.clients) {
+      list.append(el('section', { class: 'portal-client' },
+        el('h2', { class: 'services-heading' }, el('a', { href: `/portal/${c.id}/` }, c.name)),
+        el('ul', { class: 'portal-space-cards' }, ...c.spaces.map(s =>
+          el('li', {}, el('a', { class: 'portal-space-card', href: `/portal/${c.id}/${s.id}/` },
+            el('span', { class: 'portal-space-name' }, s.name),
+            el('span', { class: 'portal-meta' }, s.blurb)))),
+        ),
+      ));
+    }
+  }).catch(err => { error.textContent = err.message; error.hidden = false; });
+</script>
