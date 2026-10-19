@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { navGroups, isCurrent } from '../lib/nav';
+import { navGroups, isCurrent, groupIsCurrent } from '../lib/nav';
 
 interface Props {
   title?: string;
@@ -64,23 +64,37 @@ const {
     <div class="mobile-nav-overlay" id="mobile-nav" role="dialog" aria-label="Navigation">
       <button class="mobile-nav-close" id="nav-close" aria-label="Close navigation">&times;</button>
       <ul class="mobile-nav-list">
-        {navGroups.map(group => (
-          <>
-            {group.heading && <li class="mobile-nav-group-label">{group.heading}</li>}
-            {group.links.map(link => (
-              <li>
-                <a
-                  href={link.href}
-                  target={link.external ? '_blank' : undefined}
-                  rel={link.external ? 'noopener noreferrer' : undefined}
-                  aria-current={isCurrent(link.href, currentPath) ? 'page' : undefined}
-                >
-                  {link.label}
-                </a>
+        {navGroups.map((group, g) => {
+          const links = group.links.map(link => (
+            <li>
+              <a
+                href={link.href}
+                target={link.external ? '_blank' : undefined}
+                rel={link.external ? 'noopener noreferrer' : undefined}
+                aria-current={isCurrent(link.href, currentPath) ? 'page' : undefined}
+              >
+                {link.label}
+              </a>
+            </li>
+          ));
+          if (group.collapsible) {
+            return (
+              <li class="mobile-nav-collapsible">
+                <details open={groupIsCurrent(group, currentPath)}>
+                  <summary class="mobile-nav-group-label">{group.heading}</summary>
+                  <ul class="mobile-nav-sublist">{links}</ul>
+                </details>
               </li>
-            ))}
-          </>
-        ))}
+            );
+          }
+          return (
+            <>
+              {group.heading && <li class="mobile-nav-group-label">{group.heading}</li>}
+              {!group.heading && g > 0 && <li class="mobile-nav-spacer" aria-hidden="true"></li>}
+              {links}
+            </>
+          );
+        })}
       </ul>
     </div>
 

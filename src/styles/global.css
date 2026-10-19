@@ -761,6 +761,46 @@ label {
   padding: 28px 0 8px;
 }
 
+/* Collapsible groups (Writing): folded shut unless you're on one of its pages */
+.side-menu-collapsible > summary,
+.mobile-nav-collapsible summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.side-menu-collapsible > summary::-webkit-details-marker,
+.mobile-nav-collapsible summary::-webkit-details-marker { display: none; }
+.side-menu-collapsible > summary::after,
+.mobile-nav-collapsible summary::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 0.15s ease;
+}
+.side-menu-collapsible[open] > summary::after,
+.mobile-nav-collapsible details[open] summary::after { transform: rotate(45deg); }
+.side-menu-collapsible > summary:hover,
+.mobile-nav-collapsible summary:hover { color: var(--white); }
+.side-menu-collapsible:not([open]) > summary { margin-bottom: 0; }
+.side-menu-collapsible > summary:focus-visible,
+.mobile-nav-collapsible summary:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
+.mobile-nav-collapsible summary.mobile-nav-group-label {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  padding: 28px 0 16px;
+}
+.mobile-nav-collapsible details:not([open]) summary.mobile-nav-group-label { padding-bottom: 0; }
+.mobile-nav-sublist { list-style: none; margin: 0; padding: 0; }
+.mobile-nav-list li.mobile-nav-collapsible { border-bottom: 0; }
+.mobile-nav-list li.mobile-nav-spacer { border-bottom: 0; height: 28px; }
+
 /* ── Home intro (headline above the gallery) ────────────────── */
 .home-intro {
   max-width: 900px;

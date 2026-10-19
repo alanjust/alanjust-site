@@ -1,5 +1,5 @@
 ---
-import { navGroups, isCurrent } from '../lib/nav';
+import { navGroups, isCurrent, groupIsCurrent } from '../lib/nav';
 
 interface Props {
   currentPath?: string;
@@ -11,10 +11,8 @@ const { currentPath = '/' } = Astro.props;
 <div class="side-menu">
   <nav class="navbar" aria-label="Main">
     <div class="navbar-side">
-      {navGroups.map((group, g) => (
-        <div class={`side-menu-group${g > 0 ? ' spaced' : ''}`}>
-          {group.heading && <p class="side-menu-group-label">{group.heading}</p>}
-          {group.links.map((link, i) => (
+      {navGroups.map((group, g) => {
+        const links = group.links.map((link, i) => (
             <div class="div-side-menu">
               <a
                 href={link.href}
@@ -27,9 +25,20 @@ const { currentPath = '/' } = Astro.props;
               </a>
               <div class={`divider-2-px${g === 0 && i === 0 ? ' _4px-space' : ' with-space'}`}></div>
             </div>
-          ))}
-        </div>
-      ))}
+          ));
+        const groupClass = `side-menu-group${g > 0 ? ' spaced' : ''}`;
+        return group.collapsible ? (
+          <details class={`${groupClass} side-menu-collapsible`} open={groupIsCurrent(group, currentPath)}>
+            <summary class="side-menu-group-label">{group.heading}</summary>
+            {links}
+          </details>
+        ) : (
+          <div class={groupClass}>
+            {group.heading && <p class="side-menu-group-label">{group.heading}</p>}
+            {links}
+          </div>
+        );
+      })}
     </div>
   </nav>
 </div>

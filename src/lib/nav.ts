@@ -9,6 +9,8 @@ export interface NavLink {
 
 export interface NavGroup {
   heading?: string;
+  /** Folded shut under its heading unless you're on one of its pages. */
+  collapsible?: boolean;
   links: NavLink[];
 }
 
@@ -23,6 +25,7 @@ export const navGroups: NavGroup[] = [
   },
   {
     heading: 'Writing',
+    collapsible: true,
     links: [
       { href: '/im-on-a-quest',                         label: "I'm on a quest" },
       { href: '/what-is-art',                           label: 'What is Art?' },
@@ -31,7 +34,16 @@ export const navGroups: NavGroup[] = [
       { href: '/the-difference-between-art-and-design', label: 'Art & Design Difference' },
     ],
   },
+  {
+    links: [
+      { href: '/portal', label: 'Client Portal' },
+    ],
+  },
 ];
+
+export function groupIsCurrent(group: NavGroup, currentPath: string) {
+  return group.links.some(link => isCurrent(link.href, currentPath));
+}
 
 export function isCurrent(href: string, currentPath: string) {
   if (href.startsWith('http')) return false;
