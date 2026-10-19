@@ -23,6 +23,13 @@ export const navGroups: NavGroup[] = [
       { href: '/contact',         label: 'Contact' },
     ],
   },
+  // Client Portal (and Playground, when it arrives) sit above Writing,
+  // which always stays last.
+  {
+    links: [
+      { href: '/portal', label: 'Client Portal' },
+    ],
+  },
   {
     heading: 'Writing',
     collapsible: true,
@@ -32,11 +39,6 @@ export const navGroups: NavGroup[] = [
       { href: '/what-is-design',                        label: 'What is Design?' },
       { href: '/what-is-decorative-art',                label: 'What is Decorative Art?' },
       { href: '/the-difference-between-art-and-design', label: 'Art & Design Difference' },
-    ],
-  },
-  {
-    links: [
-      { href: '/portal', label: 'Client Portal' },
     ],
   },
 ];

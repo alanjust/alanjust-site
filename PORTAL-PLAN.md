@@ -113,9 +113,9 @@ Then `npm run deploy`.
 
 ---
 
-## Menu (lands in Phase 2, gains Playground in Phase 3)
+## Menu
 
-A third group at the bottom of `src/lib/nav.ts`:
+Writing always stays last, folded shut under its heading. Client Portal (and Playground, once it exists) sit just above it:
 
 ```
 Work
@@ -123,14 +123,11 @@ Design Services
 About
 Contact
 
-WRITING
-…
-
 Client Portal
 Playground
-```
 
-No group heading. The extra space above it is enough of a break. I'll confirm the look with you before changing it.
+WRITING ›
+```
 
 ---
 
