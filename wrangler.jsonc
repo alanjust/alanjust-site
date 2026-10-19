@@ -39,8 +39,8 @@
   // ACCESS_* come from Zero Trust → Access → Applications → alanjust portal.
   "vars": {
     "ADMIN_EMAIL": "alan@alanjust.com",
-    "ACCESS_TEAM_DOMAIN": "",
-    "ACCESS_AUD": ""
+    "ACCESS_TEAM_DOMAIN": "hidden-grammar.cloudflareaccess.com",
+    "ACCESS_AUD": "61c4dfd9134188168c2450e3b2a904a1f0513e4d361224c9a6d743bfcb9785ad"
   },
 
   // Daily cleanup of old transfer files and abandoned uploads (3 a.m. Pacific)

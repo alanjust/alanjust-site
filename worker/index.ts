@@ -29,6 +29,12 @@ export default {
       return Response.json({ ok: true, db: db?.ok === 1, bucket: Array.isArray(bucket.objects) });
     }
 
+    // Access guards alanjust.com only, so send www visitors to the guarded address.
+    if (url.hostname.startsWith('www.') && (url.pathname.startsWith('/portal') || url.pathname.startsWith('/api/portal/'))) {
+      url.hostname = url.hostname.slice(4);
+      return Response.redirect(url.toString(), 301);
+    }
+
     if (url.pathname.startsWith('/api/portal/')) {
       const user = await getUser(request, env);
       if (!user) return Response.json({ error: 'Please sign in again.' }, { status: 401, headers: privateHeaders });
