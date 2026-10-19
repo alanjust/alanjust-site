@@ -1,7 +1,7 @@
 ---
-import BaseLayout from '../../../layouts/BaseLayout.astro';
-import SideNav from '../../../components/SideNav.astro';
-import { portalClients, FILE_RETENTION_DAYS, type PortalClient, type PortalSpace } from '../../../lib/portal';
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import SideNav from '../../../../components/SideNav.astro';
+import { portalClients, FILE_RETENTION_DAYS, type PortalClient, type PortalSpace } from '../../../../lib/portal';
 
 // The Worker only serves this page to people allowed to see this client.
 export function getStaticPaths() {
@@ -41,17 +41,17 @@ const { client, space } = Astro.props as { client: PortalClient; space: PortalSp
             <div id="portal-file-list"><p class="portal-empty">Loading…</p></div>
           </div>
 
-          <!-- Reviews: proofs and shared comments -->
+          <!-- Reviews: one card per proof; each opens its own review page -->
           <div class="portal-panel" role="tabpanel" id="panel-reviews" aria-labelledby="tab-reviews" hidden>
-            <p class="main-text">Proofs to look over. Everyone on your team sees every comment, so read what's already there before adding yours.</p>
+            <div class="portal-review-intro">
+              <p class="main-text">Proofs to look over. Open one to see it full size and read or add comments. Everyone on your team sees every comment.</p>
+              <button type="button" class="portal-button" id="portal-new-proof" hidden>New proof</button>
+            </div>
 
             <form class="portal-post-proof" id="portal-post-proof" hidden>
-              <h2 class="portal-form-title">Post a proof</h2>
-              <label class="portal-label">This is
-                <select name="proof"><option value="">A new proof</option></select>
-              </label>
-              <label class="portal-label" id="portal-title-field">Title
-                <input type="text" name="title" maxlength="140" placeholder="Cider label, front" />
+              <h2 class="portal-form-title">Post a new proof</h2>
+              <label class="portal-label">Title
+                <input type="text" name="title" maxlength="140" placeholder="Cider label, front" required />
               </label>
               <label class="portal-label">File (PDF, JPEG or PNG)
                 <input type="file" name="file" accept="application/pdf,image/jpeg,image/png" required />
@@ -61,11 +61,18 @@ const { client, space } = Astro.props as { client: PortalClient; space: PortalSp
               </label>
               <progress max="1" value="0" hidden></progress>
               <p class="portal-error" role="alert" hidden></p>
-              <button type="submit" class="portal-button">Post proof</button>
+              <div class="portal-form-actions">
+                <button type="submit" class="portal-button">Post proof</button>
+                <button type="button" class="portal-text-button" data-cancel>Cancel</button>
+              </div>
             </form>
 
             <p class="portal-error" id="portal-reviews-error" role="alert" hidden></p>
-            <div id="portal-proof-list"><p class="portal-empty">Loading…</p></div>
+            <div id="portal-cards"><p class="portal-empty">Loading…</p></div>
+            <details class="portal-finished" id="portal-finished" hidden>
+              <summary>Approved</summary>
+              <ul class="portal-card-grid"></ul>
+            </details>
           </div>
         </div>
       </div>
@@ -74,5 +81,5 @@ const { client, space } = Astro.props as { client: PortalClient; space: PortalSp
 </BaseLayout>
 
 <script>
-  import '../../../scripts/portal-space';
+  import '../../../../scripts/portal-space';
 </script>

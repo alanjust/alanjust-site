@@ -846,6 +846,9 @@ label {
 }
 
 /* ── Client portal ──────────────────────────────────────────── */
+/* Portal scripts hide and show pieces with the hidden attribute; keep it
+   winning over the display rules below. */
+.portal-page [hidden] { display: none !important; }
 .portal-page { max-width: 900px; padding-bottom: 80px; }
 .portal-title { margin-top: 8px; }
 .portal-crumb {
@@ -984,6 +987,81 @@ a.portal-file-name { color: var(--accent); text-decoration: underline; text-unde
 .portal-earlier summary { cursor: pointer; color: var(--text-muted); font-size: 16px; }
 .portal-earlier-version { padding: 16px 0 0 18px; border-left: 2px solid var(--border-subtle); margin: 16px 0 0 4px; }
 .portal-admin-row { margin-top: 24px; }
+
+/* Review cards */
+.portal-review-intro { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px 32px; }
+.portal-review-intro .main-text { flex: 1 1 420px; }
+.portal-form-actions { display: flex; align-items: center; gap: 20px; }
+.portal-card-grid {
+  list-style: none; padding: 0; margin: 20px 0;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px;
+}
+.portal-card {
+  display: flex; flex-direction: column; height: 100%;
+  border: 1px solid var(--border-subtle); border-radius: var(--radius-medium);
+  background: var(--surface-raised); overflow: hidden;
+}
+.portal-card:hover { border-color: var(--accent); }
+.portal-card:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
+.portal-card-thumb {
+  display: flex; align-items: center; justify-content: center;
+  aspect-ratio: 4 / 3; background: var(--white); overflow: hidden;
+}
+.portal-card-thumb img { width: 100%; height: 100%; object-fit: contain; }
+.portal-card-icon {
+  color: var(--black); font-size: 22px; font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-label);
+  border: 2px solid var(--black); border-radius: var(--radius-small); padding: 18px 14px;
+}
+.portal-card-body { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 14px 16px 18px; }
+.portal-card-title { color: var(--white); font-size: 18px; font-weight: var(--weight-medium); line-height: var(--leading-tight); overflow-wrap: anywhere; }
+.portal-status {
+  display: inline-block; padding: 2px 9px; border-radius: var(--radius-small);
+  font-size: 12px; font-weight: var(--weight-medium); letter-spacing: var(--tracking-label); text-transform: uppercase;
+  color: var(--black); background: var(--accent);
+}
+.portal-status--revising { background: var(--sky-blue); }
+.portal-status--approved { background: var(--pale-green); }
+.portal-new {
+  display: inline-block; margin-left: 8px; padding: 0 7px; border-radius: var(--radius-small);
+  background: var(--light-coral); color: var(--black);
+  font-size: 12px; font-weight: var(--weight-bold);
+}
+.portal-finished { margin-top: 32px; }
+.portal-finished summary { cursor: pointer; color: var(--text-muted); font-size: 16px; }
+
+/* One review page */
+.portal-review-page { max-width: none; }
+.portal-review-status { display: flex; align-items: center; gap: 12px; margin: 4px 0 16px; }
+.portal-status-picker select {
+  background: var(--black); color: var(--white);
+  border: 1px solid var(--border-strong); border-radius: var(--radius-small);
+  font: inherit; font-size: 15px; padding: 6px 10px;
+}
+.portal-version-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+.portal-version-tab {
+  background: none; color: var(--text-muted); cursor: pointer;
+  border: 1px solid var(--border-subtle); border-radius: var(--radius-small);
+  font: inherit; font-size: 15px; padding: 6px 12px;
+}
+.portal-version-tab[aria-pressed="true"] { color: var(--white); border-color: var(--accent); }
+.portal-review-layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(280px, 2fr); gap: 32px; align-items: start; }
+.portal-review-proof .portal-viewer { margin-top: 8px; }
+.portal-review-proof .portal-image { max-height: none; width: 100%; }
+.portal-review-proof .portal-pdf { height: 85vh; }
+.portal-review-thread { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto; padding-right: 4px; }
+.portal-review-thread .portal-thread-title { font-size: 20px; }
+.portal-comment.is-new { border-left: 3px solid var(--light-coral); padding-left: 10px; }
+.portal-review-admin { margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border-subtle); }
+.portal-new-version > summary { display: inline-block; list-style: none; }
+.portal-new-version > summary::-webkit-details-marker { display: none; }
+.portal-new-version[open] > summary { margin-bottom: 16px; }
+.portal-back { margin-top: 40px; font-size: 16px; }
+
+@media screen and (max-width: 1100px) {
+  .portal-review-layout { grid-template-columns: 1fr; }
+  .portal-review-thread { position: static; max-height: none; overflow: visible; }
+}
 
 @media screen and (max-width: 767px) {
   .portal-page { padding-left: 16px; padding-right: 16px; }

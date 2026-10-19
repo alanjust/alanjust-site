@@ -34,6 +34,13 @@ export const proofTypes: Record<string, string> = {
   'image/png': 'PNG',
 };
 
+/** Where a proof stands. Alan sets it; posting a new version resets it to waiting. */
+export const proofStatuses: Record<string, string> = {
+  waiting: 'Waiting for feedback',
+  revising: 'Revising',
+  approved: 'Approved',
+};
+
 export const MAX_UPLOAD_BYTES = 2 * 1024 ** 3;   // 2 GB
 export const UPLOAD_PART_BYTES = 10 * 1024 ** 2; // 10 MB chunks
 export const FILE_RETENTION_DAYS = 90;

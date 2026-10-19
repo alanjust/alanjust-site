@@ -1,0 +1,75 @@
+---
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import SideNav from '../../../../components/SideNav.astro';
+import { portalClients, proofStatuses, type PortalClient, type PortalSpace } from '../../../../lib/portal';
+
+// One page per project area; which proof it shows comes from ?id= in the
+// address. The Worker only serves it to people allowed to see this client.
+export function getStaticPaths() {
+  return portalClients.flatMap(client =>
+    client.spaces.map(space => ({ params: { client: client.id, space: space.id }, props: { client, space } })),
+  );
+}
+
+const { client, space } = Astro.props as { client: PortalClient; space: PortalSpace };
+const back = `/portal/${client.id}/${space.id}/#reviews`;
+---
+
+<BaseLayout title={`Review | ${space.name} | ${client.name}`} description="Private client area." currentPath="/portal">
+  <Fragment slot="head"><meta name="robots" content="noindex, nofollow" /></Fragment>
+  <section class="section">
+    <div class="section-with-left-menu">
+      <SideNav currentPath="/portal" />
+      <div class="div-right-side">
+        <div class="portal-page portal-review-page" data-portal-review data-client={client.id} data-space={space.id} data-back={back}>
+          <p class="portal-crumb"><a href={`/portal/${client.id}/`}>{client.name}</a> · <a href={back}>{space.name} reviews</a></p>
+          <h1 class="heading-2 portal-title" id="portal-review-title">Loading…</h1>
+
+          <div class="portal-review-status">
+            <span class="portal-status" id="portal-status-pill"></span>
+            <label class="portal-status-picker" id="portal-status-picker" hidden>
+              <span class="portal-visually-hidden">Status</span>
+              <select id="portal-status-select">
+                {Object.entries(proofStatuses).map(([value, label]) => <option value={value}>{label}</option>)}
+              </select>
+            </label>
+          </div>
+
+          <nav class="portal-version-tabs" id="portal-version-tabs" aria-label="Versions" hidden></nav>
+          <p class="portal-error" id="portal-review-error" role="alert" hidden></p>
+
+          <div class="portal-review-layout">
+            <div class="portal-review-proof" id="portal-review-proof"></div>
+            <aside class="portal-review-thread" id="portal-review-thread"></aside>
+          </div>
+
+          <div class="portal-review-admin" id="portal-review-admin" hidden>
+            <details class="portal-new-version">
+              <summary class="portal-button">Post a new version</summary>
+              <form class="portal-post-proof" id="portal-post-version">
+                <label class="portal-label">File (PDF, JPEG or PNG)
+                  <input type="file" name="file" accept="application/pdf,image/jpeg,image/png" required />
+                </label>
+                <label class="portal-label">What changed (optional)
+                  <textarea name="note" rows="2" maxlength="1000"></textarea>
+                </label>
+                <progress max="1" value="0" hidden></progress>
+                <p class="portal-error" role="alert" hidden></p>
+                <button type="submit" class="portal-button">Post version</button>
+              </form>
+            </details>
+            <p class="portal-admin-row">
+              <button type="button" class="portal-text-button" id="portal-delete-proof">Delete this proof and all its versions</button>
+            </p>
+          </div>
+
+          <p class="portal-back"><a class="cta-link" href={back}>← All {space.name} reviews</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import '../../../../scripts/portal-review';
+</script>

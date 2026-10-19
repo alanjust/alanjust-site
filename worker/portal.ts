@@ -4,7 +4,7 @@
 
 import { canSee, type PortalUser } from './auth';
 import {
-  findClient, findSpace, proofTypes, MAX_UPLOAD_BYTES, UPLOAD_PART_BYTES, FILE_RETENTION_DAYS,
+  findClient, findSpace, proofTypes, proofStatuses, MAX_UPLOAD_BYTES, UPLOAD_PART_BYTES, FILE_RETENTION_DAYS,
 } from '../src/lib/portal';
 
 const json = (data: unknown, status = 200) =>
@@ -72,22 +72,23 @@ export async function handlePortalApi(request: Request, env: Env, user: PortalUs
       return json({ files: results, retentionDays: FILE_RETENTION_DAYS, me: user.email, isAdmin: user.isAdmin });
     }
 
+    // GET /api/portal/:client/:space/proofs—one summary per proof, for the cards
     if (what === 'proofs' && method === 'GET') {
-      const proofs = (await db.prepare(
-        `SELECT id, title, created_at, updated_at FROM proofs
-         WHERE client = ? AND space = ? ORDER BY updated_at DESC`,
-      ).bind(client, space).all()).results;
-      const versions = (await db.prepare(
-        `SELECT v.id, v.proof_id, v.version, v.name, v.size, v.content_type, v.note, v.created_at
-         FROM proof_versions v JOIN proofs p ON p.id = v.proof_id
-         WHERE p.client = ? AND p.space = ? ORDER BY v.version DESC`,
-      ).bind(client, space).all()).results;
-      const comments = (await db.prepare(
-        `SELECT c.id, c.version_id, c.author_email, c.author_name, c.body, c.created_at, c.addressed_at
-         FROM comments c JOIN proof_versions v ON v.id = c.version_id JOIN proofs p ON p.id = v.proof_id
-         WHERE p.client = ? AND p.space = ? ORDER BY c.created_at ASC`,
-      ).bind(client, space).all()).results;
-      return json({ proofs, versions, comments, me: user.email, isAdmin: user.isAdmin });
+      const { results } = await db.prepare(
+        `SELECT p.id, p.title, p.status, p.updated_at,
+                v.id AS latest_id, v.version, v.content_type, v.thumb_key IS NOT NULL AS has_thumb,
+                (SELECT COUNT(*) FROM comments c WHERE c.version_id = v.id) AS comments,
+                (SELECT COUNT(*) FROM comments c JOIN proof_versions vv ON vv.id = c.version_id
+                  WHERE vv.proof_id = p.id AND c.author_email != ?1
+                    AND c.created_at > COALESCE((SELECT seen_at FROM proof_views pv
+                                                 WHERE pv.proof_id = p.id AND pv.email = ?1), '')) AS new_comments
+         FROM proofs p
+         JOIN proof_versions v ON v.proof_id = p.id
+          AND v.version = (SELECT MAX(version) FROM proof_versions WHERE proof_id = p.id)
+         WHERE p.client = ?2 AND p.space = ?3
+         ORDER BY p.updated_at DESC`,
+      ).bind(user.email, client, space).all();
+      return json({ proofs: results, isAdmin: user.isAdmin });
     }
 
     // POST /api/portal/:client/:space/uploads—start a chunked upload
@@ -174,7 +175,7 @@ export async function handlePortalApi(request: Request, env: Env, user: PortalUs
           'INSERT INTO proofs (id, client, space, title, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)',
         ).bind(proofId, up.client, up.space, title, stamp, stamp));
       } else {
-        statements.push(db.prepare('UPDATE proofs SET updated_at = ? WHERE id = ?').bind(stamp, proofId));
+        statements.push(db.prepare("UPDATE proofs SET updated_at = ?, status = 'waiting' WHERE id = ?").bind(stamp, proofId));
       }
       const latest = await db.prepare('SELECT MAX(version) AS v FROM proof_versions WHERE proof_id = ?')
         .bind(proofId).first<{ v: number | null }>();
@@ -250,6 +251,33 @@ export async function handlePortalApi(request: Request, env: Env, user: PortalUs
       return new Response(object.body, { headers });
     }
 
+    // PUT /api/portal/versions/:id/thumb—small JPEG made in Alan's browser
+    if (path[2] === 'thumb' && method === 'PUT') {
+      if (!user.isAdmin) return fail('Only Alan adds thumbnails.', 403);
+      const bytes = new Uint8Array(await request.arrayBuffer());
+      if (bytes.length === 0 || bytes.length > 1024 * 1024) return fail('Thumbnail must be under 1 MB.', 413);
+      if (!(bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff)) return fail('Thumbnail must be a JPEG.', 415);
+      const key = `${v.r2_key.split('/').slice(0, 3).join('/')}/thumbs/${v.id}.jpg`;
+      await env.PORTAL_FILES.put(key, bytes, { httpMetadata: { contentType: 'image/jpeg' } });
+      await db.prepare('UPDATE proof_versions SET thumb_key = ? WHERE id = ?').bind(key, v.id).run();
+      return json({ ok: true });
+    }
+
+    // GET /api/portal/versions/:id/thumb
+    if (path[2] === 'thumb' && method === 'GET') {
+      const row = await db.prepare('SELECT thumb_key FROM proof_versions WHERE id = ?').bind(v.id).first<{ thumb_key: string | null }>();
+      const object = row?.thumb_key ? await env.PORTAL_FILES.get(row.thumb_key) : null;
+      if (!object) return fail('No thumbnail', 404);
+      return new Response(object.body, {
+        headers: {
+          'Content-Type': 'image/jpeg',
+          'X-Content-Type-Options': 'nosniff',
+          'Content-Security-Policy': "sandbox; default-src 'none'; img-src 'self'",
+          'Cache-Control': 'private, max-age=86400',
+        },
+      });
+    }
+
     if (path[2] === 'comments' && method === 'POST') {
       const body = await request.json<{ body?: string; name?: string }>();
       const text = String(body.body ?? '').trim().slice(0, 4000);
@@ -289,14 +317,58 @@ export async function handlePortalApi(request: Request, env: Env, user: PortalUs
     return fail('Not found', 404);
   }
 
+  // /api/portal/proofs/:id(/seen|/status)
+  if (path[0] === 'proofs' && path[1]) {
+    const proof = await db.prepare('SELECT id, client, space, title, status, created_at, updated_at FROM proofs WHERE id = ?')
+      .bind(path[1]).first<{ id: string; client: string; space: string; title: string; status: string; created_at: string; updated_at: string }>();
+    if (!proof || !canSee(user, proof.client)) return fail('Proof not found', 404);
+
+    // GET /api/portal/proofs/:id—everything for the review page
+    if (path.length === 2 && method === 'GET') {
+      const versions = (await db.prepare(
+        `SELECT id, version, name, size, content_type, note, created_at, thumb_key IS NOT NULL AS has_thumb
+         FROM proof_versions WHERE proof_id = ? ORDER BY version DESC`,
+      ).bind(proof.id).all()).results;
+      const comments = (await db.prepare(
+        `SELECT c.id, c.version_id, c.author_email, c.author_name, c.body, c.created_at, c.addressed_at
+         FROM comments c JOIN proof_versions v ON v.id = c.version_id
+         WHERE v.proof_id = ? ORDER BY c.created_at ASC`,
+      ).bind(proof.id).all()).results;
+      const seen = await db.prepare('SELECT seen_at FROM proof_views WHERE proof_id = ? AND email = ?')
+        .bind(proof.id, user.email).first<{ seen_at: string }>();
+      return json({ proof, versions, comments, seenAt: seen?.seen_at ?? null, me: user.email, isAdmin: user.isAdmin });
+    }
+
+    // POST /api/portal/proofs/:id/seen—clears this person's "new" badge
+    if (path[2] === 'seen' && method === 'POST') {
+      await db.prepare(
+        `INSERT INTO proof_views (proof_id, email, seen_at) VALUES (?, ?, ?)
+         ON CONFLICT (proof_id, email) DO UPDATE SET seen_at = excluded.seen_at`,
+      ).bind(proof.id, user.email, now()).run();
+      return json({ ok: true });
+    }
+
+    // POST /api/portal/proofs/:id/status
+    if (path[2] === 'status' && method === 'POST') {
+      if (!user.isAdmin) return fail('Only Alan sets the status.', 403);
+      const { status } = await request.json<{ status?: string }>();
+      if (!proofStatuses[String(status)]) return fail('Unknown status', 400);
+      await db.prepare('UPDATE proofs SET status = ? WHERE id = ?').bind(status, proof.id).run();
+      return json({ ok: true });
+    }
+    if (path.length !== 2 || method !== 'DELETE') return fail('Not found', 404);
+  }
+
   // DELETE /api/portal/proofs/:id—removes the proof, every version and thread
   if (path[0] === 'proofs' && path[1] && path.length === 2 && method === 'DELETE') {
     if (!user.isAdmin) return fail('Only Alan can delete proofs.', 403);
-    const keys = (await db.prepare('SELECT r2_key FROM proof_versions WHERE proof_id = ?')
-      .bind(path[1]).all<{ r2_key: string }>()).results.map(r => r.r2_key);
+    const rows = (await db.prepare('SELECT r2_key, thumb_key FROM proof_versions WHERE proof_id = ?')
+      .bind(path[1]).all<{ r2_key: string; thumb_key: string | null }>()).results;
+    const keys = rows.flatMap(r => (r.thumb_key ? [r.r2_key, r.thumb_key] : [r.r2_key]));
     if (keys.length) await env.PORTAL_FILES.delete(keys);
     await db.batch([
       db.prepare('DELETE FROM comments WHERE version_id IN (SELECT id FROM proof_versions WHERE proof_id = ?)').bind(path[1]),
+      db.prepare('DELETE FROM proof_views WHERE proof_id = ?').bind(path[1]),
       db.prepare('DELETE FROM proof_versions WHERE proof_id = ?').bind(path[1]),
       db.prepare('DELETE FROM proofs WHERE id = ?').bind(path[1]),
     ]);

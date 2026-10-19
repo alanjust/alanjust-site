@@ -45,6 +45,17 @@ export function formatDate(iso: string, withTime = false) {
   return withTime ? `${date}, ${d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}` : date;
 }
 
+/** Makes and stores a proof's card picture. Failing quietly is fine—the card shows an icon. */
+export async function saveThumbnail(versionId: string, blob: Blob, contentType: string) {
+  const { makeThumbnail } = await import('./portal-thumbnail');
+  const thumb = await makeThumbnail(blob, contentType);
+  if (!thumb) return false;
+  try {
+    await api(`versions/${encodeURIComponent(versionId)}/thumb`, { method: 'PUT', body: thumb });
+    return true;
+  } catch { return false; }
+}
+
 export interface UploadOptions {
   kind: 'file' | 'proof';
   proofId?: string;
@@ -54,7 +65,7 @@ export interface UploadOptions {
 }
 
 /** Uploads in chunks so large Illustrator files work and show progress. */
-export async function uploadInParts(base: string, file: File, opts: UploadOptions) {
+export async function uploadInParts(base: string, file: File, opts: UploadOptions): Promise<any> {
   const start = await api<{ uploadId: string; partSize: number }>(`${base}/uploads`, {
     method: 'POST',
     body: JSON.stringify({
