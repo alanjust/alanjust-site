@@ -6,13 +6,17 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "import": "node scripts/import-portfolio.js"
+    "import": "node scripts/import-portfolio.js",
+    "deploy": "astro build && wrangler deploy",
+    "preview:worker": "astro build && wrangler dev",
+    "cf-types": "wrangler types"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
     "astro": "^5.0.0"
   },
   "devDependencies": {
-    "sharp": "^0.33.0"
+    "sharp": "^0.33.0",
+    "wrangler": "^4.151.2"
   }
 }

@@ -1,0 +1,39 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "alanjust-site",
+  "account_id": "66aecc29fb325281e6f09817253c4207",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-10-01",
+
+  // Attached in the dashboard on 2026-10-19; listed here so deploys keep them.
+  "routes": [
+    { "pattern": "alanjust.com", "custom_domain": true },
+    { "pattern": "www.alanjust.com", "custom_domain": true }
+  ],
+
+  // Astro builds the static site into dist/. The Worker only runs first for
+  // the routes that need a server; everything else is served as plain files.
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "none",
+    "run_worker_first": ["/api/*", "/portal", "/portal/*"]
+  },
+
+  // Uploaded client files and review proofs
+  "r2_buckets": [
+    { "binding": "PORTAL_FILES", "bucket_name": "alanjust-portal" }
+  ],
+
+  // File list, proofs, versions, comments
+  "d1_databases": [
+    {
+      "binding": "PORTAL_DB",
+      "database_name": "alanjust-portal",
+      "database_id": "9e204e38-c3fa-4e5d-b423-3070c908e0f9",
+      "migrations_dir": "./migrations"
+    }
+  ],
+
+  "observability": { "enabled": true }
+}

@@ -18,3 +18,7 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+# wrangler
+.wrangler/
+.dev.vars
