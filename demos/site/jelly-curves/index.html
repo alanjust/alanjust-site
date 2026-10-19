@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jelly Curves</title>
+<style>
+  :root {
+    --color-bg: #fafafa;
+    --color-ink: #474747;
+    --color-accent: #c8318a;
+    --color-handle: #3b6fd8;
+    --color-muted: #8a8a8a;
+    --color-line: #dcdcdc;
+    --color-focus: #3b6fd8;
+    --font-ui: -apple-system, BlinkMacSystemFont, "Inter", "Helvetica Neue", sans-serif;
+    --weight-regular: 400;
+    --weight-bold: 600;
+    --tracking-wide: 0.12em;
+    --size-label: 1.25rem;
+    --size-small: 0.875rem;
+    --stroke: 2.5px;
+    --leading-body: 1.5;
+    --radius-pill: 999px;
+    --radius-round: 50%;
+    --space-1: 0.5rem;
+    --space-2: 1rem;
+    --space-3: 1.5rem;
+    --space-4: 2.5rem;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --color-bg: #1c1c1e; --color-ink: #d6d6d6; --color-accent: #ff5fb8;
+      --color-handle: #7aa2ff; --color-muted: #8a8a8a; --color-line: #3a3a3c; --color-focus: #7aa2ff;
+    }
+  }
+  :root[data-theme="dark"] {
+    --color-bg: #1c1c1e; --color-ink: #d6d6d6; --color-accent: #ff5fb8;
+    --color-handle: #7aa2ff; --color-muted: #8a8a8a; --color-line: #3a3a3c; --color-focus: #7aa2ff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-ui);
+    line-height: var(--leading-body);
+    padding: var(--space-2);
+  }
+  .stage { display: grid; justify-items: center; gap: var(--space-2); width: 100%; max-width: 32rem; }
+
+  /* Shape picker */
+  .modes { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-1); border: 0; padding: 0; margin: 0 0 var(--space-4); }
+  .modes legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .modes input { position: absolute; opacity: 0; }
+  .modes label {
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-pill);
+    font-size: var(--size-small);
+    color: var(--color-muted);
+    cursor: pointer;
+  }
+  .modes input:checked + label { border-color: var(--color-ink); color: var(--color-ink); }
+  .modes input:focus-visible + label { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
+  /* The real, accessible button. Its own border is invisible—the SVG draws the "skin". */
+  .jelly {
+    position: relative;
+    width: min(100%, 26rem);
+    height: 7.5rem;
+    background: transparent;
+    border: 0;
+    color: var(--color-ink);
+    font: inherit;
+    font-size: var(--size-label);
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--tracking-wide);
+    cursor: pointer;
+  }
+  .jelly[data-mode="circle"] { width: 9rem; height: 9rem; border-radius: var(--radius-round); }
+  .jelly:focus-visible { outline: var(--stroke) solid var(--color-focus); outline-offset: var(--space-1); }
+
+  /* The SVG is bigger than the button so the skin can bulge outside it. */
+  .jelly svg {
+    position: absolute;
+    inset: calc(-1 * var(--space-4));
+    width: calc(100% + 2 * var(--space-4));
+    height: calc(100% + 2 * var(--space-4));
+    overflow: visible;
+    pointer-events: none;
+  }
+  .skin { fill: none; stroke: var(--color-ink); stroke-width: var(--stroke); stroke-linejoin: miter; }
+  .guide-line { stroke: var(--color-handle); stroke-width: 1; }
+  .guide-handle { fill: var(--color-bg); stroke: var(--color-handle); stroke-width: 1.5; }
+  .guide-anchor { fill: var(--color-accent); }
+
+  .caption { color: var(--color-accent); }
+  .explain { color: var(--color-muted); font-size: var(--size-small); text-align: center; max-width: 28rem; margin: 0; min-height: 4.5em; }
+  .controls { display: grid; gap: var(--space-1); width: 100%; font-size: var(--size-small); color: var(--color-muted); margin-top: var(--space-3); }
+  .controls label { display: grid; grid-template-columns: 8rem 1fr 3rem; align-items: center; gap: var(--space-1); }
+  .controls label[hidden] { display: none; }
+  .controls output { text-align: right; color: var(--color-ink); }
+  .controls input { width: 100%; accent-color: var(--color-accent); }
+  .controls .toggle { grid-template-columns: auto 1fr; }
+</style>
+</head>
+<body>
+<main class="stage">
+  <fieldset class="modes">
+    <legend>Shape</legend>
+    <input type="radio" name="mode" id="m-straight" value="straight" checked><label for="m-straight">Straight</label>
+    <input type="radio" name="mode" id="m-rounded" value="rounded"><label for="m-rounded">Rounded corners</label>
+    <input type="radio" name="mode" id="m-smooth" value="smooth"><label for="m-smooth">Smooth blob</label>
+    <input type="radio" name="mode" id="m-circle" value="circle"><label for="m-circle">Circle</label>
+  </fieldset>
+
+  <button class="jelly" type="button" data-mode="straight">
+    BUTTON
+    <svg aria-hidden="true"><path class="skin"></path><g class="guides"></g></svg>
+  </button>
+  <div class="caption">jelly</div>
+  <p class="explain" aria-live="polite"></p>
+
+  <!-- Knobs: these numbers ARE the design. -->
+  <section class="controls">
+    <label id="radius-row" hidden>Corner radius (px) <input id="radius" type="range" min="0" max="50" value="18"><output>18</output></label>
+    <label>Reach (px) <input id="reach" type="range" min="0" max="100" value="36"><output>36</output></label>
+    <label>Pull <input id="pull" type="range" min="0" max="1" step="0.05" value="0.9"><output>0.9</output></label>
+    <label>Stiffness <input id="stiffness" type="range" min="50" max="900" step="10" value="300"><output>300</output></label>
+    <label>Damping <input id="damping" type="range" min="2" max="40" step="1" value="12"><output>12</output></label>
+    <label class="toggle"><input id="dots" type="checkbox"> Show the anchors and handles</label>
+  </section>
+</main>
+
+<script>
+(() => {
+  const button = document.querySelector('.jelly');
+  const svg = button.querySelector('svg');
+  const skin = svg.querySelector('.skin');
+  const guides = svg.querySelector('.guides');
+  const explain = document.querySelector('.explain');
+  const NS = 'http://www.w3.org/2000/svg';
+
+  // ---- The design, as numbers -------------------------------------------
+  const P = {
+    reach: 36,      // how close (px) the pointer must get to the edge before the skin notices
+    pull: 0.9,      // how far a pin travels toward the pointer (0 = not at all, 1 = all the way)
+    falloff: 90,    // how wide the "grab" is: pins farther than this from the pointer stay put
+    maxStretch: 32, // cap so the skin never tears off toward the cursor
+    stiffness: 300, // spring strength: higher = snappier
+    damping: 12,    // friction: lower = more wobble, higher = more syrup
+    radius: 18,     // corner radius, rounded mode only
+    topBottomSegments: 4,
+    sideSegments: 2,
+  };
+
+  // The magic circle number: a handle this fraction of the radius away
+  // makes four cubic curves look like a true circle.
+  const KAPPA = 0.5523;
+
+  const NOTES = {
+    straight: 'Twelve pins joined by straight lines. When one pin moves you get a sharp tent, just like the GIF.',
+    rounded: 'Each corner pin becomes a magnet, not a point on the line. The curve starts a little way along each edge and bends toward the corner without touching it. Pull the corner and the rounding comes along.',
+    smooth: 'The same twelve pins, but the line runs through every one as a curve. The handles are worked out from each pin’s neighbors (the Catmull-Rom recipe), so peaks turn into swells.',
+    circle: 'Four anchors, four curves. Each handle sits 0.5523 × the radius away, the closest four Béziers can get to a perfect circle. Push an anchor and its handles ride along.',
+  };
+
+  let mode = 'straight';
+  let points = [];   // each: { rx, ry, ox, oy, vx, vy, corner?, tx?, ty? }
+  let pad = 0, w = 0, h = 0;
+  let pointer = null;
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const pin = (rx, ry, extra = {}) => ({ rx, ry, ox: 0, oy: 0, vx: 0, vy: 0, ...extra });
+  const X = p => p.rx + p.ox;
+  const Y = p => p.ry + p.oy;
+  const f = n => n.toFixed(1);
+
+  // ---- Where the pins sit at rest ---------------------------------------
+  function layout() {
+    const r = button.getBoundingClientRect();
+    pad = (svg.getBoundingClientRect().width - r.width) / 2;
+    w = r.width; h = r.height;
+    const pts = [];
+
+    if (mode === 'circle') {
+      // Four anchors: top, right, bottom, left. Each remembers its clockwise tangent
+      // so its handles know which way to point.
+      const cx = pad + w / 2, cy = pad + h / 2, rad = w / 2;
+      for (let i = 0; i < 4; i++) {
+        const a = -Math.PI / 2 + i * Math.PI / 2;
+        pts.push(pin(cx + rad * Math.cos(a), cy + rad * Math.sin(a), { tx: -Math.sin(a), ty: Math.cos(a) }));
+      }
+    } else {
+      // Walk the rectangle clockwise, dropping evenly spaced pins on each edge.
+      const edge = (x1, y1, x2, y2, n) => {
+        for (let i = 0; i < n; i++) {
+          const t = i / n;
+          pts.push(pin(pad + x1 + (x2 - x1) * t, pad + y1 + (y2 - y1) * t, { corner: i === 0 }));
+        }
+      };
+      edge(0, 0, w, 0, P.topBottomSegments);
+      edge(w, 0, w, h, P.sideSegments);
+      edge(w, h, 0, h, P.topBottomSegments);
+      edge(0, h, 0, 0, P.sideSegments);
+    }
+    points = pts;
+    draw();
+  }
+
+  // How far is the pointer from the shape's edge? (0 if it's inside.)
+  function distanceToShape(x, y) {
+    if (mode === 'circle') {
+      return Math.max(0, Math.hypot(x - (pad + w / 2), y - (pad + h / 2)) - w / 2);
+    }
+    const dx = Math.max(pad - x, 0, x - (pad + w));
+    const dy = Math.max(pad - y, 0, y - (pad + h));
+    return Math.hypot(dx, dy);
+  }
+
+  // ---- Physics: identical for every shape --------------------------------
+  function step(dt) {
+    let moving = false;
+    const near = pointer && !reduceMotion ? distanceToShape(pointer.x, pointer.y) : Infinity;
+    const proximity = near < P.reach ? Math.min(1, 3 * (1 - near / P.reach)) : 0;
+
+    for (const p of points) {
+      let tx = 0, ty = 0;
+      if (proximity > 0) {
+        const dx = pointer.x - p.rx, dy = pointer.y - p.ry;
+        const grab = Math.max(0, 1 - Math.hypot(dx, dy) / P.falloff);
+        tx = dx * grab * P.pull * proximity;
+        ty = dy * grab * P.pull * proximity;
+        const len = Math.hypot(tx, ty);
+        if (len > P.maxStretch) { tx *= P.maxStretch / len; ty *= P.maxStretch / len; }
+      }
+      const ax = P.stiffness * (tx - p.ox) - P.damping * p.vx;
+      const ay = P.stiffness * (ty - p.oy) - P.damping * p.vy;
+      p.vx += ax * dt; p.vy += ay * dt;
+      p.ox += p.vx * dt; p.oy += p.vy * dt;
+      if (Math.abs(p.vx) + Math.abs(p.vy) + Math.abs(tx - p.ox) + Math.abs(ty - p.oy) > 0.05) moving = true;
+    }
+    return moving;
+  }
+
+  // ---- Drawing: the only part that changes between shapes ---------------
+  // Each builder returns the path, plus anchors and handles for the guides.
+  // A cubic Bézier is written "C handle1 handle2 endAnchor".
+
+  function buildStraight() {
+    const d = points.map((p, i) => `${i ? 'L' : 'M'}${f(X(p))},${f(Y(p))}`).join(' ') + ' Z';
+    return { d, anchors: points.map(p => [X(p), Y(p)]), handles: [] };
+  }
+
+  function buildRounded() {
+    // Corner pins become magnets. Two anchors sit `radius` px along each edge from the
+    // corner; a cubic between them, with handles pulled KAPPA of the way toward the
+    // corner, makes a quarter circle at rest.
+    const n = points.length, anchors = [], handles = [];
+    const toward = (from, to, dist) => {
+      const dx = X(to) - X(from), dy = Y(to) - Y(from);
+      const len = Math.hypot(dx, dy) || 1;
+      const t = Math.min(dist, len / 2) / len;
+      return [X(from) + dx * t, Y(from) + dy * t];
+    };
+    let d = '';
+    points.forEach((p, i) => {
+      if (!p.corner) {
+        d += `${d ? 'L' : 'M'}${f(X(p))},${f(Y(p))} `;
+        anchors.push([X(p), Y(p)]);
+        return;
+      }
+      const prev = points[(i - 1 + n) % n], next = points[(i + 1) % n];
+      const a = toward(p, prev, P.radius), b = toward(p, next, P.radius);
+      const h1 = [a[0] + (X(p) - a[0]) * KAPPA, a[1] + (Y(p) - a[1]) * KAPPA];
+      const h2 = [b[0] + (X(p) - b[0]) * KAPPA, b[1] + (Y(p) - b[1]) * KAPPA];
+      d += `${d ? 'L' : 'M'}${f(a[0])},${f(a[1])} C${f(h1[0])},${f(h1[1])} ${f(h2[0])},${f(h2[1])} ${f(b[0])},${f(b[1])} `;
+      anchors.push(a, b);
+      handles.push([a, h1], [b, h2]);
+    });
+    return { d: d + 'Z', anchors, handles };
+  }
+
+  function buildSmooth() {
+    // Catmull-Rom: the curve passes through every pin. Each pin's handles point
+    // along the line from its previous neighbor to its next one, 1/6 of that distance.
+    const n = points.length, anchors = [], handles = [];
+    const at = i => points[(i + n) % n];
+    let d = `M${f(X(at(0)))},${f(Y(at(0)))}`;
+    for (let i = 0; i < n; i++) {
+      const p0 = at(i - 1), p1 = at(i), p2 = at(i + 1), p3 = at(i + 2);
+      const h1 = [X(p1) + (X(p2) - X(p0)) / 6, Y(p1) + (Y(p2) - Y(p0)) / 6];
+      const h2 = [X(p2) - (X(p3) - X(p1)) / 6, Y(p2) - (Y(p3) - Y(p1)) / 6];
+      d += ` C${f(h1[0])},${f(h1[1])} ${f(h2[0])},${f(h2[1])} ${f(X(p2))},${f(Y(p2))}`;
+      anchors.push([X(p1), Y(p1)]);
+      handles.push([[X(p1), Y(p1)], h1], [[X(p2), Y(p2)], h2]);
+    }
+    return { d: d + ' Z', anchors, handles };
+  }
+
+  function buildCircle() {
+    // Four quarter-curves. Each anchor's handles lie along its tangent,
+    // KAPPA × radius away; they travel with the anchor when it moves.
+    const n = points.length, k = KAPPA * (w / 2), anchors = [], handles = [];
+    let d = `M${f(X(points[0]))},${f(Y(points[0]))}`;
+    for (let i = 0; i < n; i++) {
+      const a = points[i], b = points[(i + 1) % n];
+      const h1 = [X(a) + a.tx * k, Y(a) + a.ty * k];
+      const h2 = [X(b) - b.tx * k, Y(b) - b.ty * k];
+      d += ` C${f(h1[0])},${f(h1[1])} ${f(h2[0])},${f(h2[1])} ${f(X(b))},${f(Y(b))}`;
+      anchors.push([X(a), Y(a)]);
+      handles.push([[X(a), Y(a)], h1], [[X(b), Y(b)], h2]);
+    }
+    return { d: d + ' Z', anchors, handles };
+  }
+
+  const BUILDERS = { straight: buildStraight, rounded: buildRounded, smooth: buildSmooth, circle: buildCircle };
+
+  function draw() {
+    const { d, anchors, handles } = BUILDERS[mode]();
+    skin.setAttribute('d', d);
+    guides.replaceChildren();
+    if (!document.getElementById('dots').checked) return;
+    const el = (tag, attrs) => {
+      const e = document.createElementNS(NS, tag);
+      for (const k in attrs) e.setAttribute(k, attrs[k]);
+      guides.appendChild(e);
+    };
+    for (const [[ax, ay], [hx, hy]] of handles) {
+      el('line', { class: 'guide-line', x1: ax, y1: ay, x2: hx, y2: hy });
+      el('circle', { class: 'guide-handle', cx: hx, cy: hy, r: 3 });
+    }
+    for (const [x, y] of anchors) el('circle', { class: 'guide-anchor', cx: x, cy: y, r: 3 });
+  }
+
+  // ---- Animation loop: runs only while something is moving -------------
+  let running = false, last = 0;
+  function tick(now) {
+    const dt = Math.min((now - last) / 1000, 1 / 30); last = now;
+    const moving = step(dt);
+    draw();
+    if (moving || pointer) requestAnimationFrame(tick); else running = false;
+  }
+  function wake() { if (!running) { running = true; last = performance.now(); requestAnimationFrame(tick); } }
+
+  document.addEventListener('pointermove', e => {
+    const s = svg.getBoundingClientRect();
+    pointer = { x: e.clientX - s.left, y: e.clientY - s.top };
+    wake();
+  });
+  document.addEventListener('pointerleave', () => { pointer = null; wake(); });
+
+  // ---- Controls ----------------------------------------------------------
+  function setMode(m) {
+    mode = m;
+    button.dataset.mode = m;
+    document.getElementById('radius-row').hidden = m !== 'rounded';
+    explain.textContent = NOTES[m];
+    layout();
+  }
+  document.querySelectorAll('input[name="mode"]').forEach(r => r.addEventListener('change', () => setMode(r.value)));
+
+  for (const id of ['reach', 'pull', 'stiffness', 'damping', 'radius']) {
+    const input = document.getElementById(id);
+    input.addEventListener('input', () => { P[id] = +input.value; input.nextElementSibling.value = input.value; draw(); });
+  }
+  document.getElementById('dots').addEventListener('change', draw);
+
+  new ResizeObserver(layout).observe(button);
+  setMode('straight');
+})();
+</script>
+</body>
+</html>
