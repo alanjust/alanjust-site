@@ -911,7 +911,13 @@ a.portal-file-name { color: var(--accent); text-decoration: underline; text-unde
 }
 .portal-form-title { font-size: 20px; font-weight: var(--weight-medium); margin: 0 0 16px; }
 .portal-proof { padding: 28px 0 36px; border-top: 1px solid var(--border-subtle); }
-.portal-proof-title { color: var(--accent); font-size: 26px; font-weight: var(--weight-medium); margin: 0 0 6px; }
+.portal-proof-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 20px; margin: 0 0 6px; }
+.portal-proof-title { color: var(--accent); font-size: 26px; font-weight: var(--weight-medium); margin: 0; overflow-wrap: anywhere; }
+.portal-comment-count {
+  color: var(--text-muted); font-size: 16px; white-space: nowrap;
+  text-decoration: underline; text-underline-offset: 0.2em;
+}
+.portal-comment-count:hover { color: var(--white); }
 .portal-note { display: block; color: var(--white); font-size: 16px; margin-top: 6px; white-space: pre-wrap; }
 .portal-viewer { display: block; margin: 16px 0 10px; }
 .portal-image { max-height: 80vh; width: auto; border-radius: var(--radius-small); }

@@ -240,12 +240,25 @@ async function loadProofs() {
     if (!latest) continue;
     const threadFor = (v: Version) => data.comments.filter(c => c.version_id === v.id);
 
+    const latestComments = threadFor(latest);
+    const thread = renderThread(latest, latestComments, true);
+    const n = latestComments.length;
+    const jump = el('a', { class: 'portal-comment-count', href: '#' },
+      n === 0 ? 'No comments yet' : n === 1 ? '1 comment' : `${n} comments`);
+    jump.addEventListener('click', e => {
+      e.preventDefault();
+      thread.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
     const article = el('article', { class: 'portal-proof' },
-      el('h3', { class: 'portal-proof-title' }, p.title),
+      el('div', { class: 'portal-proof-head' },
+        el('h3', { class: 'portal-proof-title' }, p.title),
+        jump,
+      ),
       versionMeta(latest),
       renderViewer(latest, p.title),
       versionLinks(latest),
-      renderThread(latest, threadFor(latest), true),
+      thread,
     );
 
     if (earlier.length) {
