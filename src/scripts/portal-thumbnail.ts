@@ -2,6 +2,8 @@
 // it. Images are scaled down; PDFs get page one drawn by pdf.js. pdf.js is
 // loaded only here, so reviewers never download it.
 
+import { loadPdfjs } from './portal-pdf';
+
 const THUMB_WIDTH = 720;
 
 async function canvasToJpeg(canvas: HTMLCanvasElement): Promise<Blob> {
@@ -29,9 +31,7 @@ async function imageThumb(blob: Blob) {
 }
 
 async function pdfThumb(blob: Blob) {
-  const pdfjs = await import('pdfjs-dist');
-  const workerUrl = (await import('pdfjs-dist/build/pdf.worker.min.mjs?url')).default;
-  pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
+  const pdfjs = await loadPdfjs();
 
   const task = pdfjs.getDocument({ data: new Uint8Array(await blob.arrayBuffer()) });
   const doc = await task.promise;

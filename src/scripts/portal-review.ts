@@ -41,17 +41,31 @@ function savedName() {
 function saveName(name: string) {
   try { localStorage.setItem(NAME_KEY, name); } catch { /* private browsing */ }
 }
+const phoneScreen = window.matchMedia('(max-width: 767px)');
 const viewUrl = (v: Version, download = false) => `/api/portal/versions/${v.id}/view${download ? '?download' : ''}`;
 
 /* ── Proof ──────────────────────────────────────────────────── */
 
 function renderProof(v: Version) {
   const latest = v.id === data.versions[0].id;
-  const viewer = v.content_type === 'application/pdf'
-    ? el('div', { class: 'portal-viewer' },
-        el('iframe', { class: 'portal-pdf', src: viewUrl(v), title: `${data.proof.title}, version ${v.version}` }))
-    : el('a', { class: 'portal-viewer', href: viewUrl(v), target: '_blank', rel: 'noopener' },
-        el('img', { class: 'portal-image', src: viewUrl(v), alt: `${data.proof.title}, version ${v.version}` }));
+  const label = `${data.proof.title}, version ${v.version}`;
+  let viewer: HTMLElement;
+  if (v.content_type !== 'application/pdf') {
+    viewer = el('a', { class: 'portal-viewer', href: viewUrl(v), target: '_blank', rel: 'noopener' },
+      el('img', { class: 'portal-image', src: viewUrl(v), alt: label }));
+  } else if (phoneScreen.matches) {
+    // Safari on iPhone shows a PDF in a frame at full size, cropped. Draw the
+    // pages ourselves instead, each fitted to the screen.
+    viewer = el('div', { class: 'portal-viewer portal-pdf-pages' }, el('p', { class: 'portal-meta' }, 'Loading the PDF…'));
+    queueMicrotask(() => {
+      import('./portal-pdf')
+        .then(m => m.renderPdfPages(viewUrl(v), viewer, label))
+        .catch(() => viewer.replaceChildren(el('p', { class: 'portal-meta' },
+          'This PDF couldn’t be shown here. Use “Open full size” below.')));
+    });
+  } else {
+    viewer = el('div', { class: 'portal-viewer' }, el('iframe', { class: 'portal-pdf', src: viewUrl(v), title: label }));
+  }
   proofPane.replaceChildren(
     el('p', { class: 'portal-meta' },
       `Version ${v.version}${latest ? ' (latest)' : ''} · posted ${formatDate(v.created_at)}`,

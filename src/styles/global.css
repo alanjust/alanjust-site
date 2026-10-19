@@ -1049,6 +1049,9 @@ a.portal-file-name { color: var(--accent); text-decoration: underline; text-unde
 .portal-review-proof .portal-viewer { margin-top: 8px; }
 .portal-review-proof .portal-image { max-height: none; width: 100%; }
 .portal-review-proof .portal-pdf { height: 85vh; }
+.portal-pdf-pages { display: flex; flex-direction: column; gap: 12px; }
+.portal-pdf-page { width: 100%; background: var(--white); border-radius: var(--radius-small); overflow: hidden; }
+.portal-pdf-page-canvas { display: block; width: 100%; height: auto; }
 .portal-review-thread { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto; padding-right: 4px; }
 .portal-review-thread .portal-thread-title { font-size: 20px; }
 .portal-comment.is-new { border-left: 3px solid var(--light-coral); padding-left: 10px; }
