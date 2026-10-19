@@ -6,7 +6,7 @@ type: component
 cover: /playground/jelly-curves/cover.jpg
 demo: true
 demoHeight: 760
-draft: true
+draft: false
 ---
 
 Move your pointer close to the button and its outline reaches for you, then springs back when you leave. On a phone or iPad, drag your finger near it.
