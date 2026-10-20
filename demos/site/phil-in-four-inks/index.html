@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phil in Four Inks</title>
+<style>
+  :root {
+    --bg: #f4f1ec;
+    --text: #1d1b1a;
+    --muted: #6b6560;
+    --border: #d9d3cc;
+    --font: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --font-serif: "Iowan Old Style", "Palatino", Georgia, serif;
+    --fs-title: 2rem;
+    --fs-h2: 1.4rem;
+    --fs-body: 0.95rem;
+    --fs-small: 0.8rem;
+    --fw-regular: 400;
+    --fw-bold: 600;
+    --lh-tight: 1.2;
+    --lh-body: 1.5;
+    --track-label: 0.06em;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-5: 24px;
+    --space-6: 32px;
+    --space-7: 56px;
+    --radius-m: 10px;
+    --measure: 40em;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151413;
+      --text: #ece8e3;
+      --muted: #a39c95;
+      --border: #3a3633;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #151413;
+    --text: #ece8e3;
+    --muted: #a39c95;
+    --border: #3a3633;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+  }
+  header, section > .intro { padding: 0 var(--space-5); max-width: calc(var(--measure) + 2 * var(--space-5)); }
+  header { padding-top: var(--space-6); }
+  h1, h2 { font-family: var(--font-serif); font-weight: var(--fw-regular); line-height: var(--lh-tight); margin: 0 0 var(--space-3); }
+  h1 { font-size: var(--fs-title); }
+  h2 { font-size: var(--fs-h2); }
+  p { margin: 0; }
+  .num {
+    display: block;
+    font-family: var(--font);
+    font-size: var(--fs-small);
+    font-weight: var(--fw-bold);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: var(--space-2);
+  }
+  section { margin-top: var(--space-7); }
+  section > .intro { margin-bottom: var(--space-5); }
+  .frame {
+    display: block;
+    width: 100%;
+    height: 980px;
+    border: 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  footer { padding: var(--space-6) var(--space-5); color: var(--muted); font-size: var(--fs-small); }
+</style>
+</head>
+<body>
+  <header>
+    <h1>Phil, in four inks</h1>
+    <p>A portrait of my friend Phil, built the way a printing press builds color: four sheets of squares, one for each ink, each tilted to its own angle. Here are three ways to take him apart and put him back together.</p>
+  </header>
+
+  <section>
+    <div class="intro">
+      <span class="num">One</span>
+      <h2>The plates, pulled apart</h2>
+      <p>Turn the stack and pull the four plates apart in space. Flip from ink on paper to light in the dark to see subtractive and additive color do the same job from opposite directions.</p>
+    </div>
+    <iframe class="frame" src="phil-cmyk.html" title="Phil in four inks: the plates in 3D" data-fallback="980"></iframe>
+  </section>
+
+  <section>
+    <div class="intro">
+      <span class="num">Two</span>
+      <h2>Out of register</h2>
+      <p>Be the bad press. Each plate is on its own spring, so a thumb on the sheet or a shake of the press peels the colors apart, and they wobble back into line.</p>
+    </div>
+    <iframe class="frame" src="phil-misregister.html" title="Phil out of register" data-fallback="960"></iframe>
+  </section>
+
+  <section>
+    <div class="intro">
+      <span class="num">Three</span>
+      <h2>Hand-colored</h2>
+      <p>He starts in black and white. Drag through him to bring the color back, or pick a new hue and repaint him a square at a time. What you paint stays until you reset.</p>
+    </div>
+    <iframe class="frame" src="phil-paint.html" title="Phil hand-colored" data-fallback="1040"></iframe>
+  </section>
+
+  <footer>Works with a mouse, a finger or an Apple Pencil.</footer>
+
+<script>
+  // Size each frame to fit its page. On the live site all four pages share an
+  // address, so this page can look inside them; opened from disk it can't, and
+  // the fallback heights apply.
+  const frames = [...document.querySelectorAll('.frame')];
+  frames.forEach(f => { f.style.height = f.dataset.fallback + 'px'; });
+
+  function fit(f) {
+    let doc;
+    try { doc = f.contentDocument; } catch (e) { return; }
+    const panel = doc && doc.querySelector('.panel');
+    if (!panel) return;
+    const phone = f.clientWidth < 760;
+    // squeeze the frame first so the panel reports what it actually needs
+    f.style.height = (phone ? 900 : 400) + 'px';
+    const need = panel.scrollHeight;
+    f.style.height = (phone ? 480 + need : Math.max(640, need)) + 2 + 'px';
+  }
+  frames.forEach(f => f.addEventListener('load', () => fit(f)));
+  let t;
+  addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => frames.forEach(fit), 150); });
+</script>
+</body>
+</html>
