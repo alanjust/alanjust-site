@@ -29,6 +29,8 @@ const playground = defineCollection({
     demo: z.boolean().default(false),
     /** Height of the demo frame on desktop, in pixels. */
     demoHeight: z.number().default(640),
+    /** Optional height on phones, when the demo needs less (or more) room there. */
+    demoHeightPhone: z.number().optional(),
     /** Works in progress: newest first or any order—the page sorts them. */
     iterations: z.array(z.object({
       date: z.coerce.date(),

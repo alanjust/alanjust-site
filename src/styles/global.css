@@ -1130,6 +1130,7 @@ a.portal-file-name { color: var(--accent); text-decoration: underline; text-unde
 @media screen and (max-width: 767px) {
   .playground-page { padding-left: 16px; padding-right: 16px; }
   .playground-summary { font-size: 19px; }
+  .playground-demo iframe { height: var(--demo-height-phone, var(--demo-height)); }
 }
 
 /* ── Keyboard focus (visible on every link and button) ──────── */

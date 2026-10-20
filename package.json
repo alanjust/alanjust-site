@@ -7,7 +7,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "import": "node scripts/import-portfolio.js",
-    "deploy": "astro build && wrangler deploy && wrangler deploy -c demos/wrangler.jsonc",
+    "deploy": "rm -f .astro/data-store.json && astro build && wrangler deploy && wrangler deploy -c demos/wrangler.jsonc",
     "preview:worker": "astro build && wrangler dev",
     "cf-types": "wrangler types",
     "preview:demos": "wrangler dev -c demos/wrangler.jsonc --port 8788",

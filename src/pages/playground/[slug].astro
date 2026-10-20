@@ -45,7 +45,7 @@ const ogImage = data.cover ? new URL(data.cover, 'https://alanjust.com').toStrin
               <iframe
                 src={demoUrl}
                 title={`${data.title}, live demo`}
-                style={`--demo-height: ${data.demoHeight}px`}
+                style={`--demo-height: ${data.demoHeight}px${data.demoHeightPhone ? `; --demo-height-phone: ${data.demoHeightPhone}px` : ''}`}
                 sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock allow-popups allow-modals"
                 allow="fullscreen; clipboard-write; accelerometer; gyroscope"
                 loading="lazy"
