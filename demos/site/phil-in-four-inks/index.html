@@ -246,8 +246,8 @@
     <div>
       <div class="label">View</div>
       <div class="seg" role="group" aria-label="Projection">
-        <button data-view="persp" aria-pressed="true">Perspective</button>
-        <button data-view="flat" aria-pressed="false">Flat</button>
+        <button data-view="persp" aria-pressed="false">Perspective</button>
+        <button data-view="flat" aria-pressed="true">Flat</button>
       </div>
     </div>
 
@@ -385,7 +385,7 @@
   };
 
   // ---- state ----
-  const S = { yaw: -32, pitch: 14, spread: 0, mode: 'ink', view: 'persp' };
+  const S = { yaw: -32, pitch: 14, spread: 0, mode: 'ink', view: 'flat' };
   const PLATE_H = 1.2, PLATE_W = PLATE_H * aspect, GAP = 0.42, DIST = 4.4, FOV = 30 * Math.PI / 180;
 
   // ---- labels ----

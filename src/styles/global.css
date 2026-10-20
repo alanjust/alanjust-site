@@ -1172,8 +1172,8 @@ button:focus-visible {
   .art-color.home, .design-color { font-size: 19px; }
   .design-color.design-link { font-size: 29px; }
   .design-color.home { font-size: 19px; }
-  .div-right-side { order: -1; margin-right: -10px; padding-left: 0; padding-right: 0; }
-  .section-with-left-menu { padding-left: 0; display: flex; }
+  .div-right-side { order: -1; flex: 1 1 auto; min-width: 0; margin-right: 0; padding-left: 0; padding-right: 0; }
+  .section-with-left-menu { padding-left: 0; padding-right: 28px; display: flex; }
   .side-menu { margin-top: -5px; padding-top: 11px; padding-left: 22px; display: none; }
   .side-menu-text-link { font-size: 16px; line-height: 1.3rem; }
   .navbar { float: right; width: auto; margin-top: 5px; padding-right: 19px; display: flex; position: relative; }
@@ -1230,8 +1230,8 @@ button:focus-visible {
   .art-color.home, .design-color { font-size: 17px; }
   .design-color.design-link { font-size: 23px; }
   .design-color.home { font-size: 17px; }
-  .div-right-side { margin-right: -15px; padding-left: 0; padding-right: 0; }
-  .section-with-left-menu { margin-left: 22px; }
+  .div-right-side { margin-right: 0; padding-left: 0; padding-right: 0; }
+  .section-with-left-menu { margin-left: 22px; padding-right: 22px; }
   .side-menu { margin-top: 0; padding-top: 0; }
   .side-menu-text-link { font-size: 14px; line-height: 1.1rem; }
   .divider-2-px { margin-top: 3px; }
@@ -1272,8 +1272,8 @@ button:focus-visible {
   .art-color.home, .design-color { font-size: 18px; }
   .design-color.design-link { font-size: 28px; }
   .design-color.home { font-size: 18px; }
-  .div-right-side { margin-top: 26px; margin-right: -17px; }
-  .section-with-left-menu { margin-left: 0; padding-left: 23px; }
+  .div-right-side { margin-top: 26px; margin-right: 0; }
+  .section-with-left-menu { margin-left: 0; padding-left: 23px; padding-right: 23px; }
   .side-menu { margin-top: 4px; padding-left: 11px; padding-right: 9px; }
   .side-menu-text-link { font-size: 16px; line-height: 1.1rem; }
   .side-menu-text-link.w--current { color: gray; font-size: 16px; line-height: 1.1rem; }
