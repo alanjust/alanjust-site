@@ -36,7 +36,7 @@ for (const tab of tabs) {
     history.replaceState(null, '', `#${tab.dataset.tab}`);
   });
 }
-selectTab(location.hash === '#reviews' ? 'reviews' : 'files');
+selectTab(location.hash === '#files' ? 'files' : 'reviews');
 
 /* ── Files ────────────────────────────────────────────────────── */
 

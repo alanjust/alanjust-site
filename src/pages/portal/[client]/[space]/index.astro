@@ -24,25 +24,12 @@ const { client, space } = Astro.props as { client: PortalClient; space: PortalSp
           <h1 class="heading-2 portal-title">{space.name}</h1>
 
           <div class="portal-tabs" role="tablist" aria-label="Sections">
-            <button type="button" role="tab" id="tab-files" data-tab="files" aria-controls="panel-files" aria-selected="true">Files</button>
-            <button type="button" role="tab" id="tab-reviews" data-tab="reviews" aria-controls="panel-reviews" aria-selected="false">Reviews</button>
-          </div>
-
-          <!-- Files: two-way transfer -->
-          <div class="portal-panel" role="tabpanel" id="panel-files" aria-labelledby="tab-files">
-            <p class="main-text">A drop box for anything that needs to go back and forth: Illustrator files, fonts, Word documents, zip files. Files are deleted automatically after {FILE_RETENTION_DAYS} days, so keep your own copy.</p>
-            <label class="portal-drop" id="portal-drop">
-              <input type="file" id="portal-file-input" multiple class="portal-visually-hidden" />
-              <span class="portal-drop-text">Drop files here, or <span class="cta-link">choose files</span></span>
-              <span class="portal-meta">Up to 2 GB each</span>
-            </label>
-            <ul class="portal-upload-queue" id="portal-upload-queue"></ul>
-            <p class="portal-error" id="portal-files-error" role="alert" hidden></p>
-            <div id="portal-file-list"><p class="portal-empty">Loading…</p></div>
+            <button type="button" role="tab" id="tab-reviews" data-tab="reviews" aria-controls="panel-reviews" aria-selected="true">Reviews</button>
+            <button type="button" role="tab" id="tab-files" data-tab="files" aria-controls="panel-files" aria-selected="false">Uploads/Files</button>
           </div>
 
           <!-- Reviews: one card per proof; each opens its own review page -->
-          <div class="portal-panel" role="tabpanel" id="panel-reviews" aria-labelledby="tab-reviews" hidden>
+          <div class="portal-panel" role="tabpanel" id="panel-reviews" aria-labelledby="tab-reviews">
             <div class="portal-review-intro">
               <p class="main-text">Proofs to look over. Open one to see it full size and read or add comments. Everyone on your team sees every comment.</p>
               <button type="button" class="portal-button" id="portal-new-proof" hidden>New proof</button>
@@ -73,6 +60,19 @@ const { client, space } = Astro.props as { client: PortalClient; space: PortalSp
               <summary>Approved</summary>
               <ul class="portal-card-grid"></ul>
             </details>
+          </div>
+
+          <!-- Uploads/Files: two-way transfer -->
+          <div class="portal-panel" role="tabpanel" id="panel-files" aria-labelledby="tab-files" hidden>
+            <p class="main-text">A drop box for anything that needs to go back and forth: Illustrator files, fonts, Word documents, zip files. Files are deleted automatically after {FILE_RETENTION_DAYS} days, so keep your own copy.</p>
+            <label class="portal-drop" id="portal-drop">
+              <input type="file" id="portal-file-input" multiple class="portal-visually-hidden" />
+              <span class="portal-drop-text">Drop files here, or <span class="cta-link">choose files</span></span>
+              <span class="portal-meta">Up to 2 GB each</span>
+            </label>
+            <ul class="portal-upload-queue" id="portal-upload-queue"></ul>
+            <p class="portal-error" id="portal-files-error" role="alert" hidden></p>
+            <div id="portal-file-list"><p class="portal-empty">Loading…</p></div>
           </div>
         </div>
       </div>
