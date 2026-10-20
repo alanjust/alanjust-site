@@ -5,8 +5,8 @@ date: 2026-10-20
 type: experiment
 cover: /playground/phil-in-four-inks/cover.jpg
 demo: true
-demoHeight: 3800
-demoHeightPhone: 5300
+demoHeight: 5150
+demoHeightPhone: 4550
 draft: false
 ---
 
