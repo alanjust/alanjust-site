@@ -128,7 +128,7 @@
     try { doc = f.contentDocument; } catch (e) { return; }
     const panel = doc && doc.querySelector('.panel');
     if (!panel) return;
-    const phone = f.clientWidth < 760;
+    const phone = f.clientWidth <= 600;
     // squeeze the frame first so the panel reports what it actually needs
     f.style.height = (phone ? 900 : 400) + 'px';
     const need = panel.scrollHeight;
