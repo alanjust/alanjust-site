@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-layout="stacked">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -173,10 +173,20 @@
   :root[data-layout="stacked"] .panel > * { order: 4; }
   :root[data-layout="stacked"] .panel > h1 { order: 1; grid-column: 1 / -1; }
   :root[data-layout="stacked"] .panel > h1 + p { order: 2; grid-column: 1 / -1; max-width: var(--measure); }
-  :root[data-layout="stacked"] .stage { order: 3; grid-column: 1 / -1; grid-row: auto; height: var(--stacked-stage-h); min-height: 0; }
+  :root[data-layout="stacked"] .stage { order: 3; grid-column: 1 / -1; grid-row: auto; height: min(var(--stacked-stage-h), var(--touch-cap, 100000px)); min-height: 0; }
   :root[data-layout="stacked"] .hint { order: 5; grid-column: 1 / -1; margin-top: 0; max-width: var(--measure); }
 </style>
-<script>if (/[?&]layout=stacked/.test(location.search)) document.documentElement.dataset.layout = 'stacked';</script>
+<script>
+  if (/[?&]layout=stacked/.test(location.search)) document.documentElement.dataset.layout = 'stacked';
+  // On touch screens, cap the picture at about 60% of the screen's height so a thumb can
+  // always find somewhere to scroll from. (Inside a frame, vh means the frame, so use the screen.)
+  if (matchMedia('(pointer: coarse)').matches) {
+    const o = screen.orientation ? screen.orientation.type : '';
+    const landscape = o ? o.startsWith('landscape') : Math.abs(window.orientation || 0) === 90;
+    const tall = landscape ? Math.min(screen.width, screen.height) : Math.max(screen.width, screen.height);
+    document.documentElement.style.setProperty('--touch-cap', Math.round(tall * 0.6) + 'px');
+  }
+</script>
 </head>
 <body>
 <div class="layout">

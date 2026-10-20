@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-layout="stacked">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Phil in Four Inks</title>
+<title>Phil Hand-Colored</title>
 <style>
   :root {
     --bg: #f4f1ec;
@@ -13,17 +13,21 @@
     --border: #d9d3cc;
     --chip-off: #ece7e1;
     --paper: #ffffff;
-    --room: #050505;
-    --outline-ink: rgba(40, 36, 34, 0.28);
-    --outline-light: rgba(255, 255, 255, 0.32);
+    --ring: rgba(29, 27, 26, 0.55);
+    --ring-halo: rgba(255, 255, 255, 0.8);
+    --knob-edge: #ffffff;
+    --knob-shadow: rgba(0, 0, 0, 0.45);
+    --hue-spectrum: linear-gradient(to right, hsl(0 100% 50%), hsl(60 100% 50%), hsl(120 100% 50%), hsl(180 100% 50%), hsl(240 100% 50%), hsl(300 100% 50%), hsl(360 100% 50%));
+    --dim: 0.35;
+    --track-h: 14px;
+    --knob: 22px;
+    --icon-btn: 28px;
+    --icon: 16px;
 
     --ink-c: #00aeef;
     --ink-m: #ec008c;
     --ink-y: #fff200;
     --ink-k: #231f20;
-    --light-r: #ff0000;
-    --light-g: #00ff00;
-    --light-b: #0000ff;
 
     --font: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
     --font-serif: "Iowan Old Style", "Palatino", Georgia, serif;
@@ -43,15 +47,15 @@
     --space-5: 24px;
     --space-6: 32px;
     --radius-s: 6px;
-    --radius-m: 10px;
     --radius-pill: 999px;
+    --radius-round: 50%;
     --swatch: 12px;
     --stage-min: 420px;
     --panel-w: 340px;
     --control-col: 240px;
     --measure: 40em;
-    --stacked-stage-h: min(820px, 95vw);
-    --z-labels: 2;
+    --stacked-stage-h: min(1100px, 112vw);
+    --z-ring: 2;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -81,11 +85,7 @@
     font-size: var(--fs-body);
     line-height: var(--lh-body);
   }
-  .layout {
-    display: grid;
-    grid-template-columns: var(--panel-w) 1fr;
-    min-height: 100%;
-  }
+  .layout { display: grid; grid-template-columns: var(--panel-w) 1fr; min-height: 100%; }
   .panel {
     padding: var(--space-6) var(--space-5);
     border-right: 1px solid var(--border);
@@ -102,15 +102,29 @@
     margin: 0;
   }
   p { margin: 0; }
-  .lede { color: var(--text); }
-  .explain { color: var(--muted); min-height: 7.5em; }
   .label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
     font-size: var(--fs-small);
     font-weight: var(--fw-bold);
     letter-spacing: var(--track-label);
     text-transform: uppercase;
     color: var(--muted);
     margin-bottom: var(--space-2);
+  }
+  .linkish {
+    font: inherit;
+    font-size: var(--fs-small);
+    font-weight: var(--fw-regular);
+    letter-spacing: normal;
+    text-transform: none;
+    background: none;
+    border: 0;
+    padding: 0;
+    color: var(--muted);
+    text-decoration: underline;
+    cursor: pointer;
   }
   .seg {
     display: inline-flex;
@@ -130,24 +144,91 @@
     cursor: pointer;
   }
   .seg button[aria-pressed="true"] { background: var(--text); color: var(--surface); }
-  input[type="range"] { width: 100%; accent-color: var(--text); }
-  .chips { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
-  .chip {
-    font: inherit;
+  .sliders { display: grid; gap: var(--space-2); }
+  .slider {
+    display: grid;
+    grid-template-columns: 5.5em 1fr 3.5em;
+    align-items: center;
+    gap: var(--space-3);
     font-size: var(--fs-small);
+    color: var(--muted);
+  }
+  .slider output { text-align: right; font-variant-numeric: tabular-nums; color: var(--text); }
+  input[type="range"] { width: 100%; accent-color: var(--text); }
+  .hue-head {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-3);
+    gap: var(--space-3);
+    font-size: var(--fs-small);
+    color: var(--muted);
+    margin-bottom: var(--space-2);
+  }
+  .hue-head output { margin-left: auto; color: var(--text); font-variant-numeric: tabular-nums; }
+  .pill {
+    font: inherit;
+    font-size: var(--fs-small);
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-pill);
     border: 1px solid var(--border);
+    background: none;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .pill[aria-pressed="true"] { background: var(--text); color: var(--surface); border-color: var(--text); }
+  input.hue {
+    -webkit-appearance: none;
+    appearance: none;
+    height: var(--track-h);
+    border-radius: var(--radius-pill);
+    background: var(--hue-spectrum);
+    margin: 0 0 var(--space-3);
+    cursor: pointer;
+  }
+  input.hue[data-off] { opacity: var(--dim); }
+  input.hue::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: var(--knob);
+    height: var(--knob);
+    border-radius: var(--radius-round);
+    background: var(--knob-color, transparent);
+    border: 2px solid var(--knob-edge);
+    box-shadow: 0 0 0 1px var(--knob-shadow);
+  }
+  input.hue::-moz-range-thumb {
+    width: var(--knob);
+    height: var(--knob);
+    border-radius: var(--radius-round);
+    background: var(--knob-color, transparent);
+    border: 2px solid var(--knob-edge);
+    box-shadow: 0 0 0 1px var(--knob-shadow);
+  }
+  .layers { border: 1px solid var(--border); border-radius: var(--radius-s); }
+  .layer {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--fs-small);
+    border-top: 1px solid var(--border);
+  }
+  .layer:first-child { border-top: 0; }
+  .layer .name { margin-left: var(--space-2); }
+  .layer[data-hidden] .name { color: var(--muted); }
+  .icon {
+    width: var(--icon-btn);
+    height: var(--icon-btn);
+    display: grid;
+    place-items: center;
+    border: 0;
     border-radius: var(--radius-s);
     background: none;
     color: var(--text);
     cursor: pointer;
-    text-align: left;
+    padding: 0;
   }
-  .chip[aria-pressed="false"] { background: var(--chip-off); color: var(--muted); }
-  .chip[aria-pressed="false"] .swatch { opacity: 0.25; }
+  .icon svg { width: var(--icon); height: var(--icon); }
+  .icon[aria-pressed="false"] svg { opacity: var(--dim); }
+  .icon:disabled { cursor: default; }
   .swatch {
     width: var(--swatch);
     height: var(--swatch);
@@ -155,32 +236,31 @@
     flex: none;
     border: 1px solid var(--border);
   }
-  .hint { font-size: var(--fs-small); color: var(--muted); margin-top: auto; }
-  .stage {
-    position: relative;
-    min-height: var(--stage-min);
-    touch-action: none;
-    cursor: grab;
-    overflow: hidden;
-  }
-  .stage:active { cursor: grabbing; }
-  canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-  .tag {
-    position: absolute;
-    z-index: var(--z-labels);
+  .actions { display: flex; gap: var(--space-2); }
+  .btn {
+    font: inherit;
     font-size: var(--fs-small);
-    font-weight: var(--fw-bold);
-    letter-spacing: var(--track-label);
-    padding: var(--space-1) var(--space-2);
-    border-radius: var(--radius-s);
-    background: var(--surface);
-    color: var(--text);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-pill);
     border: 1px solid var(--border);
-    pointer-events: none;
-    white-space: nowrap;
-    transform: translate(var(--space-2), -50%);
+    background: none;
+    color: var(--text);
+    cursor: pointer;
   }
-  .tag .swatch { display: inline-block; vertical-align: middle; margin-right: var(--space-1); }
+  .btn.primary { background: var(--text); color: var(--surface); border-color: var(--text); }
+  .hint { font-size: var(--fs-small); color: var(--muted); margin-top: auto; }
+  .stage { position: relative; min-height: var(--stage-min); touch-action: none; cursor: none; overflow: hidden; }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .ring {
+    position: absolute;
+    z-index: var(--z-ring);
+    border-radius: var(--radius-round);
+    border: 1px solid var(--ring);
+    box-shadow: 0 0 0 1px var(--ring-halo);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    display: none;
+  }
 
   @media (max-width: 600px) {
     .layout { grid-template-columns: 1fr; grid-template-rows: min(60vh, 480px) auto; }
@@ -203,49 +283,69 @@
   :root[data-layout="stacked"] .panel > * { order: 4; }
   :root[data-layout="stacked"] .panel > h1 { order: 1; grid-column: 1 / -1; }
   :root[data-layout="stacked"] .panel > h1 + p { order: 2; grid-column: 1 / -1; max-width: var(--measure); }
-  :root[data-layout="stacked"] .stage { order: 3; grid-column: 1 / -1; grid-row: auto; height: var(--stacked-stage-h); min-height: 0; }
+  :root[data-layout="stacked"] .stage { order: 3; grid-column: 1 / -1; grid-row: auto; height: min(var(--stacked-stage-h), var(--touch-cap, 100000px)); min-height: 0; }
   :root[data-layout="stacked"] .hint { order: 5; grid-column: 1 / -1; margin-top: 0; max-width: var(--measure); }
 </style>
-<script>if (/[?&]layout=stacked/.test(location.search)) document.documentElement.dataset.layout = 'stacked';</script>
+<script>
+  if (/[?&]layout=stacked/.test(location.search)) document.documentElement.dataset.layout = 'stacked';
+  // On touch screens, cap the picture at about 60% of the screen's height so a thumb can
+  // always find somewhere to scroll from. (Inside a frame, vh means the frame, so use the screen.)
+  if (matchMedia('(pointer: coarse)').matches) {
+    const o = screen.orientation ? screen.orientation.type : '';
+    const landscape = o ? o.startsWith('landscape') : Math.abs(window.orientation || 0) === 90;
+    const tall = landscape ? Math.min(screen.width, screen.height) : Math.max(screen.width, screen.height);
+    document.documentElement.style.setProperty('--touch-cap', Math.round(tall * 0.6) + 'px');
+  }
+</script>
 </head>
 <body>
 <div class="layout">
   <aside class="panel">
-    <h1>Phil, in four inks</h1>
-    <p class="lede">Every color picture in a magazine is made of four inks, each printed as its own sheet of dots. This is my friend Phil, built the same way: four sheets of squares, each tilted to its own angle, each holding one ink. Pull them apart and see how little any one of them knows.</p>
+    <h1>Phil, hand-colored</h1>
+    <p>He starts out in black and white. Drag through him to bring the color back, a square at a time. Then start fooling with the sliders: the brush paints whatever they say, and whatever you paint stays put.</p>
 
     <div>
-      <div class="label">Pull the plates apart</div>
-      <input id="spread" type="range" min="0" max="1" step="0.001" value="0" aria-label="Distance between plates">
-    </div>
-
-    <div>
-      <div class="label">Mix with</div>
-      <div class="seg" role="group" aria-label="Color model">
-        <button data-mode="ink" aria-pressed="true">Ink on paper</button>
-        <button data-mode="light" aria-pressed="false">Light in the dark</button>
-      </div>
-    </div>
-    <p class="explain" id="explain"></p>
-
-    <div>
-      <div class="label">Plates</div>
-      <div class="chips" id="chips"></div>
-    </div>
-
-    <div>
-      <div class="label">View</div>
-      <div class="seg" role="group" aria-label="Projection">
-        <button data-view="persp" aria-pressed="true">Perspective</button>
-        <button data-view="flat" aria-pressed="false">Flat</button>
+      <div class="label">Start from</div>
+      <div class="seg" role="group" aria-label="Starting state">
+        <button data-start="gray" aria-pressed="true">Black and white</button>
+        <button data-start="color" aria-pressed="false">Color</button>
       </div>
     </div>
 
-    <p class="hint">Drag to turn the stack. Double-click to face him head-on. In Flat view, head-on, the plates line up perfectly no matter how far apart they are. That's the press.</p>
+    <div>
+      <div class="label">The brush paints <button class="linkish" id="asPrinted">back to as printed</button></div>
+      <div class="hue-head">Hue <button class="pill" id="recolor" aria-pressed="false">Recolor</button><output id="hueOut"></output></div>
+      <input id="hue" class="hue" type="range" min="0" max="359" step="1" value="0" aria-label="Hue to paint">
+      <div class="sliders">
+        <label class="slider">Saturation <input id="sat" type="range" min="0" max="2" step="0.01" value="1"><output id="satOut"></output></label>
+        <label class="slider">Ink <input id="weight" type="range" min="0" max="2" step="0.01" value="1"><output id="weightOut"></output></label>
+      </div>
+    </div>
+
+    <div>
+      <div class="label">Brush</div>
+      <div class="sliders">
+        <label class="slider">Size <input id="size" type="range" min="40" max="900" step="1" value="420"><output id="sizeOut"></output></label>
+        <label class="slider">Strength <input id="strength" type="range" min="0.02" max="1" step="0.01" value="0.35"><output id="strengthOut"></output></label>
+      </div>
+    </div>
+
+    <div>
+      <div class="label">Layers</div>
+      <div class="layers" id="layers"></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary" id="reset">Reset picture</button>
+      <button class="btn" id="save">Save picture</button>
+    </div>
+
+    <p class="hint">Recolor keeps each ink's lightness, so yellow squares turn into light versions of your color and black ones into very dark versions. The eye shows or hides a layer; the brush says whether you're painting on it. Like Illustrator, a hidden layer can't be painted.</p>
   </aside>
 
   <main class="stage" id="stage">
     <canvas id="gl"></canvas>
+    <div class="ring" id="ring"></div>
   </main>
 </div>
 
@@ -257,42 +357,41 @@
   const tok = name => css.getPropertyValue(name).trim();
   const hex = h => { const n = parseInt(h.slice(1), 16); return [(n >> 16 & 255) / 255, (n >> 8 & 255) / 255, (n & 255) / 255]; };
 
-  // Front of the stack first (top of the Layers panel). Black on top, yellow at the bottom.
+  // Top of the Layers panel first. In ink, order doesn't change the result.
   const PLATES = [
-    { key: 'K', name: 'Black',   angle: '45°',  ink: tok('--ink-k'), light: null,           lightName: 'shade' },
-    { key: 'C', name: 'Cyan',    angle: '105°', ink: tok('--ink-c'), light: tok('--light-r'), lightName: 'red light' },
-    { key: 'M', name: 'Magenta', angle: '90°',  ink: tok('--ink-m'), light: tok('--light-g'), lightName: 'green light' },
-    { key: 'Y', name: 'Yellow',  angle: '75°',  ink: tok('--ink-y'), light: tok('--light-b'), lightName: 'blue light' },
+    { key: 'K', name: 'Black',   angle: '45°',  ink: tok('--ink-k') },
+    { key: 'C', name: 'Cyan',    angle: '105°', ink: tok('--ink-c') },
+    { key: 'M', name: 'Magenta', angle: '90°',  ink: tok('--ink-m') },
+    { key: 'Y', name: 'Yellow',  angle: '75°',  ink: tok('--ink-y') },
   ];
+  const AS_PRINTED = { recolor: false, sat: 1, weight: 1 };
 
-  const EXPLAIN = {
-    ink: 'Ink works by taking light away. Cyan ink drinks red light, magenta drinks green, yellow drinks blue. Stack them and less and less comes back to your eye. That\'s subtractive color. Black is there because the three together only get you to a muddy brown.',
-    light: 'Same four sheets, turned inside out. Each one now shines the color its ink was blocking: cyan becomes a red lamp, magenta a green one, yellow a blue one, dimmed wherever the ink was heavy. Add the lamps together in the dark and Phil comes back. Same information, opposite direction.',
-  };
-
-  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const stage = document.getElementById('stage');
   const canvas = document.getElementById('gl');
-  const gl = canvas.getContext('webgl2', { antialias: true, alpha: false });
+  const gl = canvas.getContext('webgl2', { antialias: true, alpha: false, preserveDrawingBuffer: true });
   if (!gl) { stage.textContent = 'This page needs WebGL2, which this browser doesn\'t have.'; return; }
 
-  // ---- plate textures: one gray sheet per ink, white = full ink ----
+  // ---- tint sheets: one gray image per ink, white = full ink ----
   const TEX_H = 1800;
   const scale = TEX_H / DATA.H;
   const TEX_W = Math.round(DATA.W * scale);
   const aspect = DATA.W / DATA.H;
-  const aniso = gl.getExtension('EXT_texture_filter_anisotropic');
 
-  function plateTexture(key) {
-    const p = DATA.plates[key];
+  function texParams(filterMin, filterMag) {
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filterMin);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filterMag);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  }
+
+  function tintTexture(p) {
     const c = document.createElement('canvas');
     c.width = TEX_W; c.height = TEX_H;
     const g = c.getContext('2d');
     g.fillStyle = '#000'; g.fillRect(0, 0, TEX_W, TEX_H);
-    const a = p.angle * Math.PI / 180, b = p.angle2 * Math.PI / 180;
     // a hair oversize so neighboring squares overlap instead of leaving seams
     const ha = (p.P * scale + 0.8) / 2, hb = (p.P2 * scale + 0.8) / 2;
-    const ax = Math.cos(a) * ha, ay = Math.sin(a) * ha, bx = Math.cos(b) * hb, by = Math.sin(b) * hb;
+    const ax = p.ea[0] * ha, ay = p.ea[1] * ha, bx = p.eb[0] * hb, by = p.eb[1] * hb;
     for (const [x0, y0, t] of p.cells) {
       const x = x0 * scale, y = y0 * scale, v = Math.round(t * 255);
       g.fillStyle = `rgb(${v},${v},${v})`;
@@ -307,263 +406,286 @@
     gl.bindTexture(gl.TEXTURE_2D, tex);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c);
     gl.generateMipmap(gl.TEXTURE_2D);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    if (aniso) gl.texParameterf(gl.TEXTURE_2D, aniso.TEXTURE_MAX_ANISOTROPY_EXT, Math.min(8, gl.getParameter(aniso.MAX_TEXTURE_MAX_ANISOTROPY_EXT)));
+    texParams(gl.LINEAR_MIPMAP_LINEAR, gl.LINEAR);
     return tex;
   }
-  PLATES.forEach(p => { p.tex = plateTexture(p.key); p.on = true; });
 
-  // ---- shaders ----
+  // ---- every square gets an address on its plate's grid, and a little record of how it's been painted ----
+  // Because each grid is perfectly regular, the shader can work out which square any spot belongs to,
+  // then look up that square's record: hue turn, saturation, ink weight.
+  PLATES.forEach(pl => {
+    const p = DATA.plates[pl.key];
+    const a = p.angle * Math.PI / 180, b = p.angle2 * Math.PI / 180;
+    pl.ea = [Math.cos(a), Math.sin(a)]; pl.eb = [Math.cos(b), Math.sin(b)];
+    pl.P = p.P; pl.P2 = p.P2; pl.cells = p.cells;
+    pl.origin = [p.cells[0][0], p.cells[0][1]];
+    const ij = p.cells.map(([x, y]) => {
+      const dx = x - pl.origin[0], dy = y - pl.origin[1];
+      return [Math.round((dx * pl.ea[0] + dy * pl.ea[1]) / pl.P), Math.round((dx * pl.eb[0] + dy * pl.eb[1]) / pl.P2)];
+    });
+    const is = ij.map(v => v[0]), js = ij.map(v => v[1]);
+    pl.gmin = [Math.min(...is), Math.min(...js)];
+    pl.gsize = [Math.max(...is) - pl.gmin[0] + 1, Math.max(...js) - pl.gmin[1] + 1];
+    pl.slot = ij.map(([i, j]) => (j - pl.gmin[1]) * pl.gsize[0] + (i - pl.gmin[0]));
+    pl.state = new Float32Array(pl.gsize[0] * pl.gsize[1] * 4);
+    pl.tint = tintTexture(pl);
+    pl.stateTex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, pl.stateTex);
+    gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, pl.gsize[0], pl.gsize[1]);
+    texParams(gl.NEAREST, gl.NEAREST);
+    pl.touch = true; pl.show = true;
+  });
+
+  // ---- shader ----
   function shader(type, src) {
     const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
     if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
     return s;
   }
-  function program(vs, fs) {
-    const pr = gl.createProgram();
-    gl.attachShader(pr, shader(gl.VERTEX_SHADER, vs));
-    gl.attachShader(pr, shader(gl.FRAGMENT_SHADER, fs));
-    gl.linkProgram(pr);
-    return pr;
-  }
-  const VS = `#version 300 es
-    in vec2 pos; uniform mat4 mvp; uniform vec2 size; out vec2 uv;
-    void main() { uv = vec2(pos.x + 0.5, 0.5 - pos.y); gl_Position = mvp * vec4(pos * size, 0.0, 1.0); }`;
-  // kind 0: ink (multiply onto white). kind 1: light (add onto black). kind 2: black plate dims whatever's behind it.
-  const FS = `#version 300 es
-    precision mediump float;
-    in vec2 uv; uniform sampler2D tex; uniform vec3 color; uniform int kind; out vec4 o;
+  const prog = gl.createProgram();
+  gl.attachShader(prog, shader(gl.VERTEX_SHADER, `#version 300 es
+    in vec2 pos; uniform vec2 view; uniform vec2 plate; out vec2 uv;
+    void main() { uv = vec2(pos.x + 0.5, 0.5 - pos.y); gl_Position = vec4(pos * plate / view, 0.0, 1.0); }`));
+  gl.attachShader(prog, shader(gl.FRAGMENT_SHADER, `#version 300 es
+    precision highp float;
+    in vec2 uv;
+    uniform sampler2D tint; uniform sampler2D state;
+    uniform vec2 img, origin, ea, eb; uniform float P, P2; uniform ivec2 gmin, gsize;
+    uniform vec3 ink;
+    out vec4 o;
+    float luma(vec3 c) { return dot(c, vec3(0.299, 0.587, 0.114)); }
+    // the pure color at this spot on the rainbow bar
+    vec3 hueColor(float h) {
+      vec3 k = mod(vec3(5.0, 3.0, 1.0) + h / 60.0, 6.0);
+      return vec3(1.0) - clamp(min(k, 4.0 - k), 0.0, 1.0);
+    }
+    // the same color, made as light or dark as the ink it replaces
+    vec3 matchLight(vec3 h, float L) {
+      float lh = luma(h);
+      return L > lh ? mix(h, vec3(1.0), (L - lh) / (1.0 - lh)) : h * (L / lh);
+    }
     void main() {
-      float t = texture(tex, uv).r;
-      if (kind == 1) o = vec4(color * (1.0 - t), 1.0);
-      else o = vec4(vec3(1.0) - t * (vec3(1.0) - color), 1.0);
-    }`;
-  const LINE_FS = `#version 300 es
-    precision mediump float; uniform vec4 color; out vec4 o; void main() { o = color; }`;
-  const LINE_VS = `#version 300 es
-    in vec2 pos; uniform mat4 mvp; uniform vec2 size; void main() { gl_Position = mvp * vec4(pos * size, 0.0, 1.0); }`;
-  const prog = program(VS, FS), lineProg = program(LINE_VS, LINE_FS);
+      vec2 p = uv * img - origin;
+      ivec2 ij = ivec2(floor(dot(p, ea) / P + 0.5), floor(dot(p, eb) / P2 + 0.5)) - gmin;
+      ij = clamp(ij, ivec2(0), gsize - 1);
+      vec4 s = texelFetch(state, ij, 0);
+      // s = hue, how far it's been recolored, saturation, ink weight
+      vec3 c = mix(ink, matchLight(hueColor(s.x), luma(ink)), s.y);
+      c = clamp(mix(vec3(luma(c)), c, s.z), 0.0, 1.0);
+      float t = min(1.0, texture(tint, uv).r * s.w);
+      o = vec4(vec3(1.0) - t * (vec3(1.0) - c), 1.0);
+    }`));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const U = n => gl.getUniformLocation(prog, n);
 
   const quad = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, quad);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5]), gl.STATIC_DRAW);
-  const loop = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, loop);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.5]), gl.STATIC_DRAW);
-
-  // ---- tiny matrix kit (column-major, like WebGL wants) ----
-  const mul = (a, b) => {
-    const r = new Float32Array(16);
-    for (let c = 0; c < 4; c++) for (let rr = 0; rr < 4; rr++) {
-      let s = 0; for (let k = 0; k < 4; k++) s += a[k * 4 + rr] * b[c * 4 + k]; r[c * 4 + rr] = s;
-    }
-    return r;
-  };
-  const ident = () => { const m = new Float32Array(16); m[0] = m[5] = m[10] = m[15] = 1; return m; };
-  const translate = (x, y, z) => { const m = ident(); m[12] = x; m[13] = y; m[14] = z; return m; };
-  const rotX = a => { const m = ident(), c = Math.cos(a), s = Math.sin(a); m[5] = c; m[6] = s; m[9] = -s; m[10] = c; return m; };
-  const rotY = a => { const m = ident(), c = Math.cos(a), s = Math.sin(a); m[0] = c; m[2] = -s; m[8] = s; m[10] = c; return m; };
-  const perspective = (fov, asp, n, f) => {
-    const t = 1 / Math.tan(fov / 2), m = new Float32Array(16);
-    m[0] = t / asp; m[5] = t; m[10] = (f + n) / (n - f); m[11] = -1; m[14] = 2 * f * n / (n - f); return m;
-  };
-  const ortho = (hw, hh, n, f) => {
-    const m = ident(); m[0] = 1 / hw; m[5] = 1 / hh; m[10] = -2 / (f - n); m[14] = -(f + n) / (f - n); return m;
-  };
+  const loc = gl.getAttribLocation(prog, 'pos');
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
 
   // ---- state ----
-  const S = { yaw: -32, pitch: 14, spread: 0, mode: 'ink', view: 'persp' };
-  const PLATE_H = 1.2, PLATE_W = PLATE_H * aspect, GAP = 0.42, DIST = 4.4, FOV = 30 * Math.PI / 180;
+  const S = { start: 'gray', recolor: false, hue: 0, sat: 1, weight: 1, size: 420, strength: 0.35 };
+  const PH = 2, PW = PH * aspect;
+  let view = [1, 1];
 
-  // ---- labels ----
-  const tags = PLATES.map(p => {
-    const el = document.createElement('div');
-    el.className = 'tag';
-    stage.appendChild(el);
-    return el;
-  });
+  function resetPicture() {
+    const sat0 = S.start === 'gray' ? 0 : 1;
+    PLATES.forEach(pl => {
+      for (let n = 0; n < pl.state.length; n += 4) { pl.state[n] = 0; pl.state[n + 1] = 0; pl.state[n + 2] = sat0; pl.state[n + 3] = 1; }
+      pl.dirty = true;
+    });
+    request();
+  }
 
-  function frameMatrices() {
-    const w = canvas.clientWidth, h = canvas.clientHeight, asp = w / h;
-    // back the camera up on narrow stages so the turned stack still fits sideways
-    const dist = DIST * Math.max(1, 0.8 / asp);
-    const view = mul(translate(0, 0, -dist), mul(rotX(S.pitch * Math.PI / 180), rotY(S.yaw * Math.PI / 180)));
-    let proj;
-    if (S.view === 'persp') proj = perspective(FOV, asp, 0.1, 50);
-    else { const hh = dist * Math.tan(FOV / 2); proj = ortho(hh * asp, hh, 0.1, 50); }
-    return { pv: mul(proj, view), w, h };
+  function upload(pl) {
+    gl.bindTexture(gl.TEXTURE_2D, pl.stateTex);
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, pl.gsize[0], pl.gsize[1], gl.RGBA, gl.FLOAT, pl.state);
+    pl.dirty = false;
   }
 
   function draw() {
     const dpr = Math.min(devicePixelRatio || 1, 2);
     const cw = Math.round(canvas.clientWidth * dpr), ch = Math.round(canvas.clientHeight * dpr);
     if (canvas.width !== cw || canvas.height !== ch) { canvas.width = cw; canvas.height = ch; }
+    const asp = canvas.clientWidth / canvas.clientHeight;
+    const hh = Math.max(PH / 2 * 1.06, (PW / 2 * 1.06) / asp);
+    view = [hh * asp, hh];
     gl.viewport(0, 0, cw, ch);
-    const light = S.mode === 'light';
-    const bg = hex(tok(light ? '--room' : '--paper'));
+    const bg = hex(tok('--paper'));
     gl.clearColor(bg[0], bg[1], bg[2], 1);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.enable(gl.BLEND);
-
-    const { pv, w, h } = frameMatrices();
-    const zOf = i => (1.5 - i) * GAP * S.spread; // index 0 (black) nearest the viewer
-
-    gl.useProgram(prog);
-    gl.bindBuffer(gl.ARRAY_BUFFER, quad);
-    const loc = gl.getAttribLocation(prog, 'pos');
-    gl.enableVertexAttribArray(loc);
-    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-    gl.uniform2f(gl.getUniformLocation(prog, 'size'), PLATE_W, PLATE_H);
-
-    // In light mode the lamps add first, then the black plate shades on top.
-    const order = light ? [3, 2, 1, 0] : [0, 1, 2, 3];
-    for (const i of order) {
-      const p = PLATES[i];
-      if (!p.on) {
-        // a missing ink in light mode means its lamp shines at full strength
-        if (!light || !p.light) continue;
-      }
-      const mvp = mul(pv, translate(0, 0, zOf(i)));
-      gl.uniformMatrix4fv(gl.getUniformLocation(prog, 'mvp'), false, mvp);
-      gl.activeTexture(gl.TEXTURE0);
-      gl.bindTexture(gl.TEXTURE_2D, p.on ? p.tex : blankTex);
-      gl.uniform1i(gl.getUniformLocation(prog, 'tex'), 0);
-      if (light && p.light) {
-        gl.blendFunc(gl.ONE, gl.ONE);
-        gl.uniform1i(gl.getUniformLocation(prog, 'kind'), 1);
-        gl.uniform3fv(gl.getUniformLocation(prog, 'color'), hex(p.light));
-      } else {
-        gl.blendFunc(gl.DST_COLOR, gl.ZERO);
-        gl.uniform1i(gl.getUniformLocation(prog, 'kind'), light ? 2 : 0);
-        gl.uniform3fv(gl.getUniformLocation(prog, 'color'), hex(p.ink));
-      }
+    gl.blendFunc(gl.DST_COLOR, gl.ZERO);
+    gl.uniform2fv(U('view'), view);
+    gl.uniform2f(U('plate'), PW, PH);
+    gl.uniform2f(U('img'), DATA.W, DATA.H);
+    gl.uniform1i(U('tint'), 0);
+    gl.uniform1i(U('state'), 1);
+    for (const pl of PLATES) {
+      if (pl.dirty) upload(pl);
+      if (!pl.show) continue;
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, pl.tint);
+      gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, pl.stateTex);
+      gl.uniform2fv(U('origin'), pl.origin);
+      gl.uniform2fv(U('ea'), pl.ea); gl.uniform2fv(U('eb'), pl.eb);
+      gl.uniform1f(U('P'), pl.P); gl.uniform1f(U('P2'), pl.P2);
+      gl.uniform2iv(U('gmin'), pl.gmin); gl.uniform2iv(U('gsize'), pl.gsize);
+      gl.uniform3fv(U('ink'), hex(pl.ink));
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     }
-
-    // sheet edges, so you can see where each plate is once they're apart
-    const edge = Math.min(1, S.spread * 6);
-    if (edge > 0.01) {
-      gl.useProgram(lineProg);
-      gl.bindBuffer(gl.ARRAY_BUFFER, loop);
-      const ll = gl.getAttribLocation(lineProg, 'pos');
-      gl.enableVertexAttribArray(ll);
-      gl.vertexAttribPointer(ll, 2, gl.FLOAT, false, 0, 0);
-      gl.uniform2f(gl.getUniformLocation(lineProg, 'size'), PLATE_W, PLATE_H);
-      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-      const lc = parseRGBA(tok(light ? '--outline-light' : '--outline-ink'));
-      gl.uniform4f(gl.getUniformLocation(lineProg, 'color'), lc[0], lc[1], lc[2], lc[3] * edge);
-      PLATES.forEach((p, i) => {
-        gl.uniformMatrix4fv(gl.getUniformLocation(lineProg, 'mvp'), false, mul(pv, translate(0, 0, zOf(i))));
-        gl.drawArrays(gl.LINE_LOOP, 0, 4);
-      });
-    }
-
-    // labels ride the right edge of each sheet, stepped down so they don't pile up
-    PLATES.forEach((p, i) => {
-      const el = tags[i];
-      const v = project(pv, PLATE_W / 2, PLATE_H / 2 - 0.08 - i * 0.13, zOf(i));
-      const show = S.spread > 0.12;
-      el.style.opacity = show ? Math.min(1, (S.spread - 0.12) * 6) : 0;
-      const sw = light && p.light ? p.light : p.ink;
-      el.innerHTML = `<span class="swatch" style="background:${sw}"></span>${p.name} ${p.angle}`;
-      // keep the label inside the stage on narrow screens
-      el.style.left = Math.min((v[0] * 0.5 + 0.5) * w, w - el.offsetWidth - 16) + 'px';
-      el.style.top = (0.5 - v[1] * 0.5) * h + 'px';
-    });
   }
-
-  function project(m, x, y, z) {
-    const X = m[0] * x + m[4] * y + m[8] * z + m[12];
-    const Y = m[1] * x + m[5] * y + m[9] * z + m[13];
-    const W = m[3] * x + m[7] * y + m[11] * z + m[15];
-    return [X / W, Y / W];
-  }
-  function parseRGBA(s) {
-    const n = s.match(/[\d.]+/g).map(Number);
-    return [n[0] / 255, n[1] / 255, n[2] / 255, n[3] ?? 1];
-  }
-
-  const blankTex = (() => {
-    const t = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, t);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 255]));
-    return t;
-  })();
-
-  // ---- the loop sleeps until something changes ----
   let queued = false;
   const request = () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; draw(); }); } };
 
-  // tween helper for the opening move and the double-click reset
-  let tween = null;
-  function animateTo(target, ms) {
-    if (reduceMotion) { Object.assign(S, target); syncSpread(); request(); return; }
-    const from = {}; for (const k in target) from[k] = S[k];
-    const t0 = performance.now();
-    tween = now => {
-      const k = Math.min(1, (now - t0) / ms), e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
-      for (const key in target) S[key] = from[key] + (target[key] - from[key]) * e;
-      syncSpread(); draw();
-      if (k < 1) requestAnimationFrame(tween); else tween = null;
-    };
-    requestAnimationFrame(tween);
+  // ---- the brush ----
+  // Screen position -> a spot on the original 300 ppi artwork
+  function toImage(e) {
+    const r = canvas.getBoundingClientRect();
+    const wx = ((e.clientX - r.left) / r.width * 2 - 1) * view[0];
+    const wy = (1 - (e.clientY - r.top) / r.height * 2) * view[1];
+    return [(wx / PW + 0.5) * DATA.W, (0.5 - wy / PH) * DATA.H];
+  }
+  const pxPerImage = () => canvas.clientHeight / (2 * view[1]) * PH / DATA.H;
+
+  function stamp(x, y, pressure) {
+    const R = S.size / 2, R2 = R * R;
+    const k = S.strength * pressure;
+    for (const pl of PLATES) {
+      if (!pl.touch || !pl.show) continue;
+      const cells = pl.cells;
+      for (let n = 0; n < cells.length; n++) {
+        const dx = cells[n][0] - x, dy = cells[n][1] - y, d2 = dx * dx + dy * dy;
+        if (d2 > R2) continue;
+        const f = 1 - Math.sqrt(d2) / R;
+        const amt = Math.min(1, k * (0.35 + 0.65 * f));
+        const s = pl.slot[n] * 4, st = pl.state;
+        if (S.recolor) {
+          // a fresh square takes the new hue outright; a recolored one drifts the short way around the wheel
+          if (st[s + 1] < 0.01) st[s] = S.hue;
+          else st[s] = (st[s] + (((S.hue - st[s] + 540) % 360) - 180) * amt + 360) % 360;
+          st[s + 1] += (1 - st[s + 1]) * amt;
+        } else {
+          st[s + 1] += (0 - st[s + 1]) * amt;
+        }
+        st[s + 2] += (S.sat - st[s + 2]) * amt;
+        st[s + 3] += (S.weight - st[s + 3]) * amt;
+        pl.dirty = true;
+      }
+    }
   }
 
-  // ---- controls ----
-  const spreadEl = document.getElementById('spread');
-  const syncSpread = () => { spreadEl.value = S.spread; };
-  spreadEl.addEventListener('input', () => { S.spread = +spreadEl.value; request(); });
-
-  document.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => {
-    S.mode = b.dataset.mode;
-    document.querySelectorAll('[data-mode]').forEach(x => x.setAttribute('aria-pressed', x === b));
-    renderChips(); explain(); request();
-  }));
-  document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => {
-    S.view = b.dataset.view;
-    document.querySelectorAll('[data-view]').forEach(x => x.setAttribute('aria-pressed', x === b));
-    request();
-  }));
-
-  const chipsEl = document.getElementById('chips');
-  function renderChips() {
-    chipsEl.innerHTML = '';
-    PLATES.forEach(p => {
-      const b = document.createElement('button');
-      b.className = 'chip';
-      b.setAttribute('aria-pressed', p.on);
-      const light = S.mode === 'light' && p.light;
-      b.innerHTML = `<span class="swatch" style="background:${light ? p.light : p.ink}"></span>${p.name} ${p.angle}${S.mode === 'light' ? `<br>→ ${p.lightName}` : ''}`;
-      b.addEventListener('click', () => { p.on = !p.on; b.setAttribute('aria-pressed', p.on); request(); });
-      chipsEl.appendChild(b);
-    });
+  const ring = document.getElementById('ring');
+  function moveRing(e) {
+    const r = stage.getBoundingClientRect();
+    const d = S.size * pxPerImage();
+    ring.style.display = 'block';
+    ring.style.width = ring.style.height = d + 'px';
+    ring.style.left = (e.clientX - r.left) + 'px';
+    ring.style.top = (e.clientY - r.top) + 'px';
   }
-  const explainEl = document.getElementById('explain');
-  const explain = () => { explainEl.textContent = EXPLAIN[S.mode]; };
 
-  // drag to orbit
-  let drag = null;
-  stage.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, yaw: S.yaw, pitch: S.pitch }; stage.setPointerCapture(e.pointerId); });
-  stage.addEventListener('pointermove', e => {
-    if (!drag) return;
-    S.yaw = drag.yaw + (e.clientX - drag.x) * 0.35;
-    S.pitch = Math.max(-80, Math.min(80, drag.pitch + (e.clientY - drag.y) * 0.35));
+  let last = null;
+  stage.addEventListener('pointerdown', e => {
+    stage.setPointerCapture(e.pointerId);
+    const [x, y] = toImage(e);
+    last = [x, y];
+    stamp(x, y, e.pointerType === 'pen' ? e.pressure * 2 : 1);
     request();
   });
-  const endDrag = () => { drag = null; };
-  stage.addEventListener('pointerup', endDrag);
-  stage.addEventListener('pointercancel', endDrag);
-  stage.addEventListener('dblclick', () => animateTo({ yaw: 0, pitch: 0 }, 700));
+  stage.addEventListener('pointermove', e => {
+    moveRing(e);
+    if (!last) return;
+    const [x, y] = toImage(e);
+    // lay stamps along the stroke so a fast drag doesn't skip squares
+    const dx = x - last[0], dy = y - last[1], dist = Math.hypot(dx, dy);
+    const spacing = Math.max(8, S.size / 6), steps = Math.max(1, Math.ceil(dist / spacing));
+    const pressure = e.pointerType === 'pen' ? e.pressure * 2 : 1;
+    for (let s = 1; s <= steps; s++) stamp(last[0] + dx * s / steps, last[1] + dy * s / steps, pressure);
+    last = [x, y];
+    request();
+  });
+  const endStroke = () => { last = null; };
+  stage.addEventListener('pointerup', endStroke);
+  stage.addEventListener('pointercancel', endStroke);
+  stage.addEventListener('pointerleave', () => { ring.style.display = 'none'; });
+
+  // ---- controls ----
+  const fmt = {
+    sat: v => v.toFixed(2) + '×',
+    weight: v => v.toFixed(2) + '×',
+    size: v => Math.round(v / 103 * 10) / 10 + ' sq',
+    strength: v => Math.round(v * 100) + '%',
+  };
+  const sliders = ['sat', 'weight', 'size', 'strength'];
+  const HUE_NAMES = ['red', 'orange', 'yellow', 'chartreuse', 'green', 'spring green', 'cyan', 'azure', 'blue', 'violet', 'magenta', 'rose'];
+  const hueEl = document.getElementById('hue'), recolorEl = document.getElementById('recolor');
+  function showValues() {
+    sliders.forEach(id => { document.getElementById(id + 'Out').textContent = fmt[id](S[id]); });
+    // the knob wears the color it's sitting on
+    hueEl.style.setProperty('--knob-color', `hsl(${S.hue} 100% 50%)`);
+    hueEl.toggleAttribute('data-off', !S.recolor);
+    recolorEl.setAttribute('aria-pressed', S.recolor);
+    document.getElementById('hueOut').textContent = S.recolor
+      ? `${S.hue}° ${HUE_NAMES[Math.round(S.hue / 30) % 12]}`
+      : 'as printed';
+  }
+  sliders.forEach(id => document.getElementById(id).addEventListener('input', e => { S[id] = +e.target.value; showValues(); }));
+  // touching the rainbow means you want that color
+  hueEl.addEventListener('input', () => { S.hue = +hueEl.value; S.recolor = true; showValues(); });
+  recolorEl.addEventListener('click', () => { S.recolor = !S.recolor; showValues(); });
+
+  document.getElementById('asPrinted').addEventListener('click', () => {
+    Object.assign(S, AS_PRINTED);
+    document.getElementById('sat').value = 1; document.getElementById('weight').value = 1;
+    showValues();
+  });
+
+  document.querySelectorAll('[data-start]').forEach(b => b.addEventListener('click', () => {
+    S.start = b.dataset.start;
+    document.querySelectorAll('[data-start]').forEach(x => x.setAttribute('aria-pressed', x === b));
+    resetPicture();
+  }));
+  document.getElementById('reset').addEventListener('click', resetPicture);
+
+  document.getElementById('save').addEventListener('click', () => {
+    draw();
+    canvas.toBlob(blob => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'phil-hand-colored.png';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    });
+  });
+
+  // ---- Layers panel: top row = front, like Illustrator ----
+  const EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const BRUSH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.4 2.6a2 2 0 0 1 2.9 2.9L11 15.8 8.2 13z"/><path d="M8.2 13c-2.2 0-4 1.8-4 4 0 1.5-.8 2.6-2.2 3 1 .6 2.4 1 4 1a4.5 4.5 0 0 0 4.5-4.5z"/></svg>';
+  const layersEl = document.getElementById('layers');
+  PLATES.forEach(pl => {
+    const row = document.createElement('div');
+    row.className = 'layer';
+    row.innerHTML = `<button class="icon eye" aria-pressed="true" aria-label="Show ${pl.name}">${EYE}</button>`
+      + `<button class="icon brush" aria-pressed="true" aria-label="Paint on ${pl.name}">${BRUSH}</button>`
+      + `<span class="swatch" style="background:${pl.ink}"></span><span class="name">${pl.name} ${pl.angle}</span>`;
+    const eye = row.querySelector('.eye'), brush = row.querySelector('.brush');
+    const sync = () => {
+      eye.setAttribute('aria-pressed', pl.show);
+      brush.setAttribute('aria-pressed', pl.touch && pl.show);
+      brush.disabled = !pl.show;
+      row.toggleAttribute('data-hidden', !pl.show);
+    };
+    eye.addEventListener('click', () => { pl.show = !pl.show; sync(); request(); });
+    brush.addEventListener('click', () => { pl.touch = !pl.touch; sync(); });
+    layersEl.appendChild(row);
+  });
 
   new ResizeObserver(request).observe(stage);
-  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', request);
-
-  renderChips(); explain(); draw();
-  // He arrives as a finished print, then comes apart.
-  setTimeout(() => animateTo({ spread: 0.7 }, 1600), 700);
+  showValues();
+  resetPicture();
 })();
 </script>
 </body>
