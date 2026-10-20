@@ -851,6 +851,8 @@ label {
 .portal-page [hidden] { display: none !important; }
 .portal-page { max-width: 900px; padding-bottom: 80px; }
 .portal-title { margin-top: 8px; }
+/* A page with no breadcrumb above its title starts where the breadcrumb would. */
+.portal-page > .portal-title:first-child { margin-top: 42px; }
 .portal-crumb {
   color: var(--text-muted);
   font-size: 13px;
