@@ -573,6 +573,13 @@ label {
 .project-description p { margin-bottom: 1em; }
 .project-description strong { color: rgba(255,255,255,0.9); }
 .project-description em { font-style: italic; }
+.project-description h2 {
+  color: var(--white);
+  font-size: 24px;
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  margin: 1.6em 0 0.5em;
+}
 .project-description .ink-cyan    { color: var(--ink-cyan); }
 .project-description .ink-magenta { color: var(--ink-magenta); }
 .project-description .ink-yellow  { color: var(--ink-yellow); }
