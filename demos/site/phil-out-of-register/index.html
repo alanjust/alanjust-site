@@ -174,7 +174,8 @@
   :root[data-layout="stacked"] .panel > h1 { order: 1; grid-column: 1 / -1; }
   :root[data-layout="stacked"] .panel > h1 + p { order: 2; grid-column: 1 / -1; max-width: var(--measure); }
   :root[data-layout="stacked"] .stage { order: 3; grid-column: 1 / -1; grid-row: auto; height: min(var(--stacked-stage-h), var(--touch-cap, 100000px)); min-height: 0; }
-  :root[data-layout="stacked"] .hint { order: 5; grid-column: 1 / -1; margin-top: 0; max-width: var(--measure); }
+  :root[data-layout="stacked"] .panel > .explain { order: 5; grid-column: 1 / -1; max-width: var(--measure); min-height: 0; }
+  :root[data-layout="stacked"] .hint { order: 6; grid-column: 1 / -1; margin-top: 0; max-width: var(--measure); }
 </style>
 <script>
   if (/[?&]layout=stacked/.test(location.search)) document.documentElement.dataset.layout = 'stacked';
@@ -201,7 +202,6 @@
         <button data-fx="loose" aria-pressed="false">Loose press</button>
       </div>
     </div>
-    <p class="explain" id="explain"></p>
 
     <div class="sliders">
       <label class="slider">Reach <input id="reach" type="range" min="0.15" max="1.2" step="0.01" value="0.55"></label>
@@ -221,6 +221,8 @@
         <button data-mode="light" aria-pressed="false">Light in the dark</button>
       </div>
     </div>
+
+    <p class="explain" id="explain"></p>
 
     <p class="hint">Black is the anchor: it barely moves. Yellow is the loosest. Turn plates off to watch one ink at a time misbehave.</p>
   </aside>

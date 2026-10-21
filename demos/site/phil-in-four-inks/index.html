@@ -50,7 +50,7 @@
     --panel-w: 340px;
     --control-col: 240px;
     --measure: 40em;
-    --stacked-stage-h: min(820px, 95vw);
+    --stacked-stage-h: min(620px, 76vw);
     --z-labels: 2;
   }
   @media (prefers-color-scheme: dark) {
@@ -171,7 +171,7 @@
     font-size: var(--fs-small);
     font-weight: var(--fw-bold);
     letter-spacing: var(--track-label);
-    padding: var(--space-1) var(--space-2);
+    padding: var(--space-1);
     border-radius: var(--radius-s);
     background: var(--surface);
     color: var(--text);
@@ -180,7 +180,7 @@
     white-space: nowrap;
     transform: translate(var(--space-2), -50%);
   }
-  .tag .swatch { display: inline-block; vertical-align: middle; margin-right: var(--space-1); }
+  .tag .swatch { display: block; }
 
   @media (max-width: 600px) {
     .layout { grid-template-columns: 1fr; grid-template-rows: min(60vh, 480px) auto; }
@@ -200,11 +200,13 @@
     align-items: start;
   }
   :root[data-layout="stacked"] .panel { display: contents; }
+  @media (max-width: 600px) { :root[data-layout="stacked"] { --stacked-stage-h: 100vw; } }
   :root[data-layout="stacked"] .panel > * { order: 4; }
   :root[data-layout="stacked"] .panel > h1 { order: 1; grid-column: 1 / -1; }
   :root[data-layout="stacked"] .panel > h1 + p { order: 2; grid-column: 1 / -1; max-width: var(--measure); }
   :root[data-layout="stacked"] .stage { order: 3; grid-column: 1 / -1; grid-row: auto; height: min(var(--stacked-stage-h), var(--touch-cap, 100000px)); min-height: 0; }
-  :root[data-layout="stacked"] .hint { order: 5; grid-column: 1 / -1; margin-top: 0; max-width: var(--measure); }
+  :root[data-layout="stacked"] .panel > .explain { order: 5; grid-column: 1 / -1; max-width: var(--measure); min-height: 0; }
+  :root[data-layout="stacked"] .hint { order: 6; grid-column: 1 / -1; margin-top: 0; max-width: var(--measure); }
 </style>
 <script>
   if (/[?&]layout=stacked/.test(location.search)) document.documentElement.dataset.layout = 'stacked';
@@ -236,7 +238,6 @@
         <button data-mode="light" aria-pressed="false">Light in the dark</button>
       </div>
     </div>
-    <p class="explain" id="explain"></p>
 
     <div>
       <div class="label">Plates</div>
@@ -250,6 +251,8 @@
         <button data-view="flat" aria-pressed="true">Flat</button>
       </div>
     </div>
+
+    <p class="explain" id="explain"></p>
 
     <p class="hint">Drag to turn the stack. Double-click to face him head-on. In Flat view, head-on, the plates line up perfectly no matter how far apart they are. That's the press.</p>
   </aside>
@@ -386,7 +389,9 @@
 
   // ---- state ----
   const S = { yaw: -32, pitch: 14, spread: 0, mode: 'ink', view: 'flat' };
-  const PLATE_H = 1.2, PLATE_W = PLATE_H * aspect, GAP = 0.42, DIST = 4.4, FOV = 30 * Math.PI / 180;
+  const PLATE_H = 1.2, PLATE_W = PLATE_H * aspect, GAP = 0.42, FOV = 30 * Math.PI / 180;
+  // In the single-column layout the camera comes in closer, so Phil fills the picture area.
+  const DIST = document.documentElement.dataset.layout === 'stacked' ? 3.3 : 4.4;
 
   // ---- labels ----
   const tags = PLATES.map(p => {
@@ -478,7 +483,9 @@
       const show = S.spread > 0.12;
       el.style.opacity = show ? Math.min(1, (S.spread - 0.12) * 6) : 0;
       const sw = light && p.light ? p.light : p.ink;
-      el.innerHTML = `<span class="swatch" style="background:${sw}"></span>${p.name} ${p.angle}`;
+      // just a dot of the plate's color, so the labels don't cover Phil
+      el.innerHTML = `<span class="swatch" style="background:${sw}"></span>`;
+      el.setAttribute('aria-label', `${p.name} ${p.angle}`);
       // keep the label inside the stage on narrow screens
       el.style.left = Math.min((v[0] * 0.5 + 0.5) * w, w - el.offsetWidth - 16) + 'px';
       el.style.top = (0.5 - v[1] * 0.5) * h + 'px';
