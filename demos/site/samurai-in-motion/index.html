@@ -50,7 +50,8 @@
   }
   .drawing {
     width: 100%;
-    height: var(--drawing-height);
+    height: auto;                     /* the viewBox sets the shape, so the frame hugs the drawing on phones */
+    max-height: var(--drawing-height);
     display: block;
     overflow: visible;
     touch-action: none;   /* finger and stylus drags move the ink instead of scrolling the page */
