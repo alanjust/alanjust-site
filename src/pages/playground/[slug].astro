@@ -104,4 +104,18 @@ const ogImage = data.cover ? new URL(data.cover, 'https://alanjust.com').toStrin
 
 <script>
   import '../../scripts/playground-comments';
+
+  // A demo can tell this page how tall it is (a 'demo-height' message), and its frame
+  // then fits it exactly. Demos that don't say keep the fixed height from their Markdown file.
+  addEventListener('message', e => {
+    const d = e.data;
+    if (!d || d.type !== 'demo-height' || typeof d.height !== 'number') return;
+    for (const f of document.querySelectorAll<HTMLIFrameElement>('.playground-demo iframe')) {
+      if (f.contentWindow !== e.source || new URL(f.src).origin !== e.origin) continue;
+      const cs = getComputedStyle(f);
+      const edges = cs.boxSizing === 'border-box' ? parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth) : 0;
+      const h = Math.round(d.height + edges);
+      if (h > 100 && h < 20000) f.style.height = h + 'px';
+    }
+  });
 </script>

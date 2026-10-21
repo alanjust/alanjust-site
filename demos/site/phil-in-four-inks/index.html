@@ -199,6 +199,7 @@
     background: var(--surface);
     align-items: start;
   }
+  :root[data-layout="stacked"] body { background: var(--surface); }
   :root[data-layout="stacked"] .panel { display: contents; }
   @media (max-width: 600px) { :root[data-layout="stacked"] { --stacked-stage-h: 100vw; } }
   :root[data-layout="stacked"] .panel > * { order: 4; }
@@ -594,6 +595,16 @@
   // He arrives as a finished print, then comes apart.
   setTimeout(() => animateTo({ spread: 0.7 }, 1600), 700);
 })();
+</script>
+<script>
+  // Inside the Playground's frame on alanjust.com, tell the page how tall this page is,
+  // so the frame fits it exactly instead of leaving an empty band at the bottom.
+  if (window.parent !== window) {
+    const layout = document.querySelector('.layout');
+    const report = () => parent.postMessage({ type: 'demo-height', height: Math.ceil(layout.getBoundingClientRect().height) }, '*');
+    new ResizeObserver(report).observe(layout);
+    addEventListener('load', report);
+  }
 </script>
 </body>
 </html>
