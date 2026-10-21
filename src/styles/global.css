@@ -36,6 +36,10 @@
   --text-faint:       rgba(255,255,255,0.5);
   --danger:           var(--light-coral);
   --radius-medium:    6px;
+  /* Process inks, matching the Phil Playground demos */
+  --ink-cyan:         #00aeef;
+  --ink-magenta:      #ec008c;
+  --ink-yellow:       #fff200;
 }
 
 /* ── Base ────────────────────────────────────────────────────── */
@@ -569,6 +573,9 @@ label {
 .project-description p { margin-bottom: 1em; }
 .project-description strong { color: rgba(255,255,255,0.9); }
 .project-description em { font-style: italic; }
+.project-description .ink-cyan    { color: var(--ink-cyan); }
+.project-description .ink-magenta { color: var(--ink-magenta); }
+.project-description .ink-yellow  { color: var(--ink-yellow); }
 .project-gallery {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
