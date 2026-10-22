@@ -21,6 +21,8 @@ This is a test bench for **Xmas Gift Tour**. Same three paintings, same story, s
 
 The other two rows of buttons are about teaching a first-time visitor what to do: a ghost finger that demonstrates, a few words, or nothing at all, and how dark the line should be.
 
+And it talks, if you let it. Press **Sound** above the strip and the captions are read by a narrator, the characters speak their lines (the goat in a very low voice, the whispers barely above a whisper), the bicycle bell rings, the snorkel bubbles, and the wind blows through the funnel branch. The words wait for the voices, so it reads like someone reading to you. The voices are your device's own, so they'll sound different on a phone than on a laptop.
+
 What I'd like to hear: which one would you want to read a whole comic with? And which one is the most fun for about ten seconds, and then not?
 
 ## Where this comes from
