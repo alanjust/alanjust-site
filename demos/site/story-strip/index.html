@@ -36,6 +36,19 @@
     --pop-time: 0.5s;
     --pop-ease: cubic-bezier(0.34, 1.7, 0.64, 1);   /* overshoots, so the bubble bounces */
     --shrink-time: 0.25s;
+    /* Comic lettering */
+    --caption-fill: #fbeeb0;     /* the narrator's box: old newsprint yellow */
+    --whisper-ink: #6f6f6f;
+    --whisper-dash: 3 2.5;
+    --sfx-ring: #e8402f;
+    --sfx-sea: #f4fbff;
+    --sfx-wind: #fffbe8;
+    --slide-time: 0.5s;
+    --ring-time: 3.5s;           /* the bell shakes, then waits, then shakes again */
+    --rise-time: 3.2s;           /* one bubble's trip to the surface */
+    --drift-time: 3s;
+    --stroke-bubble: 0.6;        /* outline of a rising bubble, in drawing units */
+    --stroke-icon: 1.5;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -96,6 +109,51 @@
   .bubble text { font-family: var(--font-letter); font-weight: var(--weight-letter); fill: var(--color-ink); text-anchor: middle; dominant-baseline: central; }
   @media (prefers-reduced-motion: reduce) { .bubble, .bubble.popped { transition: opacity var(--shrink-time); } }
 
+  /* A whisper is a speech balloon with a dashed outline and quiet gray lettering. */
+  .bubble.whisper .rim { fill: none; stroke: var(--whisper-ink); stroke-dasharray: var(--whisper-dash); }
+  .bubble.whisper text { fill: var(--whisper-ink); font-style: italic; font-weight: normal; }
+
+  /* Captions: the narrator's box, pinned to a corner of the panel. It slides in rather than popping. */
+  .caption { opacity: 0; transform-box: view-box; transform: translateY(-4px); transition: opacity var(--shrink-time), transform var(--shrink-time); }
+  .caption.shown { opacity: 1; transform: none; transition: opacity var(--slide-time), transform var(--slide-time) ease-out; }
+  .caption rect { fill: var(--caption-fill); stroke: var(--color-ink); stroke-width: var(--stroke-frame); vector-effect: non-scaling-stroke; }
+  .caption text { font-family: var(--font-letter); font-weight: var(--weight-letter); fill: var(--color-ink); dominant-baseline: central; }
+
+  /* Sound effects: lettering drawn into the art, outlined in ink. */
+  .sfx { opacity: 0; transform-box: view-box; transform: scale(0.2); transition: opacity var(--shrink-time), transform var(--shrink-time); }
+  .sfx.shown { opacity: 1; transform: scale(1); transition: transform var(--pop-time) var(--pop-ease), opacity calc(var(--pop-time) / 3); }
+  .sfx text { font-family: var(--font-letter); font-weight: var(--weight-letter); text-anchor: middle; dominant-baseline: central; stroke: var(--color-ink); stroke-linejoin: round; paint-order: stroke; }
+  .sfx.ring text { fill: var(--sfx-ring); }
+  .sfx.sea text { fill: var(--sfx-sea); }
+  .sfx.wind text { fill: var(--sfx-wind); }
+  .sfx .move { transform-box: fill-box; transform-origin: center; }
+  .sfx.shown.shake .move { animation: ring var(--ring-time) ease-in-out infinite; }
+  .sfx.shown.drift .move { animation: drift var(--drift-time) ease-in-out infinite alternate; }
+  .rise circle { fill: var(--sfx-sea); stroke: var(--color-ink); stroke-width: var(--stroke-bubble); opacity: 0; transform-box: fill-box; }
+  .sfx.shown .rise circle { animation: rise var(--rise-time) ease-in infinite; }
+  @keyframes ring {
+    0%, 30%, 100% { transform: rotate(0); }
+    4% { transform: rotate(-7deg); } 8% { transform: rotate(6deg); } 12% { transform: rotate(-5deg); }
+    16% { transform: rotate(4deg); } 20% { transform: rotate(-2deg); } 24% { transform: rotate(1deg); }
+  }
+  @keyframes drift {
+    from { transform: translate(-4px, 1px); }
+    to { transform: translate(5px, -2px); }
+  }
+  @keyframes rise {
+    0% { transform: translate(0, 0); opacity: 0; }
+    10% { opacity: 1; }
+    40% { transform: translate(2.5px, calc(var(--rise) * -0.4px)); }
+    70% { transform: translate(-2px, calc(var(--rise) * -0.7px)); }
+    92% { opacity: 1; }
+    100% { transform: translate(1px, calc(var(--rise) * -1px)); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .caption, .caption.shown, .sfx, .sfx.shown { transition: opacity var(--shrink-time); transform: none; }
+    .sfx.shown .move, .sfx.shown .rise circle { animation: none; }
+    .rise circle { opacity: 1; }
+  }
+
   .after { display: flex; justify-content: center; min-height: 2.5rem; }
   .again {
     font: inherit; font-family: var(--font-serif); color: var(--color-ink);
@@ -105,6 +163,10 @@
   }
   .again[hidden] { display: inline-block; opacity: 0; pointer-events: none; }
   .again:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+  /* On an upright phone, comic lettering is too small to read: a quiet note asks for a turn. */
+  .turn-hint { display: none; align-items: center; gap: var(--space-1); margin: 0; font-family: var(--font-serif); font-style: italic; color: var(--color-muted); }
+  .turn-hint svg { flex: none; width: 1.5rem; height: 1.5rem; fill: none; stroke: currentColor; stroke-width: var(--stroke-icon); stroke-linecap: round; stroke-linejoin: round; }
+  @media (orientation: portrait) and (max-width: 40rem) { :root.wants-turn .turn-hint { display: flex; } }
   .notes { display: grid; gap: var(--space-1); font-size: var(--size-small); max-width: 40rem; }
 </style>
 <script>
@@ -124,6 +186,8 @@
     <h1>Story Strip, With Bubbles</h1>
     <p>A comic laid end to end along one long line. Rub the line to raise each panel; keep rubbing toward the right edge and the line pulls the story along.</p>
   </header>
+
+  <p class="turn-hint"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="16" rx="2"/><path d="M4 16a8 8 0 0 0 8 6M20 8a8 8 0 0 0-8-6M10 22l2 0-1-2"/></svg>The lettering is small this way. Turn your phone sideways and the story reads better.</p>
 
   <div class="stage" id="stage">
     <svg id="art" aria-label="A long line that rises into comic panels, one after another, where you rub it" role="img">
@@ -170,11 +234,13 @@ const P = {
   homeTime: 1.6,   // seconds for the trip back to the beginning
   finishTime: 0.9, // seconds for a panel to finish rising once its left edge slides out of the window
   pastEnd: 30,     // how far the last panel's left edge can slide out of the window
+  // The strip waits for each panel: its left edge can't leave the window until it's all the way
+  // up, its color is in, all its lettering has appeared, and there's been a moment to read.
+  readPause: 2,    // seconds to read a finished panel before the strip may move on
+  holdMargin: 24,  // blank room kept to the left of a panel while the strip waits for it
   endOpen: 0.8,    // share of the last panel's top edge that must be up before the button appears
   popOpen: 0.85,   // share of a panel's top edge that must be up before its talk bubble pops
   letterSize: 15,  // lettering size, in drawing units
-  bubblePad: [16, 12],  // room around the lettering inside the balloon (sideways, up and down)
-  tailWidth: 18,   // how wide the tail is where it leaves the balloon
   frameStep: 3,    // spacing of points along each panel's top edge
 };
 
@@ -196,6 +262,7 @@ let camX = 0, camGoal = 0;          // left edge of the window along the strip
 let pointer = null;                 // { px } screen x within the stage, or null
 let lastClientX = null;
 let resetting = false, homeFrom = 0, homeStart = 0;
+let lastPush = -1e9;               // when someone last tried to move the strip forward
 let running = false, last = 0;
 
 function load() {
@@ -203,6 +270,7 @@ function load() {
   if (v.look.paper) document.documentElement.dataset.theme = 'light';   // colored art stays on white paper
   if (v.look.pageMax) document.documentElement.style.setProperty('--page-max', v.look.pageMax);
   if (v.look.aspect) stage.classList.add('fit-width');
+  if (v.look.turnHint) document.documentElement.classList.add('wants-turn');
   ground.setAttribute('d', `M0 0H${v.length}`);
   invite.setAttribute('x', v.panels[0].x + 70);
   theEnd.setAttribute('x', v.length - 40);
@@ -210,10 +278,10 @@ function load() {
     const g = document.createElementNS(NS, 'g');
     group.append(g);
     const loops = [];   // { start, end, el, open } ranges into the point arrays
-    const xs = [], ys = [], colored = [];
-    const add = (flat, el, open, color) => {
+    const xs = [], ys = [], colored = [], swaying = [];
+    const add = (flat, el, open, color, sway) => {
       const start = xs.length;
-      for (let i = 0; i < flat.length; i += 2) { xs.push(flat[i]); ys.push(flat[i + 1]); colored.push(color ? 1 : 0); }
+      for (let i = 0; i < flat.length; i += 2) { xs.push(flat[i]); ys.push(flat[i + 1]); colored.push(color ? 1 : 0); swaying.push(sway ? 1 : 0); }
       loops.push({ start, end: xs.length, el, open });
     };
     for (const shape of pd.shapes) {
@@ -226,7 +294,7 @@ function load() {
       } else if (shape.fill) el.setAttribute('fill', shape.fill);
       else el.setAttribute('class', 'ink');
       g.append(el);
-      for (const loop of shape.loops) add(loop, el, !!shape.stroke, shape.color);
+      for (const loop of shape.loops) add(loop, el, !!shape.stroke, shape.color, shape.sway);
     }
     // The border: up one side, along the top, down the other. Its bottom edge is the line itself.
     // When the art brings its own border this one stays hidden, but it still measures how far up the panel is.
@@ -238,11 +306,22 @@ function load() {
     for (let k = 0; k <= n; k++) edge.push(pd.x + pd.w * k / n, -pd.h);
     edge.push(pd.x + pd.w, 0);
     const frameStart = xs.length;
-    add(edge, frame, true, false);
+    add(edge, frame, true, false, false);
     const count = xs.length;
+    // The windsock: how much each point sways (none at the anchored mouth, most at the tip)
+    // and where it sits along the ripple.
+    const sw = pd.sway, swayW = new Float32Array(count), swayPh = new Float32Array(count);
+    if (sw) for (let i = 0; i < count; i++) if (swaying[i]) {
+      const u = Math.min(1, Math.max(0, (xs[i] - sw.from) / (sw.to - sw.from)));
+      swayW[i] = u ** 1.6;
+      swayPh[i] = 2 * Math.PI * sw.waves * u;
+    }
     return {
       lo: pd.x, hi: pd.x + pd.w, loops, frame, frameStart, frameEnd: count, g,
       bubble: pd.bubble ? makeBubble(pd.bubble) : null,
+      extras: makeExtras(pd.extras || []), revealAt: null,
+      sway: sw, swayW, swayPh, swayK: 0,
+      readSince: null, pushed: false,   // when it was finished, and whether a push is finishing it
       sx: Float32Array.from(xs), sy: Float32Array.from(ys), colored: Uint8Array.from(colored),
       hasColor: colored.includes(1), colorGo: false, colorR: 0,
       r: new Float32Array(count), y: new Float32Array(count), vy: new Float32Array(count),
@@ -253,41 +332,133 @@ function load() {
   draw(true);
 }
 
-// A balloon sized to its lettering, with a tail running to the speaker. It waits, shrunk to
-// the tail's tip, until its panel is all the way up.
-function makeBubble(b) {
-  const g = document.createElementNS(NS, 'g');
-  g.setAttribute('class', 'bubble');
-  document.getElementById('bubbles').append(g);
-  const [cx, cy] = b.at, [tx, ty] = b.tip;
-  const lead = P.letterSize * 1.2;
+// Lettering: one line of text per line in the list, centred on (x, y) or starting at x.
+function letters(parent, lines, x, y, size, { upper = true, anchor = 'middle' } = {}) {
+  const lead = size * 1.2;
   const text = document.createElementNS(NS, 'text');
-  text.setAttribute('font-size', P.letterSize);
-  b.lines.forEach((line, i) => {
+  text.setAttribute('font-size', size);
+  if (anchor !== 'middle') text.setAttribute('text-anchor', anchor);
+  lines.forEach((line, i) => {
     const span = document.createElementNS(NS, 'tspan');
-    span.setAttribute('x', cx);
-    span.setAttribute('y', cy + (i - (b.lines.length - 1) / 2) * lead);
-    span.textContent = line.toUpperCase();
+    span.setAttribute('x', x);
+    span.setAttribute('y', y + (i - (lines.length - 1) / 2) * lead);
+    span.textContent = upper ? line.toUpperCase() : line;
     text.append(span);
   });
-  g.append(text);
+  parent.append(text);
+  return text;
+}
+
+// A balloon sized to its lettering, with a tail running to the speaker. It waits, shrunk to
+// the tail's tip, until its panel is all the way up. kind: speech, whisper (dashed, quiet)
+// or thought (a scalloped cloud with a trail of little circles instead of a tail).
+function makeBubble(b, kind = 'speech') {
+  const g = document.createElementNS(NS, 'g');
+  g.setAttribute('class', 'bubble ' + kind);
+  document.getElementById('bubbles').append(g);
+  const [cx, cy] = b.at, [tx, ty] = b.tip;
+  const size = (DATA.look.letter || P.letterSize) * (kind === 'whisper' ? 0.9 : 1);
+  const text = letters(g, b.lines, cx, cy, size, { upper: kind !== 'whisper' });
   const box = text.getBBox();
   // An ellipse that holds a rectangle of w × h needs radii about √2 times half of each.
-  const rx = (box.width / 2 + P.bubblePad[0]) * 1.15, ry = (box.height / 2 + P.bubblePad[1]) * 1.2;
-  // The tail starts inside the balloon, on the side facing the speaker.
-  const ang = Math.atan2(ty - cy, tx - cx), nx = -Math.sin(ang), ny = Math.cos(ang);
-  const bx = cx + Math.cos(ang) * rx * 0.6, by = cy + Math.sin(ang) * ry * 0.6;
-  const w = P.tailWidth / 2;
-  const tail = `M${bx + nx * w} ${by + ny * w}Q${(bx + tx) / 2} ${(by + ty) / 2 + w} ${tx} ${ty}L${bx - nx * w} ${by - ny * w}Z`;
-  const oval = `M${cx - rx} ${cy}a${rx} ${ry} 0 1 0 ${2 * rx} 0a${rx} ${ry} 0 1 0 ${-2 * rx} 0Z`;
+  const rx = (box.width / 2 + size * 1.07) * 1.15, ry = (box.height / 2 + size * 0.8) * 1.2;
+  let d;
+  if (kind === 'thought') {
+    // Scallops: little arcs bulging outward between points around the ellipse.
+    const n = Math.max(9, Math.round((rx + ry) / (size * 0.9)));
+    const pt = k => [cx + rx * Math.cos(2 * Math.PI * k / n), cy + ry * Math.sin(2 * Math.PI * k / n)];
+    d = `M${pt(0).join(' ')}`;
+    for (let k = 1; k <= n; k++) {
+      const [x, y] = pt(k), [px, py] = pt(k - 1), r = Math.hypot(x - px, y - py) * 0.62;
+      d += `A${r} ${r} 0 0 1 ${x} ${y}`;
+    }
+    d += 'Z';
+    // The trail: three shrinking circles from the cloud's edge toward the thinker.
+    const ang = Math.atan2(ty - cy, tx - cx);
+    const ex = cx + Math.cos(ang) * rx, ey = cy + Math.sin(ang) * ry;
+    [0.28, 0.6, 0.88].forEach((f, i) => {
+      const r = size * (0.42 - i * 0.12);
+      const x = ex + (tx - ex) * f, y = ey + (ty - ey) * f;
+      d += `M${x - r} ${y}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0Z`;
+    });
+  } else {
+    // The tail starts inside the balloon, on the side facing the speaker.
+    const ang = Math.atan2(ty - cy, tx - cx), nx = -Math.sin(ang), ny = Math.cos(ang);
+    const bx = cx + Math.cos(ang) * rx * 0.6, by = cy + Math.sin(ang) * ry * 0.6;
+    const w = size * 0.6;
+    const tail = `M${bx + nx * w} ${by + ny * w}Q${(bx + tx) / 2} ${(by + ty) / 2 + w} ${tx} ${ty}L${bx - nx * w} ${by - ny * w}Z`;
+    const oval = `M${cx - rx} ${cy}a${rx} ${ry} 0 1 0 ${2 * rx} 0a${rx} ${ry} 0 1 0 ${-2 * rx} 0Z`;
+    d = oval + tail;
+  }
   for (const cls of ['rim', 'paper']) {
     const el = document.createElementNS(NS, 'path');
     el.setAttribute('class', cls);
-    el.setAttribute('d', oval + tail);
+    el.setAttribute('d', d);
     g.insertBefore(el, text);
   }
   g.style.transformOrigin = `${tx}px ${ty}px`;
   return g;
+}
+
+// The narrator's box, pinned by one corner ('tl', 'tr' or 'bl') at the given point.
+function makeCaption(c) {
+  const g = document.createElementNS(NS, 'g');
+  g.setAttribute('class', 'caption');
+  document.getElementById('bubbles').append(g);
+  const size = DATA.look.letter || P.letterSize, pad = size * 0.6, lead = size * 1.2;
+  const text = letters(g, c.lines, 0, 0, size, { anchor: 'start' });
+  const box = text.getBBox();
+  const w = box.width + 2 * pad, h = c.lines.length * lead + 2 * pad;
+  const [x, y] = c.at;
+  const left = c.corner === 'tr' ? x - w : x, top = c.corner === 'bl' ? y - h : y;
+  text.setAttribute('transform', `translate(${left + pad - box.x} ${top + pad + lead * (c.lines.length - 1) / 2 + lead / 2})`);
+  const rect = document.createElementNS(NS, 'rect');
+  for (const [k, v] of Object.entries({ x: left, y: top, width: w, height: h })) rect.setAttribute(k, v);
+  g.insertBefore(rect, text);
+  return g;
+}
+
+// A sound effect: lettering drawn into the art. 'shake' rings like a bell, 'drift' floats on
+// the breeze, and 'bubbles' sends real bubbles up from 'from' to the surface at 'to'.
+function makeSfx(s) {
+  const g = document.createElementNS(NS, 'g');
+  g.setAttribute('class', `sfx ${s.tone} ${s.effect || ''}`);
+  document.getElementById('bubbles').append(g);
+  const [x, y] = s.at;
+  g.style.transformOrigin = `${x}px ${y}px`;
+  if (s.effect === 'bubbles') {
+    const rise = document.createElementNS(NS, 'g');
+    rise.setAttribute('class', 'rise');
+    const [fx, fy] = s.from;
+    for (let k = 0; k < 6; k++) {
+      const c = document.createElementNS(NS, 'circle');
+      c.setAttribute('cx', fx + [0, -3, 2, -1, 3, -2][k]);
+      c.setAttribute('cy', fy);
+      c.setAttribute('r', [2.2, 1.4, 2.8, 1.8, 1.2, 2.4][k]);
+      c.style.setProperty('--rise', fy - s.to);
+      c.style.animationDelay = `${k * 0.53}s`;
+      rise.append(c);
+    }
+    g.append(rise);
+  }
+  const tilt = document.createElementNS(NS, 'g');
+  tilt.setAttribute('transform', `rotate(${s.turn || 0} ${x} ${y})`);
+  const move = document.createElementNS(NS, 'g');   // the shake or drift moves this one, so the tilt stays
+  move.setAttribute('class', 'move');
+  tilt.append(move);
+  g.append(tilt);
+  const text = letters(move, [s.text], x, y, s.size, { upper: false });
+  text.setAttribute('stroke-width', s.size * 0.14);
+  return g;
+}
+
+// Everything a panel says, in reading order; each piece waits for its delay after the color is up.
+function makeExtras(list) {
+  return list.map(e => {
+    if (e.kind === 'caption') return { el: makeCaption(e), cls: 'shown', delay: e.delay };
+    if (e.kind === 'sfx') return { el: makeSfx(e), cls: 'shown', delay: e.delay };
+    return { el: makeBubble(e, e.kind), cls: 'popped', delay: e.delay };
+  });
 }
 
 function resize() {
@@ -318,7 +489,15 @@ function maxCam() {
   const last = panels[panels.length - 1];
   return Math.max(DATA.length - viewW, last.lo + P.pastEnd);
 }
-function clampCam(x) { return Math.max(0, Math.min(x, maxCam())); }
+// The first panel that isn't finished and read holds the view back.
+function holder(now = performance.now()) {
+  return panels.find(p => p.readSince === null || now - p.readSince < P.readPause * 1000);
+}
+function clampCam(x) {
+  const hold = holder();
+  const top = hold ? Math.max(0, hold.lo - P.holdMargin) : Infinity;
+  return Math.max(0, Math.min(x, maxCam(), Math.max(top, Math.min(x, camGoal))));
+}
 
 function place() {
   svg.setAttribute('viewBox', `${camX.toFixed(2)} ${-DATA.height * (1 + P.padTop)} ${viewW.toFixed(2)} ${viewH}`);
@@ -351,8 +530,10 @@ function step(now) {
     if (f > P.edgeNext) rolling = ease(Math.min(1, (f - P.edgeNext) / (1 - P.edgeNext)));
     else if (f < P.edgeBack) rolling = -ease(Math.min(1, (P.edgeBack - f) / P.edgeBack));
     if (rolling) camGoal = clampCam(camGoal + rolling * P.edgeSpeed * dt * upp);
+    if (rolling > 0) lastPush = now;
   }
-  const more = camGoal < maxCam() - 0.5, earlier = camGoal > 0.5;
+  // The forward arrow stays faint while the strip waits for a panel, solid only when it can actually go.
+  const more = clampCam(camGoal + 1) > camGoal + 0.5, earlier = camGoal > 0.5;
   edgeNext.classList.toggle('shown', !!pointer && !resetting && more);
   edgeNext.classList.toggle('rolling', rolling > 0 && more);
   edgeBack.classList.toggle('shown', !!pointer && !resetting && earlier);
@@ -369,16 +550,25 @@ function step(now) {
 
   const px = pointer && !resetting ? camX + pointer.px * upp : null;
   const near = P.reach + P.taper;
+  const hold = holder(now);
   let stillUp = false;
   for (const p of panels) {
     const touched = px !== null && px > p.lo - near && px < p.hi + near;
     // A panel sliding out the left of the window finishes rising by itself, so nothing is left half up.
-    const finishing = !resetting && !p.done && p.lo < camX;
+    // Pushing on (rubbing toward the right edge, or resting there) while the strip waits makes the
+    // waiting panel finish rising by itself, so nobody has to jiggle a panel up by hand.
+    if (!resetting && p === hold && now - lastPush < 300 && camGoal >= p.lo - P.holdMargin - 1) p.pushed = true;
+    const finishing = !resetting && !p.done && (p.lo < camX || p.pushed);
     // Once the linework is up, the color rises behind it on its own.
     const coloring = !resetting && p.colorGo && p.colorR < 1;
     if (coloring) p.colorR = Math.min(1, p.colorR + dt / P.colorTime);
-    if (!touched && !p.moving && !resetting && !finishing && !coloring) continue;
-    let moved = false, allUp = true;
+    // The windsock waves once the panel's lettering has started, but only while it's in the window.
+    const swaying = !!p.sway && p.revealAt !== null && !resetting && !stillMotion.matches
+      && p.hi > camX && p.lo < camX + viewW;
+    p.swayK = swaying ? Math.min(1, p.swayK + dt / 1.5) : Math.max(0, p.swayK - dt / 0.5);
+    const swayA = p.sway ? p.swayK * p.sway.amp : 0, swayT = p.sway ? 2 * Math.PI * now / 1000 / p.sway.period : 0;
+    if (!touched && !p.moving && !resetting && !finishing && !coloring && !swayA) continue;
+    let moved = false, allUp = true, anyUp = false;
     const { sx, sy, r, y, vy, colored } = p;
     for (let i = 0; i < sx.length; i++) {
       if (resetting) r[i] = Math.max(0, r[i] - dt / P.fade);
@@ -390,9 +580,9 @@ function step(now) {
         const want = u <= 0 ? 1 : u < 1 ? 1 - ease(u) : 0;
         if (want > r[i]) r[i] += (want - r[i]) * Math.min(1, dt * P.rise);
       }
-      if (r[i] > 0) stillUp = true;
+      if (r[i] > 0) anyUp = true;
       if (r[i] < 1) allUp = false;
-      const goal = sy[i] * ease(r[i]);
+      const goal = sy[i] * ease(r[i]) + (swayA && p.swayW[i] ? swayA * p.swayW[i] * Math.sin(p.swayPh[i] - swayT) : 0);
       if (stillMotion.matches) { y[i] = goal; vy[i] = 0; }
       else {
         vy[i] += ((goal - y[i]) * P.stiffness - vy[i] * P.damping) * dt;
@@ -400,8 +590,9 @@ function step(now) {
       }
       if (Math.abs(vy[i]) > 0.02 || Math.abs(y[i] - goal) > 0.02) moved = true;
     }
+    p.up = anyUp;   // remembered, so a panel that's resting still counts
     if (finishing && allUp) p.done = true;
-    p.moving = moved || touched || (finishing && !allUp) || coloring;
+    p.moving = moved || touched || (finishing && !allUp) || coloring || swayA > 0;
     if (p.moving) busy = true;
   }
   draw(false);
@@ -410,10 +601,23 @@ function step(now) {
     for (let i = 0; i < p.sx.length; i++) { p.y[i] = p.sy[i] * ease(p.r[i]); p.vy[i] = 0; }
   }
 
+  stillUp = panels.some(p => p.up);
   if (resetting && !stillUp && camX === 0) resetting = false;
   invite.classList.toggle('gone', stillUp || !!pointer);
   for (const p of panels) if (p.bubble && !resetting && !p.bubble.classList.contains('popped') && openShare(p) >= P.popOpen) {
     p.bubble.classList.add('popped');
+  }
+  // Each panel's lettering arrives in reading order once its color is all the way up.
+  for (const p of panels) if (p.extras.length && !resetting) {
+    if (p.revealAt === null && (p.hasColor ? p.colorR >= 1 : openShare(p) >= P.popOpen)) p.revealAt = now;
+    if (p.revealAt === null) continue;
+    for (const x of p.extras) if (!x.on && now - p.revealAt >= x.delay * 1000) { x.on = true; x.el.classList.add(x.cls); }
+    if (p.extras.some(x => !x.on)) busy = true;
+  }
+  // A panel is finished once it's up, its color is in and all its lettering has appeared.
+  for (const p of panels) if (p.readSince === null && !resetting) {
+    const finished = p.extras.length ? p.extras.every(x => x.on) : p.hasColor ? p.colorR >= 1 : openShare(p) >= P.popOpen;
+    if (finished) p.readSince = now;
   }
   for (const p of panels) if (p.hasColor && !resetting && !p.colorGo && openShare(p) >= P.popOpen) {
     p.colorGo = true; busy = true;
@@ -446,6 +650,7 @@ function arrive(e) {
     if (dx > 0 && f > P.pullFrom) {
       const g = Math.min(1, (f - P.pullFrom) / (P.pullFull - P.pullFrom));
       camGoal = clampCam(camGoal + dx * upp * g * P.pull);
+      lastPush = performance.now();
     }
   }
   lastClientX = e.clientX;
@@ -462,12 +667,17 @@ stage.addEventListener('wheel', e => {
   if (resetting || Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
   e.preventDefault();
   camGoal = clampCam(camGoal + e.deltaX * upp);
+  if (e.deltaX > 0) lastPush = performance.now();
   wake();
 }, { passive: false });
 
 again.addEventListener('click', () => {
   resetting = true; homeFrom = camX; homeStart = performance.now();
-  for (const p of panels) { p.moving = true; p.done = false; p.colorGo = false; p.colorR = 0; p.bubble?.classList.remove('popped'); }
+  for (const p of panels) {
+    p.moving = true; p.done = false; p.colorGo = false; p.colorR = 0; p.revealAt = null; p.readSince = null; p.pushed = false;
+    p.bubble?.classList.remove('popped');
+    for (const x of p.extras) { x.on = false; x.el.classList.remove(x.cls); }
+  }
   wake();
 });
 

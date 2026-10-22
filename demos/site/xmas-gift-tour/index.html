@@ -233,6 +233,10 @@ const P = {
   homeTime: 1.6,   // seconds for the trip back to the beginning
   finishTime: 0.9, // seconds for a panel to finish rising once its left edge slides out of the window
   pastEnd: 30,     // how far the last panel's left edge can slide out of the window
+  // The strip waits for each panel: its left edge can't leave the window until it's all the way
+  // up, its color is in, all its lettering has appeared, and there's been a moment to read.
+  readPause: 2,    // seconds to read a finished panel before the strip may move on
+  holdMargin: 24,  // blank room kept to the left of a panel while the strip waits for it
   endOpen: 0.8,    // share of the last panel's top edge that must be up before the button appears
   popOpen: 0.85,   // share of a panel's top edge that must be up before its talk bubble pops
   letterSize: 15,  // lettering size, in drawing units
@@ -257,6 +261,7 @@ let camX = 0, camGoal = 0;          // left edge of the window along the strip
 let pointer = null;                 // { px } screen x within the stage, or null
 let lastClientX = null;
 let resetting = false, homeFrom = 0, homeStart = 0;
+let lastPush = -1e9;               // when someone last tried to move the strip forward
 let running = false, last = 0;
 
 function load() {
@@ -315,6 +320,7 @@ function load() {
       bubble: pd.bubble ? makeBubble(pd.bubble) : null,
       extras: makeExtras(pd.extras || []), revealAt: null,
       sway: sw, swayW, swayPh, swayK: 0,
+      readSince: null, pushed: false,   // when it was finished, and whether a push is finishing it
       sx: Float32Array.from(xs), sy: Float32Array.from(ys), colored: Uint8Array.from(colored),
       hasColor: colored.includes(1), colorGo: false, colorR: 0,
       r: new Float32Array(count), y: new Float32Array(count), vy: new Float32Array(count),
@@ -482,7 +488,15 @@ function maxCam() {
   const last = panels[panels.length - 1];
   return Math.max(DATA.length - viewW, last.lo + P.pastEnd);
 }
-function clampCam(x) { return Math.max(0, Math.min(x, maxCam())); }
+// The first panel that isn't finished and read holds the view back.
+function holder(now = performance.now()) {
+  return panels.find(p => p.readSince === null || now - p.readSince < P.readPause * 1000);
+}
+function clampCam(x) {
+  const hold = holder();
+  const top = hold ? Math.max(0, hold.lo - P.holdMargin) : Infinity;
+  return Math.max(0, Math.min(x, maxCam(), Math.max(top, Math.min(x, camGoal))));
+}
 
 function place() {
   svg.setAttribute('viewBox', `${camX.toFixed(2)} ${-DATA.height * (1 + P.padTop)} ${viewW.toFixed(2)} ${viewH}`);
@@ -515,8 +529,10 @@ function step(now) {
     if (f > P.edgeNext) rolling = ease(Math.min(1, (f - P.edgeNext) / (1 - P.edgeNext)));
     else if (f < P.edgeBack) rolling = -ease(Math.min(1, (P.edgeBack - f) / P.edgeBack));
     if (rolling) camGoal = clampCam(camGoal + rolling * P.edgeSpeed * dt * upp);
+    if (rolling > 0) lastPush = now;
   }
-  const more = camGoal < maxCam() - 0.5, earlier = camGoal > 0.5;
+  // The forward arrow stays faint while the strip waits for a panel, solid only when it can actually go.
+  const more = clampCam(camGoal + 1) > camGoal + 0.5, earlier = camGoal > 0.5;
   edgeNext.classList.toggle('shown', !!pointer && !resetting && more);
   edgeNext.classList.toggle('rolling', rolling > 0 && more);
   edgeBack.classList.toggle('shown', !!pointer && !resetting && earlier);
@@ -533,11 +549,15 @@ function step(now) {
 
   const px = pointer && !resetting ? camX + pointer.px * upp : null;
   const near = P.reach + P.taper;
+  const hold = holder(now);
   let stillUp = false;
   for (const p of panels) {
     const touched = px !== null && px > p.lo - near && px < p.hi + near;
     // A panel sliding out the left of the window finishes rising by itself, so nothing is left half up.
-    const finishing = !resetting && !p.done && p.lo < camX;
+    // Pushing on (rubbing toward the right edge, or resting there) while the strip waits makes the
+    // waiting panel finish rising by itself, so nobody has to jiggle a panel up by hand.
+    if (!resetting && p === hold && now - lastPush < 300 && camGoal >= p.lo - P.holdMargin - 1) p.pushed = true;
+    const finishing = !resetting && !p.done && (p.lo < camX || p.pushed);
     // Once the linework is up, the color rises behind it on its own.
     const coloring = !resetting && p.colorGo && p.colorR < 1;
     if (coloring) p.colorR = Math.min(1, p.colorR + dt / P.colorTime);
@@ -593,6 +613,11 @@ function step(now) {
     for (const x of p.extras) if (!x.on && now - p.revealAt >= x.delay * 1000) { x.on = true; x.el.classList.add(x.cls); }
     if (p.extras.some(x => !x.on)) busy = true;
   }
+  // A panel is finished once it's up, its color is in and all its lettering has appeared.
+  for (const p of panels) if (p.readSince === null && !resetting) {
+    const finished = p.extras.length ? p.extras.every(x => x.on) : p.hasColor ? p.colorR >= 1 : openShare(p) >= P.popOpen;
+    if (finished) p.readSince = now;
+  }
   for (const p of panels) if (p.hasColor && !resetting && !p.colorGo && openShare(p) >= P.popOpen) {
     p.colorGo = true; busy = true;
   }
@@ -624,6 +649,7 @@ function arrive(e) {
     if (dx > 0 && f > P.pullFrom) {
       const g = Math.min(1, (f - P.pullFrom) / (P.pullFull - P.pullFrom));
       camGoal = clampCam(camGoal + dx * upp * g * P.pull);
+      lastPush = performance.now();
     }
   }
   lastClientX = e.clientX;
@@ -640,13 +666,14 @@ stage.addEventListener('wheel', e => {
   if (resetting || Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
   e.preventDefault();
   camGoal = clampCam(camGoal + e.deltaX * upp);
+  if (e.deltaX > 0) lastPush = performance.now();
   wake();
 }, { passive: false });
 
 again.addEventListener('click', () => {
   resetting = true; homeFrom = camX; homeStart = performance.now();
   for (const p of panels) {
-    p.moving = true; p.done = false; p.colorGo = false; p.colorR = 0; p.revealAt = null;
+    p.moving = true; p.done = false; p.colorGo = false; p.colorR = 0; p.revealAt = null; p.readSince = null; p.pushed = false;
     p.bubble?.classList.remove('popped');
     for (const x of p.extras) { x.on = false; x.el.classList.remove(x.cls); }
   }
