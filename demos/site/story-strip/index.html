@@ -13,12 +13,14 @@
     --color-muted: #8a8a8a;
     --color-line: #dcdcdc;
     --color-focus: #3b6fd8;
+    --color-link: #2f6fd0;
     --font-ui: -apple-system, BlinkMacSystemFont, "Inter", "Helvetica Neue", sans-serif;
     --font-serif: "Iowan Old Style", "Palatino", Georgia, serif;
     --weight-bold: 600;
     --tracking-wide: 0.12em;
     --size-body: 1rem;
     --size-small: 0.875rem;
+    --size-xsmall: 0.75rem;
     --stroke: 2.5px;
     --stroke-frame: 2px;
     --leading-body: 1.5;
@@ -61,12 +63,12 @@
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       --color-bg: #1c1c1e; --color-ink: #e2e2e2; --color-accent: #ff5fb8;
-      --color-muted: #8a8a8a; --color-line: #3a3a3c; --color-focus: #7aa2ff;
+      --color-muted: #8a8a8a; --color-line: #3a3a3c; --color-focus: #7aa2ff; --color-link: #7aa2ff;
     }
   }
   :root[data-theme="dark"] {
     --color-bg: #1c1c1e; --color-ink: #e2e2e2; --color-accent: #ff5fb8;
-    --color-muted: #8a8a8a; --color-line: #3a3a3c; --color-focus: #7aa2ff;
+    --color-muted: #8a8a8a; --color-line: #3a3a3c; --color-focus: #7aa2ff; --color-link: #7aa2ff;
   }
   * { box-sizing: border-box; }
   body {
@@ -162,14 +164,15 @@
     .rise circle { opacity: 1; }
   }
 
-  /* Back to the beginning: small, tucked under the line at the window's bottom-left corner. */
+  /* Back to the beginning: a small blue link, tucked under the line at the window's bottom-left corner. */
   .again {
     position: absolute; left: var(--space-1); bottom: var(--space-1);
-    font: inherit; font-family: var(--font-serif); font-size: var(--size-small); color: var(--color-ink);
-    background: var(--color-bg); border: 1px solid var(--color-ink); border-radius: var(--radius-pill);
-    padding: 0.2rem var(--space-1); cursor: pointer;
+    font: inherit; font-family: var(--font-ui); font-style: italic; font-size: var(--size-xsmall); color: var(--color-link);
+    background: none; border: 0; padding: 0; cursor: pointer;
+    text-decoration: underline; text-underline-offset: 0.15em;
     transition: opacity var(--fade-label);
   }
+  .again:hover { color: var(--color-ink); }
   .again[hidden] { display: inline-block; opacity: 0; pointer-events: none; }
   .again:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
   /* On an upright phone, comic lettering is too small to read: a quiet note asks for a turn. */
