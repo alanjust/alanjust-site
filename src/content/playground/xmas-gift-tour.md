@@ -10,7 +10,7 @@ demoHeightPhone: 700
 draft: false
 ---
 
-Last holiday season I made three paintings as gifts: one for each of my two daughters, and one for my oldest daughter's partner. Each one was its own picture. Here they're laid end to end and told as one story, a holiday trip. A bike gets towed across the desert by a dog, a manta ray glides under a kayak, and someone waves up at a ball of yarn that's sprouting leaves.
+Last holiday season I made three paintings as gifts: one for each of my two daughters, and one for my oldest daughter's partner. Each one was its own picture. Here they're laid end to end and told as one story, a holiday trip. A goat tows a bicycle across the desert, a manta ray glides beneath an empty kayak, and Jessica waves up at a funnel branch, half laboratory and half plant.
 
 It works like **Story Strip**. The whole trip lies folded flat on one line, and rubbing the line makes each scene stand up out of it. Two things are new here. The drawing comes up first and the color rises in behind it once the drawing is all the way up, the way you'd ink a page and then paint it. And you don't have to keep rubbing to travel: rest your cursor or your finger near the right edge and the trip rolls along by itself. Rest near the left edge and it rolls back.
 
