@@ -78,7 +78,7 @@
     line-height: var(--leading-body);
     padding: var(--space-4) var(--space-2);
   }
-  main { max-width: var(--page-max); margin: 0 auto; display: grid; gap: var(--space-3); }
+  main { max-width: var(--page-max); margin: 0 auto; display: grid; gap: var(--space-2); }
   header { display: grid; gap: var(--space-1); max-width: 40rem; }
   h1 { margin: 0; font-size: var(--size-body); font-weight: var(--weight-bold); letter-spacing: var(--tracking-wide); text-transform: uppercase; }
   p { margin: 0; color: var(--color-muted); }
@@ -162,11 +162,12 @@
     .rise circle { opacity: 1; }
   }
 
-  .after { display: flex; justify-content: center; min-height: 2.5rem; }
+  /* Back to the beginning: small, tucked under the line at the window's bottom-left corner. */
   .again {
-    font: inherit; font-family: var(--font-serif); color: var(--color-ink);
-    background: none; border: 1px solid var(--color-ink); border-radius: var(--radius-pill);
-    padding: 0.25rem var(--space-2); cursor: pointer;
+    position: absolute; left: var(--space-1); bottom: var(--space-1);
+    font: inherit; font-family: var(--font-serif); font-size: var(--size-small); color: var(--color-ink);
+    background: var(--color-bg); border: 1px solid var(--color-ink); border-radius: var(--radius-pill);
+    padding: 0.2rem var(--space-1); cursor: pointer;
     transition: opacity var(--fade-label);
   }
   .again[hidden] { display: inline-block; opacity: 0; pointer-events: none; }
@@ -190,16 +191,16 @@
   .pencil { opacity: 0; pointer-events: none; }
   .sound-row { display: flex; justify-content: flex-end; }
   .sound-row[hidden] { display: none; }
-  .sound-toggle { font: inherit; font-family: var(--font-serif); font-size: var(--size-small); color: var(--color-muted); background: none; border: 1px solid var(--color-line); border-radius: var(--radius-pill); padding: 0.25rem var(--space-2); cursor: pointer; }
+  .sound-toggle { font: inherit; font-family: var(--font-serif); font-size: var(--size-small); color: var(--color-muted); background: none; border: 1px solid var(--color-line); border-radius: var(--radius-pill); padding: 0.2rem var(--space-1); cursor: pointer; }
   .sound-toggle[aria-pressed="true"] { color: var(--color-ink); border-color: var(--color-ink); }
   .sound-toggle:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
   .pencil path { fill: var(--pencil); }
 
   /* Test buttons, for comparing versions side by side. */
-  .controls { display: grid; gap: var(--space-1); font-size: var(--size-small); color: var(--color-muted); padding-top: var(--space-2); border-top: 1px solid var(--color-line); }
+  .controls { display: grid; gap: var(--space-1); font-size: var(--size-small); color: var(--color-muted); }
   .controls[hidden] { display: none; }
   .choice { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1); border: 0; padding: 0; margin: 0; }
-  .choice legend { float: left; width: 6rem; padding: 0; }
+  .choice legend { float: left; width: 4rem; padding: 0; }
   .choice input { position: absolute; opacity: 0; }
   .choice label { padding: 0.25rem var(--space-2); border: 1px solid var(--color-line); border-radius: var(--radius-pill); cursor: pointer; font-family: var(--font-serif); }
   .choice input:checked + label { border-color: var(--color-ink); color: var(--color-ink); }
@@ -240,9 +241,8 @@
     <div class="edge next" id="edge-next" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></div>
     <div class="chevrons" id="chevrons" aria-hidden="true"><span>›</span><span>›</span><span>›</span></div>
     <div class="ghost" id="ghost" aria-hidden="true"></div>
+    <button class="again" id="again" type="button" hidden>Back to the beginning</button>
   </div>
-
-  <div class="after"><button class="again" id="again" type="button" hidden>Back to the beginning</button></div>
 
   <div class="controls" id="controls" hidden>
     <fieldset class="choice">
@@ -980,24 +980,55 @@ function setSound(on) {
   soundOn = on;
   soundButton.setAttribute('aria-pressed', on);
   soundButton.textContent = on ? 'Sound on' : 'Sound off';
-  if (on && !audio) audio = new (window.AudioContext || window.webkitAudioContext)();
-  if (on) audio.resume();
+  if (on) unlockSound();
   else { speechSynthesis.cancel(); for (const p of panels) p.talking = 0; }
 }
 soundButton.addEventListener('click', () => setSound(!soundOn));
+// iPhones and iPads only let a page make sound if it starts during the tap itself, and they
+// treat web sound as background noise the silent switch can mute. So, within the tap: ask for
+// real playback, start the sound engine with a moment of silence, and say nothing out loud
+// once, which wakes up the voices for later.
+function unlockSound() {
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (err) {}
+  if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
+  audio.resume();
+  const blank = audio.createBufferSource();
+  blank.buffer = audio.createBuffer(1, 1, 22050);
+  blank.connect(audio.destination);
+  blank.start(0);
+  if ('speechSynthesis' in window) {
+    speechSynthesis.cancel();
+    const hush = new SpeechSynthesisUtterance(' ');
+    hush.volume = 0;
+    speechSynthesis.speak(hush);
+  }
+}
 
 // Read a caption or balloon aloud, or play a sound effect, as it appears.
 function voice(p, e) {
   if (!soundOn || !e) return;
+  if (e.kind !== 'sfx' && !('speechSynthesis' in window)) return;
   if (e.kind === 'sfx') { if (e.sound) sfx[e.sound](); return; }
   const part = P.voices[e.kind === 'caption' ? 'narrator' : e.voice] || P.voices.narrator;
   const say = new SpeechSynthesisUtterance(e.lines.join(' ').replace(/…/g, ' '));
   const v = pickVoice(part.sex);
   if (v) say.voice = v;
   say.pitch = part.pitch; say.rate = part.rate; say.volume = part.volume ?? 1;
-  // The strip waits for a panel until it has finished talking.
+  // The strip waits for a panel until it has finished talking. If the device never starts the
+  // line, move on after two seconds; if it starts but never says it's done, after about as long
+  // as the line would take to say twice.
   p.talking = (p.talking || 0) + 1;
-  say.onend = say.onerror = () => { p.talking = Math.max(0, p.talking - 1); p.quietSince = performance.now(); wake(); };
+  let over = false, started = false;
+  const done = () => {
+    if (over) return;
+    over = true;
+    p.talking = Math.max(0, p.talking - 1); p.quietSince = performance.now(); wake();
+  };
+  say.onstart = () => { started = true; };
+  say.onend = say.onerror = done;
+  const queued = speechSynthesis.speaking || speechSynthesis.pending;   // other lines ahead of this one
+  setTimeout(() => { if (!started && !speechSynthesis.speaking) done(); }, queued ? 15000 : 2000);
+  setTimeout(done, (1500 + say.text.split(/\s+/).length * 450 / part.rate) * 2);
   speechSynthesis.speak(say);
 }
 // The device's voices: a man's or a woman's, preferring the better-known English ones.
@@ -1162,6 +1193,8 @@ stage.addEventListener('wheel', e => {
   wake();
 }, { passive: false });
 
+// The button sits on the strip, so keep a tap on it from counting as rubbing the line.
+for (const ev of ['pointerdown', 'pointermove']) again.addEventListener(ev, e => e.stopPropagation());
 again.addEventListener('click', () => {
   resetting = true; homeFrom = camX; homeStart = performance.now();
   if ('speechSynthesis' in window) speechSynthesis.cancel();

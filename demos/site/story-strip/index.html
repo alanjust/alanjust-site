@@ -49,6 +49,14 @@
     --drift-time: 3s;
     --stroke-bubble: 0.6;        /* outline of a rising bubble, in drawing units */
     --stroke-icon: 1.5;
+    /* Hints for first-time visitors */
+    --hint-ink: #b3b3b3;
+    --gray-40: #999999;          /* 40% black, as a print tint */
+    --gray-20: #cccccc;          /* 20% black */
+    --pencil: #6fa8dc;           /* non-photo blue, the comic artist's pencil */
+    --ghost-size: 1.6rem;
+    --chevron-gap: 1rem;
+    --chevron-time: 2.4s;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -70,7 +78,7 @@
     line-height: var(--leading-body);
     padding: var(--space-4) var(--space-2);
   }
-  main { max-width: var(--page-max); margin: 0 auto; display: grid; gap: var(--space-3); }
+  main { max-width: var(--page-max); margin: 0 auto; display: grid; gap: var(--space-2); }
   header { display: grid; gap: var(--space-1); max-width: 40rem; }
   h1 { margin: 0; font-size: var(--size-body); font-weight: var(--weight-bold); letter-spacing: var(--tracking-wide); text-transform: uppercase; }
   p { margin: 0; color: var(--color-muted); }
@@ -96,7 +104,7 @@
   .edge.shown { opacity: 0.5; }
   .edge.rolling { opacity: 1; }
   .frame, .ground { fill: none; stroke: var(--color-ink); stroke-width: var(--stroke-frame); stroke-linejoin: round; vector-effect: non-scaling-stroke; }
-  .ground { stroke-width: var(--stroke); stroke-linecap: round; }
+  .ground { stroke: var(--ground-ink, var(--color-ink)); stroke-width: var(--stroke); stroke-linecap: round; }
   .invite, .the-end { font-family: var(--font-serif); font-style: italic; fill: var(--color-muted); text-anchor: middle; transition: opacity var(--fade-label); }
   .invite.gone { opacity: 0; }
 
@@ -154,11 +162,12 @@
     .rise circle { opacity: 1; }
   }
 
-  .after { display: flex; justify-content: center; min-height: 2.5rem; }
+  /* Back to the beginning: small, tucked under the line at the window's bottom-left corner. */
   .again {
-    font: inherit; font-family: var(--font-serif); color: var(--color-ink);
-    background: none; border: 1px solid var(--color-ink); border-radius: var(--radius-pill);
-    padding: 0.25rem var(--space-2); cursor: pointer;
+    position: absolute; left: var(--space-1); bottom: var(--space-1);
+    font: inherit; font-family: var(--font-serif); font-size: var(--size-small); color: var(--color-ink);
+    background: var(--color-bg); border: 1px solid var(--color-ink); border-radius: var(--radius-pill);
+    padding: 0.2rem var(--space-1); cursor: pointer;
     transition: opacity var(--fade-label);
   }
   .again[hidden] { display: inline-block; opacity: 0; pointer-events: none; }
@@ -167,6 +176,35 @@
   .turn-hint { display: none; align-items: center; gap: var(--space-1); margin: 0; font-family: var(--font-serif); font-style: italic; color: var(--color-muted); }
   .turn-hint svg { flex: none; width: 1.5rem; height: 1.5rem; fill: none; stroke: currentColor; stroke-width: var(--stroke-icon); stroke-linecap: round; stroke-linejoin: round; }
   @media (orientation: portrait) and (max-width: 40rem) { :root.wants-turn .turn-hint { display: flex; } }
+  /* The ghost finger: a soft dot that glides along the line to show what to do. */
+  .ghost { position: absolute; left: 0; top: 0; width: var(--ghost-size); height: var(--ghost-size); margin: calc(var(--ghost-size) / -2) 0 0 calc(var(--ghost-size) / -2); border-radius: 50%; background: var(--hint-ink); opacity: 0; pointer-events: none; }
+  /* A row of chevrons under the line, drifting right. */
+  /* Three chevrons at the right end of the line, glowing one after another: this way. */
+  .chevrons { position: absolute; right: var(--space-1); top: 0; display: flex; pointer-events: none; color: var(--hint-ink); font-size: var(--size-body); line-height: 1; opacity: 0; transition: opacity var(--fade-label); }
+  .chevrons.shown { opacity: 1; }
+  .chevrons span { width: var(--chevron-gap); text-align: center; opacity: 0.35; animation: glow var(--chevron-time) ease-in-out infinite; }
+  .chevrons span:nth-child(2) { animation-delay: calc(var(--chevron-time) / 6); }
+  .chevrons span:nth-child(3) { animation-delay: calc(var(--chevron-time) / 3); }
+  @keyframes glow { 0%, 60%, 100% { opacity: 0.35; } 25% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .chevrons span { animation: none; opacity: 1; } }
+  .invite.hinting { fill: var(--hint-ink); }
+  .pencil { opacity: 0; pointer-events: none; }
+  .sound-row { display: flex; justify-content: flex-end; }
+  .sound-row[hidden] { display: none; }
+  .sound-toggle { font: inherit; font-family: var(--font-serif); font-size: var(--size-small); color: var(--color-muted); background: none; border: 1px solid var(--color-line); border-radius: var(--radius-pill); padding: 0.2rem var(--space-1); cursor: pointer; }
+  .sound-toggle[aria-pressed="true"] { color: var(--color-ink); border-color: var(--color-ink); }
+  .sound-toggle:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+  .pencil path { fill: var(--pencil); }
+
+  /* Test buttons, for comparing versions side by side. */
+  .controls { display: grid; gap: var(--space-1); font-size: var(--size-small); color: var(--color-muted); }
+  .controls[hidden] { display: none; }
+  .choice { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1); border: 0; padding: 0; margin: 0; }
+  .choice legend { float: left; width: 4rem; padding: 0; }
+  .choice input { position: absolute; opacity: 0; }
+  .choice label { padding: 0.25rem var(--space-2); border: 1px solid var(--color-line); border-radius: var(--radius-pill); cursor: pointer; font-family: var(--font-serif); }
+  .choice input:checked + label { border-color: var(--color-ink); color: var(--color-ink); }
+  .choice input:focus-visible + label { outline: 2px solid var(--color-focus); outline-offset: 2px; }
   .notes { display: grid; gap: var(--space-1); font-size: var(--size-small); max-width: 40rem; }
 </style>
 <script>
@@ -189,6 +227,8 @@
 
   <p class="turn-hint"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="16" rx="2"/><path d="M4 16a8 8 0 0 0 8 6M20 8a8 8 0 0 0-8-6M10 22l2 0-1-2"/></svg>The lettering is small this way. Turn your phone sideways and the story reads better.</p>
 
+  <div class="sound-row" id="sound-row" hidden><button class="sound-toggle" id="sound" type="button" aria-pressed="false">Sound off</button></div>
+
   <div class="stage" id="stage">
     <svg id="art" aria-label="A long line that rises into comic panels, one after another, where you rub it" role="img">
       <path class="ground" id="ground"></path>
@@ -199,9 +239,35 @@
     </svg>
     <div class="edge back" id="edge-back" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></div>
     <div class="edge next" id="edge-next" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></div>
+    <div class="chevrons" id="chevrons" aria-hidden="true"><span>›</span><span>›</span><span>›</span></div>
+    <div class="ghost" id="ghost" aria-hidden="true"></div>
+    <button class="again" id="again" type="button" hidden>Back to the beginning</button>
   </div>
 
-  <div class="after"><button class="again" id="again" type="button" hidden>Back to the beginning</button></div>
+  <div class="controls" id="controls" hidden>
+    <fieldset class="choice">
+      <legend>Reveal</legend>
+      <input type="radio" name="reveal" id="r-rise" value="rise"><label for="r-rise">Rise</label>
+      <input type="radio" name="reveal" id="r-unfold" value="unfold"><label for="r-unfold">Unfold</label>
+      <input type="radio" name="reveal" id="r-crew" value="crew"><label for="r-crew">Stage crew</label>
+      <input type="radio" name="reveal" id="r-studio" value="studio"><label for="r-studio">Studio</label>
+      <input type="radio" name="reveal" id="r-press" value="press"><label for="r-press">Press</label>
+      <input type="radio" name="reveal" id="r-collage" value="collage"><label for="r-collage">Collage</label>
+    </fieldset>
+    <fieldset class="choice">
+      <legend>Hint</legend>
+      <input type="radio" name="hints" id="h-ghost" value="ghost"><label for="h-ghost">Ghost finger + words</label>
+      <input type="radio" name="hints" id="h-words" value="words"><label for="h-words">Words + arrows</label>
+      <input type="radio" name="hints" id="h-peek" value="peek"><label for="h-peek">Peek only</label>
+      <input type="radio" name="hints" id="h-none" value="none"><label for="h-none">As before</label>
+    </fieldset>
+    <fieldset class="choice">
+      <legend>Line</legend>
+      <input type="radio" name="tone" id="t-black" value="black"><label for="t-black">Black</label>
+      <input type="radio" name="tone" id="t-40" value="40"><label for="t-40">40% gray</label>
+      <input type="radio" name="tone" id="t-20" value="20"><label for="t-20">20% gray</label>
+    </fieldset>
+  </div>
 
   <div class="notes">
     <p>Stand-in art: Jeff Johnson's samurai, three times over, until the real panels arrive.</p>
@@ -242,6 +308,31 @@ const P = {
   popOpen: 0.85,   // share of a panel's top edge that must be up before its talk bubble pops
   letterSize: 15,  // lettering size, in drawing units
   frameStep: 3,    // spacing of points along each panel's top edge
+  // The test reveals (all but Rise) are driven by how far the finger has travelled into a panel.
+  unfoldSpeed: 700, // fastest that can grow, in drawing units a second
+  pieceTime: 0.4,  // Stage crew and Collage: seconds for one piece to arrive
+  crewDrop: 40,    // Stage crew: how far above its place a piece starts
+  scrap: 0.32,     // Collage: size of a scrap before it's placed
+  inkTime: 0.35,   // Studio: how far behind the finger the ink follows, in seconds
+  pencilLead: 70,  // Studio: how far ahead of the finger the blue pencil sketches
+  dotPitch: 5,     // Press: spacing of the Ben-Day dots
+  misregister: [7, -5], // Press: how far out of register the color plate starts
+  // Sound: who reads what. Each part asks the device for a man's or a woman's voice, then shifts
+  // its pitch and pace. Whispers are quieter.
+  voices: {
+    narrator: { sex: 'm', pitch: 0.95, rate: 0.95 },
+    goat:     { sex: 'm', pitch: 0.55, rate: 1.05 },
+    bike:     { sex: 'm', pitch: 1.05, rate: 0.95, volume: 0.45 },
+    jocelyn:  { sex: 'f', pitch: 1.1,  rate: 1 },
+    manta:    { sex: 'f', pitch: 0.8,  rate: 0.85, volume: 0.45 },
+    jessica:  { sex: 'f', pitch: 1.15, rate: 1 },
+    yeast:    { sex: 'f', pitch: 1.5,  rate: 1.1, volume: 0.45 },
+  },
+  // Hints for first-time visitors, until someone touches the line.
+  ghostFirst: 1.2, // seconds after the page opens before the first demonstration
+  ghostEvery: 5,   // seconds between demonstrations
+  ghostTime: 2.6,  // seconds one demonstration takes
+  ghostReach: 0.55, // how far into the first panel the ghost finger travels
 };
 
 const stillMotion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -264,6 +355,12 @@ let lastClientX = null;
 let resetting = false, homeFrom = 0, homeStart = 0;
 let lastPush = -1e9;               // when someone last tried to move the strip forward
 let running = false, last = 0;
+let mode = DATA.look.reveal || 'rise';   // 'rise': stretch up from the line; 'unfold': open sideways like a book
+let hints = DATA.look.hints || 'none';  // 'ghost', 'words', 'peek' or 'none'
+let touchedEver = false;            // once someone has touched the line, the hints stop
+let ghost = null, ghostTimer = 0;   // { start, x, k } while a demonstration runs
+const ghostDot = document.getElementById('ghost'), chevrons = document.getElementById('chevrons');
+const coarse = matchMedia('(pointer: coarse)');
 
 function load() {
   const v = DATA;
@@ -307,7 +404,69 @@ function load() {
     edge.push(pd.x + pd.w, 0);
     const frameStart = xs.length;
     add(edge, frame, true, false, false);
+    // Unfold's spine: the upright line each folded panel rests against, at its left edge.
+    const spine = document.createElementNS(NS, 'path');
+    spine.setAttribute('class', 'ground');
+    spine.setAttribute('d', `M${pd.x} 0V${-pd.h}`);
+    spine.style.opacity = 0;
+    g.append(spine);
     const count = xs.length;
+    // Every loop of every shape is a piece that can arrive on its own, in the order of the
+    // Illustrator file (bottom of the Layers panel first).
+    const rand = seeded(pd.x);
+    const pieces = loops.map((L, k) => {
+      if (L.el === frame) return null;
+      let left = Infinity, right = -Infinity, top = Infinity, bottom = -Infinity;
+      for (let i = L.start; i < L.end; i++) {
+        left = Math.min(left, xs[i]);
+        right = Math.max(right, xs[i]); top = Math.min(top, ys[i]); bottom = Math.max(bottom, ys[i]);
+      }
+      return {
+        order: k, left, right, top, bottom, cx: (left + right) / 2, cy: (top + bottom) / 2, colored: !!colored[L.start],
+        a: 0,   // how far it has arrived (Stage crew, Collage)
+        ox: pd.x + rand() * pd.w, oy: -pd.h * (0.04 + 0.1 * rand()), turn: (rand() - 0.5) * 1.2,
+      };
+    });
+    // A hole travels with the shape around it (the inside of a wheel with its rim), or the shape
+    // would fill in solid until its hole arrived. Within one compound path, a loop that sits inside
+    // another loop's bounds joins that loop's piece.
+    const owner = pieces.map((pc, k) => {
+      if (!pc) return k;
+      let best = k, area = Infinity;
+      pieces.forEach((o, j) => {
+        if (!o || j === k || loops[j].el !== loops[k].el) return;
+        const inside = o.left <= pc.left && o.right >= pc.right && o.top <= pc.top && o.bottom >= pc.bottom
+          && within(xs, ys, loops[j], xs[loops[k].start], ys[loops[k].start]);   // really inside its outline, not just its box
+        const a = (o.right - o.left) * (o.bottom - o.top);
+        if (inside && a < area) { best = j; area = a; }
+      });
+      return best;
+    });
+    const root = k => { while (owner[k] !== k) k = owner[k]; return k; };
+    const pieceOf = new Int16Array(count).fill(-1);
+    loops.forEach((L, k) => { if (pieces[k]) { pieceOf.fill(root(k), L.start, L.end); L.piece = root(k); } });
+    const order = pieces.filter((pc, k) => pc && root(k) === k);
+    order.forEach((pc, k) => { pc.crew = 0.9 * (k + 0.5) / order.length; });
+    // Studio's blue pencil: a pale, slightly offset copy of the drawing, sketched ahead of the finger.
+    const pencil = document.createElementNS(NS, 'g');
+    pencil.setAttribute('class', 'pencil');
+    pencil.setAttribute('clip-path', `url(#pencil-${pd.x})`);
+    for (const [ox, oy] of [[1.6, -1.2], [-1.1, 0.9]]) {
+      let d = '';
+      loops.forEach((L, k) => {
+        if (!pieces[k] || pieces[k].colored) return;
+        for (let i = L.start; i < L.end; i++) d += (i === L.start ? 'M' : 'L') + (xs[i] + ox).toFixed(1) + ' ' + (ys[i] + oy).toFixed(1);
+        d += 'Z';
+      });
+      const el = document.createElementNS(NS, 'path');
+      el.setAttribute('d', d);
+      pencil.append(el);
+    }
+    g.insertBefore(pencil, g.firstChild);
+    const pencilClip = clipRect(`pencil-${pd.x}`, -pd.h - 20, pd.h + 40);
+    const plateClip = clipRect(`plate-${pd.x}`, -pd.h - 20, pd.h + 40);
+    const inkClip = clipRect(`ink-${pd.x}`, -pd.h - 20, pd.h + 40);
+    const dot = benDay(`dots-${pd.x}`, pd);
     // The windsock: how much each point sways (none at the anchored mouth, most at the tip)
     // and where it sits along the ripple.
     const sw = pd.sway, swayW = new Float32Array(count), swayPh = new Float32Array(count);
@@ -317,7 +476,11 @@ function load() {
       swayPh[i] = 2 * Math.PI * sw.waves * u;
     }
     return {
-      lo: pd.x, hi: pd.x + pd.w, loops, frame, frameStart, frameEnd: count, g,
+      lo: pd.x, hi: pd.x + pd.w, h: pd.h, loops, frame, frameStart, frameEnd: count, g, spine,
+      pieces, pieceList: order, pieceOf, pencil, pencilClip, plateClip, inkClip, ink: pd.x - 20, dot,
+      gx: new Float32Array(count), gy: new Float32Array(count),
+      colorEls: [...new Set(loops.filter((L, k) => pieces[k] && pieces[k].colored).map(L => L.el))],
+      lineEls: [...new Set(loops.filter((L, k) => pieces[k] && !pieces[k].colored).map(L => L.el))],
       bubble: pd.bubble ? makeBubble(pd.bubble) : null,
       extras: makeExtras(pd.extras || []), revealAt: null,
       sway: sw, swayW, swayPh, swayK: 0,
@@ -325,11 +488,61 @@ function load() {
       sx: Float32Array.from(xs), sy: Float32Array.from(ys), colored: Uint8Array.from(colored),
       hasColor: colored.includes(1), colorGo: false, colorR: 0,
       r: new Float32Array(count), y: new Float32Array(count), vy: new Float32Array(count),
+      x: Float32Array.from(xs), vx: new Float32Array(count), front: pd.x - 20,
       moving: false,
     };
   });
   resize();
   draw(true);
+}
+
+// Whether a point lies inside a loop's outline (counting crossings of a ray to the right).
+function within(xs, ys, L, x, y) {
+  let inside = false;
+  for (let i = L.start, j = L.end - 1; i < L.end; j = i++) {
+    if ((ys[i] > y) !== (ys[j] > y) && x < xs[j] + (xs[i] - xs[j]) * (y - ys[j]) / (ys[i] - ys[j])) inside = !inside;
+  }
+  return inside;
+}
+// A repeatable scatter, so Collage's scraps land in the same places every time.
+function seeded(seed) {
+  let s = Math.floor(seed * 9301) % 233280 || 1;
+  return () => (s = (s * 9301 + 49297) % 233280) / 233280;
+}
+// A clipping rectangle whose width the reveal changes as it goes.
+function clipRect(id, y, h) {
+  const clip = document.createElementNS(NS, 'clipPath');
+  clip.id = id;
+  const rect = document.createElementNS(NS, 'rect');
+  rect.setAttribute('y', y); rect.setAttribute('height', h); rect.setAttribute('width', 0);
+  clip.append(rect);
+  defs().append(clip);
+  return rect;
+}
+// Ben-Day dots: a mask of dots whose size the Press reveal swells until they merge.
+function benDay(id, pd) {
+  const pat = document.createElementNS(NS, 'pattern');
+  pat.id = id + '-pat';
+  for (const [k, v] of Object.entries({ patternUnits: 'userSpaceOnUse', width: P.dotPitch, height: P.dotPitch, patternTransform: 'rotate(15)' })) pat.setAttribute(k, v);
+  const c = document.createElementNS(NS, 'circle');
+  c.setAttribute('cx', P.dotPitch / 2); c.setAttribute('cy', P.dotPitch / 2); c.setAttribute('r', 0);
+  c.setAttribute('fill', '#fff');
+  pat.append(c);
+  const mask = document.createElementNS(NS, 'mask');
+  mask.id = id;
+  // The mask's region has to be given in drawing units; left to its defaults it's measured from the
+  // top of the window, which would cut the art (drawn above the line, at negative y) off.
+  for (const [k, v] of Object.entries({ maskUnits: 'userSpaceOnUse', x: pd.x - 40, y: -pd.h - 40, width: pd.w + 80, height: pd.h + 80 })) mask.setAttribute(k, v);
+  const rect = document.createElementNS(NS, 'rect');
+  for (const [k, v] of Object.entries({ x: pd.x - 40, y: -pd.h - 40, width: pd.w + 80, height: pd.h + 80, fill: `url(#${pat.id})` })) rect.setAttribute(k, v);
+  mask.append(rect);
+  defs().append(pat, mask);
+  return c;
+}
+function defs() {
+  let d = svg.querySelector('defs');
+  if (!d) { d = document.createElementNS(NS, 'defs'); svg.prepend(d); }
+  return d;
 }
 
 // Lettering: one line of text per line in the list, centred on (x, y) or starting at x.
@@ -455,9 +668,9 @@ function makeSfx(s) {
 // Everything a panel says, in reading order; each piece waits for its delay after the color is up.
 function makeExtras(list) {
   return list.map(e => {
-    if (e.kind === 'caption') return { el: makeCaption(e), cls: 'shown', delay: e.delay };
-    if (e.kind === 'sfx') return { el: makeSfx(e), cls: 'shown', delay: e.delay };
-    return { el: makeBubble(e, e.kind), cls: 'popped', delay: e.delay };
+    if (e.kind === 'caption') return { el: makeCaption(e), cls: 'shown', delay: e.delay, e };
+    if (e.kind === 'sfx') return { el: makeSfx(e), cls: 'shown', delay: e.delay, e };
+    return { el: makeBubble(e, e.kind), cls: 'popped', delay: e.delay, e };
   });
 }
 
@@ -474,6 +687,7 @@ function resize() {
   viewH = DATA.height * (1 + P.padTop) / Math.max(0.5, 1 - below / h);
   upp = viewH / h;
   viewW = stage.clientWidth * upp;
+  chevrons.style.top = `${lineTop() + 4}px`;
   // The labels under the line keep the same size on screen, however big the art is.
   for (const label of [invite, theEnd]) {
     label.setAttribute('font-size', P.labelPx * upp);
@@ -509,7 +723,7 @@ function draw(all) {
     let d = '', el = null;
     for (const L of p.loops) {
       if (L.el !== el) { if (el) el.setAttribute('d', d); el = L.el; d = ''; }
-      for (let i = L.start; i < L.end; i++) d += (i === L.start ? 'M' : 'L') + p.sx[i] + ' ' + p.y[i].toFixed(1);
+      for (let i = L.start; i < L.end; i++) d += (i === L.start ? 'M' : 'L') + p.x[i].toFixed(1) + ' ' + p.y[i].toFixed(1);
       if (!L.open) d += 'Z';
     }
     if (el) el.setAttribute('d', d);
@@ -551,9 +765,13 @@ function step(now) {
   const px = pointer && !resetting ? camX + pointer.px * upp : null;
   const near = P.reach + P.taper;
   const hold = holder(now);
+  const rise = mode === 'rise';
+  const g = runGhost(now);   // { x, k } while a demonstration runs, or null
+  if (g) busy = true;
   let stillUp = false;
   for (const p of panels) {
-    const touched = px !== null && px > p.lo - near && px < p.hi + near;
+    const rest = p.lo - 20;   // the test reveals: where the finger's progress starts, before anyone arrives
+    const touched = px !== null && (rise ? px > p.lo - near && px < p.hi + near : px > rest && px < p.hi + near);
     // A panel sliding out the left of the window finishes rising by itself, so nothing is left half up.
     // Pushing on (rubbing toward the right edge, or resting there) while the strip waits makes the
     // waiting panel finish rising by itself, so nobody has to jiggle a panel up by hand.
@@ -567,12 +785,31 @@ function step(now) {
       && p.hi > camX && p.lo < camX + viewW;
     p.swayK = swaying ? Math.min(1, p.swayK + dt / 1.5) : Math.max(0, p.swayK - dt / 0.5);
     const swayA = p.sway ? p.swayK * p.sway.amp : 0, swayT = p.sway ? 2 * Math.PI * now / 1000 / p.sway.period : 0;
-    if (!touched && !p.moving && !resetting && !finishing && !coloring && !swayA) continue;
+    const ghosting = !!g && g.x > p.lo - near && p === panels[0];
+    if (!touched && !p.moving && !resetting && !finishing && !coloring && !swayA && !ghosting) continue;
+
+    // The test reveals: how far the finger has got into the panel. It only grows, never faster than unfoldSpeed.
+    let shown = p.front, arriving = false;
+    if (!rise) {
+      if (resetting) p.front = Math.max(rest, p.front - (p.hi - rest) * dt / P.fade);
+      else {
+        let target = p.front;
+        if (touched) target = Math.max(target, Math.min(p.hi, px));
+        if (finishing) target = p.hi;
+        if (target > p.front) p.front = Math.min(target, p.front + P.unfoldSpeed * dt);
+      }
+      // What's shown: the real progress, or the ghost finger's demonstration if that's further.
+      shown = ghosting ? Math.max(p.front, rest + (Math.min(g.x, p.hi) - rest) * g.k) : p.front;
+      arriving = movePieces(p, shown, dt);
+      dressPanel(p, shown);
+    }
+
     let moved = false, allUp = true, anyUp = false;
-    const { sx, sy, r, y, vy, colored } = p;
+    const { sx, sy, r, x, y, vx, vy, colored } = p;
     for (let i = 0; i < sx.length; i++) {
-      if (resetting) r[i] = Math.max(0, r[i] - dt / P.fade);
+      if (resetting && (rise || colored[i])) r[i] = Math.max(0, r[i] - dt / P.fade);
       else if (colored[i]) r[i] = p.colorR;
+      else if (!rise) r[i] = sx[i] <= p.front ? 1 : 0;
       else if (finishing) r[i] = Math.min(1, r[i] + dt / P.finishTime);
       else if (touched) {
         // Fully open within reach of the cursor, then tapering to the line. Nothing ever sinks on its own.
@@ -582,28 +819,44 @@ function step(now) {
       }
       if (r[i] > 0) anyUp = true;
       if (r[i] < 1) allUp = false;
-      const goal = sy[i] * ease(r[i]) + (swayA && p.swayW[i] ? swayA * p.swayW[i] * Math.sin(p.swayPh[i] - swayT) : 0);
-      if (stillMotion.matches) { y[i] = goal; vy[i] = 0; }
-      else {
-        vy[i] += ((goal - y[i]) * P.stiffness - vy[i] * P.damping) * dt;
-        y[i] += vy[i] * dt;
+      let gx = sx[i], gy;
+      if (!rise) {
+        goal(p, i, shown);
+        gx = p.gx[i]; gy = p.gy[i];
+      } else {
+        let lift = r[i];
+        if (ghosting && !colored[i]) {   // the demonstration lifts the drawing only; color waits its turn
+          const u = (Math.abs(sx[i] - g.x) - P.reach) / P.taper;
+          lift = Math.max(lift, g.k * (u <= 0 ? 1 : u < 1 ? 1 - ease(u) : 0));
+        }
+        gy = sy[i] * ease(lift);
       }
-      if (Math.abs(vy[i]) > 0.02 || Math.abs(y[i] - goal) > 0.02) moved = true;
+      if (swayA && p.swayW[i]) gy += swayA * p.swayW[i] * Math.sin(p.swayPh[i] - swayT);
+      if (stillMotion.matches) { x[i] = gx; y[i] = gy; vx[i] = vy[i] = 0; }
+      else {
+        vy[i] += ((gy - y[i]) * P.stiffness - vy[i] * P.damping) * dt;
+        y[i] += vy[i] * dt;
+        if (!rise || vx[i] || x[i] !== gx) {
+          vx[i] += ((gx - x[i]) * P.stiffness - vx[i] * P.damping) * dt;
+          x[i] += vx[i] * dt;
+        }
+      }
+      if (Math.abs(vy[i]) + Math.abs(vx[i]) > 0.02 || Math.abs(y[i] - gy) + Math.abs(x[i] - gx) > 0.02) moved = true;
     }
-    p.up = anyUp;   // remembered, so a panel that's resting still counts
+    p.up = rise ? anyUp : p.front > rest + 0.5 || p.colorR > 0;   // remembered, so a panel that's resting still counts
     if (finishing && allUp) p.done = true;
-    p.moving = moved || touched || (finishing && !allUp) || coloring || swayA > 0;
+    p.moving = moved || touched || (finishing && !allUp) || coloring || swayA > 0 || ghosting || arriving;
     if (p.moving) busy = true;
   }
   draw(false);
-  for (const p of panels) if (!p.moving) {
-    // Snap settled points exactly onto their goals so nothing drifts.
-    for (let i = 0; i < p.sx.length; i++) { p.y[i] = p.sy[i] * ease(p.r[i]); p.vy[i] = 0; }
-  }
 
   stillUp = panels.some(p => p.up);
-  if (resetting && !stillUp && camX === 0) resetting = false;
-  invite.classList.toggle('gone', stillUp || !!pointer);
+  if (resetting && !stillUp && camX === 0) {
+    resetting = false;
+    touchedEver = false; showHints(); scheduleGhost(P.ghostFirst);   // back at the start: offer the hints again
+  }
+  invite.classList.toggle('gone', stillUp || !!pointer || (hints !== 'none' && touchedEver));
+  chevrons.classList.toggle('shown', (hints === 'ghost' || hints === 'words') && !touchedEver && !stillUp && !resetting);
   for (const p of panels) if (p.bubble && !resetting && !p.bubble.classList.contains('popped') && openShare(p) >= P.popOpen) {
     p.bubble.classList.add('popped');
   }
@@ -611,12 +864,17 @@ function step(now) {
   for (const p of panels) if (p.extras.length && !resetting) {
     if (p.revealAt === null && (p.hasColor ? p.colorR >= 1 : openShare(p) >= P.popOpen)) p.revealAt = now;
     if (p.revealAt === null) continue;
-    for (const x of p.extras) if (!x.on && now - p.revealAt >= x.delay * 1000) { x.on = true; x.el.classList.add(x.cls); }
+    for (const x of p.extras) {
+      if (x.on) continue;
+      // With sound on, each piece also waits for the line before it to finish being read.
+      if (now - p.revealAt < x.delay * 1000 || (soundOn && (p.talking || now - (p.quietSince || 0) < 400))) break;
+      x.on = true; x.el.classList.add(x.cls); voice(p, x.e);
+    }
     if (p.extras.some(x => !x.on)) busy = true;
   }
   // A panel is finished once it's up, its color is in and all its lettering has appeared.
   for (const p of panels) if (p.readSince === null && !resetting) {
-    const finished = p.extras.length ? p.extras.every(x => x.on) : p.hasColor ? p.colorR >= 1 : openShare(p) >= P.popOpen;
+    const finished = (p.extras.length ? p.extras.every(x => x.on) && !p.talking : p.hasColor ? p.colorR >= 1 : openShare(p) >= P.popOpen);
     if (finished) p.readSince = now;
   }
   for (const p of panels) if (p.hasColor && !resetting && !p.colorGo && openShare(p) >= P.popOpen) {
@@ -628,11 +886,275 @@ function step(now) {
   else running = false;
 }
 
+// Where point i of a panel belongs right now, under the test reveals, given how far the finger has got.
+function goal(p, i, shown) {
+  const sx = p.sx[i], sy = p.sy[i], pc = p.pieces[p.pieceOf[i]];
+  let gx = sx, gy = sy;
+  if (mode === 'unfold') {
+    // A folding screen hinged at the panel's left edge, opened as far as the finger has gone.
+    const s = ease(Math.min(1, Math.max(0, (shown - p.lo) / (p.hi - p.lo))));
+    gx = p.lo + (sx - p.lo) * s * (p.colored[i] ? ease(p.r[i]) : 1);   // the color slides out once it's open
+  } else if (pc && mode === 'crew') {
+    // Each piece grows from its own middle as it drops into place.
+    const a = ease(pc.a);
+    gx = pc.cx + (sx - pc.cx) * a;
+    gy = pc.cy + (sy - pc.cy) * a - P.crewDrop * (1 - a);
+  } else if (pc && mode === 'collage') {
+    // Each scrap lies small and turned where it was dropped, then slides and turns into place.
+    const a = ease(pc.a), S = P.scrap + (1 - P.scrap) * a, th = pc.turn * (1 - a);
+    const dx = (sx - pc.cx) * S, dy = (sy - pc.cy) * S, c = Math.cos(th), s = Math.sin(th);
+    gx = pc.ox + (pc.cx - pc.ox) * a + dx * c - dy * s;
+    gy = pc.oy + (pc.cy - pc.oy) * a + dx * s + dy * c;
+  }
+  p.gx[i] = gx; p.gy[i] = gy;
+}
+
+// Stage crew and Collage: which pieces have arrived. Studio: how much of each line is inked.
+// Returns true while anything is still on its way.
+function movePieces(p, shown, dt) {
+  let busy = false;
+  const prog = (shown - p.lo) / (p.hi - p.lo);
+  for (const pc of p.pieceList) {
+    if (mode === 'crew' || mode === 'collage') {
+      // Stage crew builds in the file's layer order as the finger travels; Collage places each
+      // scrap as the finger passes the spot where it belongs.
+      const want = mode === 'crew' ? (prog >= pc.crew ? 1 : 0) : (shown >= pc.left + 0.3 * (pc.right - pc.left) ? 1 : 0);
+      if (pc.a !== want) { pc.a = want > pc.a ? Math.min(1, pc.a + dt / P.pieceTime) : Math.max(0, pc.a - dt / P.pieceTime); busy = true; }
+    }
+  }
+  // Studio: the ink follows the finger, a moment behind the pencil.
+  if (mode === 'studio' && Math.abs(shown - p.ink) > 0.3) {
+    p.ink += (shown - p.ink) * Math.min(1, dt / P.inkTime);
+    busy = true;
+  }
+  return busy;
+}
+
+// The parts of the test reveals that aren't point positions: the spine, the pencil, the print plates.
+function dressPanel(p, shown) {
+  const open = Math.min(1, Math.max(0, (shown - p.lo) / (p.hi - p.lo)));
+  p.spine.style.opacity = mode === 'unfold' ? (1 - open).toFixed(2) : 0;
+  // Studio: the blue pencil sketches ahead of the finger, and fades once the color is in.
+  const studio = mode === 'studio';
+  p.pencil.style.opacity = studio ? (0.6 * (1 - ease(p.colorR))).toFixed(3) : 0;
+  if (studio) {
+    p.inkClip.setAttribute('x', p.lo - 20);
+    p.inkClip.setAttribute('width', Math.max(0, p.ink - p.lo + 20));
+    p.pencilClip.setAttribute('x', p.lo - 20);
+    p.pencilClip.setAttribute('width', Math.max(0, shown + P.pencilLead - p.lo + 20));
+  }
+  const press = mode === 'press', c = ease(p.colorR);
+  // Press: the color plate is printed as the finger passes, in small dots and out of register.
+  // Then the dots swell into flat color as the plate slides into register, and the black plate stamps down.
+  if (press) {
+    p.plateClip.setAttribute('x', p.lo - 20);
+    p.plateClip.setAttribute('width', Math.max(0, shown - p.lo + 20));
+    p.dot.setAttribute('r', (0.18 + 0.6 * c) * P.dotPitch);
+  }
+  const stamp = Math.min(1, Math.max(0, (p.colorR - 0.55) / 0.3));
+  for (const el of p.colorEls) {
+    el.style.opacity = studio ? ease(p.colorR).toFixed(3) : '';
+    if (press && c < 1) { el.setAttribute('clip-path', `url(#plate-${p.lo})`); el.setAttribute('mask', `url(#dots-${p.lo})`); }
+    else { el.removeAttribute('clip-path'); el.removeAttribute('mask'); }
+    el.style.transform = press ? `translate(${(P.misregister[0] * (1 - c)).toFixed(2)}px, ${(P.misregister[1] * (1 - c)).toFixed(2)}px)` : '';
+  }
+  for (const el of p.lineEls) {
+    if (studio && p.ink < p.hi + 10) el.setAttribute('clip-path', `url(#ink-${p.lo})`);
+    else el.removeAttribute('clip-path');
+    el.style.opacity = press ? stamp.toFixed(3) : '';
+    el.style.transformOrigin = press ? `${(p.lo + p.hi) / 2}px ${-p.h / 2}px` : '';
+    el.style.transform = press ? `scale(${(1 + 0.05 * (1 - stamp)).toFixed(4)})` : '';
+  }
+}
+
 // How much of a panel's top edge is all the way up, from 0 to 1.
 function openShare(p) {
   let open = 0;
   for (let i = p.frameStart + 1; i < p.frameEnd - 1; i++) if (p.r[i] > 0.95) open++;
   return open / (p.frameEnd - p.frameStart - 2);
+}
+
+// Sound: off until the reader turns it on (browsers won't play anything before a tap or click).
+let soundOn = false, audio = null;
+const soundButton = document.getElementById('sound');
+function setSound(on) {
+  soundOn = on;
+  soundButton.setAttribute('aria-pressed', on);
+  soundButton.textContent = on ? 'Sound on' : 'Sound off';
+  if (on) unlockSound();
+  else { speechSynthesis.cancel(); for (const p of panels) p.talking = 0; }
+}
+soundButton.addEventListener('click', () => setSound(!soundOn));
+// iPhones and iPads only let a page make sound if it starts during the tap itself, and they
+// treat web sound as background noise the silent switch can mute. So, within the tap: ask for
+// real playback, start the sound engine with a moment of silence, and say nothing out loud
+// once, which wakes up the voices for later.
+function unlockSound() {
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (err) {}
+  if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
+  audio.resume();
+  const blank = audio.createBufferSource();
+  blank.buffer = audio.createBuffer(1, 1, 22050);
+  blank.connect(audio.destination);
+  blank.start(0);
+  if ('speechSynthesis' in window) {
+    speechSynthesis.cancel();
+    const hush = new SpeechSynthesisUtterance(' ');
+    hush.volume = 0;
+    speechSynthesis.speak(hush);
+  }
+}
+
+// Read a caption or balloon aloud, or play a sound effect, as it appears.
+function voice(p, e) {
+  if (!soundOn || !e) return;
+  if (e.kind !== 'sfx' && !('speechSynthesis' in window)) return;
+  if (e.kind === 'sfx') { if (e.sound) sfx[e.sound](); return; }
+  const part = P.voices[e.kind === 'caption' ? 'narrator' : e.voice] || P.voices.narrator;
+  const say = new SpeechSynthesisUtterance(e.lines.join(' ').replace(/…/g, ' '));
+  const v = pickVoice(part.sex);
+  if (v) say.voice = v;
+  say.pitch = part.pitch; say.rate = part.rate; say.volume = part.volume ?? 1;
+  // The strip waits for a panel until it has finished talking. If the device never starts the
+  // line, move on after two seconds; if it starts but never says it's done, after about as long
+  // as the line would take to say twice.
+  p.talking = (p.talking || 0) + 1;
+  let over = false, started = false;
+  const done = () => {
+    if (over) return;
+    over = true;
+    p.talking = Math.max(0, p.talking - 1); p.quietSince = performance.now(); wake();
+  };
+  say.onstart = () => { started = true; };
+  say.onend = say.onerror = done;
+  const queued = speechSynthesis.speaking || speechSynthesis.pending;   // other lines ahead of this one
+  setTimeout(() => { if (!started && !speechSynthesis.speaking) done(); }, queued ? 15000 : 2000);
+  setTimeout(done, (1500 + say.text.split(/\s+/).length * 450 / part.rate) * 2);
+  speechSynthesis.speak(say);
+}
+// The device's voices: a man's or a woman's, preferring the better-known English ones.
+function pickVoice(sex) {
+  const names = sex === 'm'
+    ? ['Daniel', 'Alex', 'Aaron', 'Arthur', 'Fred', 'Tom', 'Oliver', 'Rishi', 'Google UK English Male', 'Microsoft David', 'Microsoft Guy']
+    : ['Samantha', 'Karen', 'Moira', 'Tessa', 'Allison', 'Ava', 'Susan', 'Victoria', 'Zoe', 'Google US English', 'Microsoft Zira', 'Microsoft Aria'];
+  const english = speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang));
+  for (const n of names) { const v = english.find(v => v.name.startsWith(n)); if (v) return v; }
+  return english[sex === 'm' ? english.length - 1 : 0] || null;
+}
+
+// Sound effects, made on the spot from tones and noise rather than recordings.
+const sfx = {
+  // A bicycle bell: a few bright, slightly clashing tones, struck twice and twice again.
+  bell() {
+    for (const at of [0, 0.13, 0.5, 0.63]) for (const [f, g] of [[2900, 0.18], [3420, 0.12], [5150, 0.06]]) tone(f, g, at, 0.7, 'sine');
+  },
+  // Bubbles: little rising bloops at uneven intervals.
+  bubbles() {
+    let at = 0;
+    for (let k = 0; k < 6; k++) {
+      at += 0.18 + Math.random() * 0.35;
+      const o = audio.createOscillator(), g = audio.createGain(), t0 = audio.currentTime + at;
+      o.type = 'sine';
+      o.frequency.setValueAtTime(260 + Math.random() * 120, t0);
+      o.frequency.exponentialRampToValueAtTime(900 + Math.random() * 400, t0 + 0.09);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(0.25, t0 + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.12);
+      o.connect(g).connect(audio.destination);
+      o.start(t0); o.stop(t0 + 0.14);
+    }
+  },
+  // Wind: soft noise through a filter that sweeps up and back down as the gust swells and passes.
+  wind() {
+    const len = 2.2, buf = audio.createBuffer(1, audio.sampleRate * len, audio.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    const src = audio.createBufferSource(), f = audio.createBiquadFilter(), g = audio.createGain(), t0 = audio.currentTime;
+    src.buffer = buf;
+    f.type = 'bandpass'; f.Q.value = 1.2;
+    f.frequency.setValueAtTime(350, t0);
+    f.frequency.exponentialRampToValueAtTime(1300, t0 + len * 0.45);
+    f.frequency.exponentialRampToValueAtTime(450, t0 + len);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(0.35, t0 + len * 0.45);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + len);
+    src.connect(f).connect(g).connect(audio.destination);
+    src.start(t0);
+  },
+};
+function tone(freq, gain, at, length, type) {
+  const o = audio.createOscillator(), g = audio.createGain(), t0 = audio.currentTime + at;
+  o.type = type; o.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(gain, t0 + 0.005);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + length);
+  o.connect(g).connect(audio.destination);
+  o.start(t0); o.stop(t0 + length + 0.05);
+}
+
+// The ghost finger: a demonstration of what to do, until someone touches the line.
+function runGhost(now) {
+  if (!ghost) { ghostDot.style.opacity = 0; return null; }
+  const t = (now - ghost.start) / 1000 / P.ghostTime;
+  if (t >= 1 || touchedEver || resetting) {
+    ghost = null; ghostDot.style.opacity = 0;
+    scheduleGhost(P.ghostEvery);
+    return null;
+  }
+  const first = panels[0];
+  const x0 = first.lo - 10, x1 = first.lo + (first.hi - first.lo) * P.ghostReach;
+  const x = x0 + (x1 - x0) * ease(Math.min(1, Math.max(0, (t - 0.1) / 0.65)));
+  const k = t < 0.12 ? t / 0.12 : t > 0.78 ? Math.max(0, 1 - (t - 0.78) / 0.22) : 1;
+  if (hints === 'ghost') {
+    ghostDot.style.transform = `translate(${(x - camX) / upp}px, ${lineTop()}px)`;
+    ghostDot.style.opacity = (0.65 * k).toFixed(3);
+  }
+  return { x, k };
+}
+function scheduleGhost(seconds) {
+  clearTimeout(ghostTimer);
+  if (hints !== 'ghost' && hints !== 'peek') return;
+  ghostTimer = setTimeout(() => {
+    if (touchedEver || resetting || camX > 1) return;
+    if (pointer) return scheduleGhost(P.ghostEvery);
+    ghost = { start: performance.now() };
+    wake();
+  }, seconds * 1000);
+}
+// Where the line sits on screen, in pixels from the top of the window.
+function lineTop() { return DATA.height * (1 + P.padTop) / upp; }
+
+// Put everything back at the start, instantly (used when switching versions).
+function restart() {
+  resetting = false; ghost = null; touchedEver = false;
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  camX = camGoal = 0;
+  for (const p of panels) {
+    p.done = false; p.colorGo = false; p.colorR = 0; p.revealAt = null; p.readSince = null; p.pushed = false;
+    p.front = p.lo - 20; p.up = false; p.swayK = 0; p.talking = 0;
+    for (const pc of p.pieceList) pc.a = 0;
+    p.ink = p.lo - 20;
+    p.bubble?.classList.remove('popped');
+    for (const x of p.extras) { x.on = false; x.el.classList.remove(x.cls); }
+    p.r.fill(0); p.vx.fill(0); p.vy.fill(0);
+    for (let i = 0; i < p.sx.length; i++) {
+      if (mode === 'rise') { p.x[i] = p.sx[i]; p.y[i] = 0; }   // flat on the line
+      else { goal(p, i, p.front); p.x[i] = p.gx[i]; p.y[i] = p.gy[i]; }
+    }
+  }
+  for (const p of panels) dressPanel(p, p.front);
+  place(); draw(true);
+  showHints();
+  scheduleGhost(P.ghostFirst);
+  wake();
+}
+function showHints() {
+  const words = hints === 'ghost' || hints === 'words';
+  invite.textContent = words ? `Run your ${coarse.matches ? 'finger' : 'cursor'} along the line →` : 'rub the line';
+  invite.classList.toggle('hinting', words);
+  invite.style.display = hints === 'peek' ? 'none' : '';
+}
+function setTone(tone) {
+  document.documentElement.style.setProperty('--ground-ink', tone === '40' ? 'var(--gray-40)' : tone === '20' ? 'var(--gray-20)' : 'var(--color-ink)');
 }
 
 function wake() {
@@ -655,6 +1177,7 @@ function arrive(e) {
   }
   lastClientX = e.clientX;
   pointer = { px };
+  if (!touchedEver) { touchedEver = true; ghost = null; clearTimeout(ghostTimer); }
   wake();
 }
 function leave() { pointer = null; lastClientX = null; }
@@ -671,10 +1194,13 @@ stage.addEventListener('wheel', e => {
   wake();
 }, { passive: false });
 
+// The button sits on the strip, so keep a tap on it from counting as rubbing the line.
+for (const ev of ['pointerdown', 'pointermove']) again.addEventListener(ev, e => e.stopPropagation());
 again.addEventListener('click', () => {
   resetting = true; homeFrom = camX; homeStart = performance.now();
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
   for (const p of panels) {
-    p.moving = true; p.done = false; p.colorGo = false; p.colorR = 0; p.revealAt = null; p.readSince = null; p.pushed = false;
+    p.moving = true; p.done = false; p.colorGo = false; p.colorR = 0; p.revealAt = null; p.readSince = null; p.pushed = false; p.talking = 0;
     p.bubble?.classList.remove('popped');
     for (const x of p.extras) { x.on = false; x.el.classList.remove(x.cls); }
   }
@@ -683,6 +1209,22 @@ again.addEventListener('click', () => {
 
 new ResizeObserver(() => { resize(); draw(true); }).observe(stage);
 load();
+// Test pages show buttons to compare versions; switching puts the story back at the start.
+if (DATA.look.test) {
+  const controls = document.getElementById('controls');
+  controls.hidden = false;
+  const pick = (name, value, apply) => {
+    const input = controls.querySelector(`input[name="${name}"][value="${value}"]`);
+    if (input) input.checked = true;
+    for (const el of controls.querySelectorAll(`input[name="${name}"]`)) el.addEventListener('change', () => apply(el.value));
+  };
+  pick('reveal', mode, v => { mode = v; restart(); });
+  pick('hints', hints, v => { hints = v; restart(); });
+  pick('tone', DATA.look.tone || 'black', setTone);
+}
+setTone(DATA.look.tone || 'black');
+if (DATA.look.sound) document.getElementById('sound-row').hidden = false;
+restart();
 
 // Inside the Playground's frame, tell the page how tall we are.
 if (parent !== window) {
