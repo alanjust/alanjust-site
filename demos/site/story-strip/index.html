@@ -155,7 +155,7 @@ const P = {
   fade: 1.4,       // seconds for the story to lie back down when you start again
   stiffness: 260,  // spring toward the goal
   damping: 13,     // friction on the spring (lower = more wobble)
-  padTop: 0.027, padBottom: 0.057,  // room above and below the strip, as shares of its height
+  padTop: 0.027,   // room above the strip, as a share of its height (below it, there's room for the labels)
   labelPx: 18,     // "rub the line" and "the end": size on screen, in pixels
   colorTime: 0.8,  // seconds for a panel's color to rise behind its linework, once the linework is up
   // Travel: rubbing rightward in the right part of the window pulls the line along.
@@ -203,7 +203,6 @@ function load() {
   if (v.look.paper) document.documentElement.dataset.theme = 'light';   // colored art stays on white paper
   if (v.look.pageMax) document.documentElement.style.setProperty('--page-max', v.look.pageMax);
   if (v.look.aspect) stage.classList.add('fit-width');
-  viewH = v.height * (1 + P.padTop + P.padBottom);
   ground.setAttribute('d', `M0 0H${v.length}`);
   invite.setAttribute('x', v.panels[0].x + 70);
   theEnd.setAttribute('x', v.length - 40);
@@ -298,6 +297,10 @@ function resize() {
     stage.style.aspectRatio = innerWidth < 640 ? narrow : wide;
   }
   const h = stage.clientHeight || 1;
+  // Under the line there's always room for a label, measured on screen: a short window gives it
+  // a bigger share of the height. The art plus that room fills the window exactly.
+  const below = P.labelPx * 2.1;
+  viewH = DATA.height * (1 + P.padTop) / Math.max(0.5, 1 - below / h);
   upp = viewH / h;
   viewW = stage.clientWidth * upp;
   // The labels under the line keep the same size on screen, however big the art is.
