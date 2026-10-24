@@ -11909,9 +11909,18 @@ const rng = (s => () => { s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15
 // Every shape gets its own wrapper so it can fly on its own; shapes stay in their
 // Illustrator stacking order the whole time.
 let wrapped = 0;   // pieces are wrapped in stacking order, so this counts from the back
+// A clipping mask on a group (Illustrator's Clip Group) would hide its pieces whenever they
+// left the mask, knots on the shelf included. So each piece takes its own copy of the clip,
+// which travels with it: it flies already trimmed and lands exactly as drawn. The group's
+// own clip is switched off once every piece has its copy.
+const clippedGroups = new Set();
 function wrap(el) {
   const w = document.createElementNS(NS, 'g');
   el.before(w); w.append(el);
+  for (let a = w.parentElement; a && a !== drawing; a = a.parentElement) {
+    const clip = getComputedStyle(a).clipPath;
+    if (clip && clip !== 'none') { w.style.clipPath = clip; clippedGroups.add(a); break; }
+  }
   const b = w.getBBox();
   return { el: w, order: wrapped++, mx: b.x + b.width / 2, my: b.y + b.height / 2, b, weight: Math.max(b.width * b.height, 0.01) };
 }
@@ -12004,6 +12013,8 @@ for (const layer of drawing.querySelectorAll('.layer:not([data-base])')) {
   const mid = g => { const xs = g.map(p => p.mx); return (Math.min(...xs) + Math.max(...xs)) / 2; };
   packs.push(...found.sort((a, b) => mid(a) - mid(b)));
 }
+
+for (const a of clippedGroups) a.style.clipPath = 'none';
 
 const spacing = 2 * P.knot + P.gap;
 const firstX = bag.x + bag.width / 2 - (packs.length - 1) * spacing / 2;
