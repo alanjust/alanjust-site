@@ -11854,7 +11854,7 @@
   </div>
 
   <div class="notes">
-    <p>The bag starts bare. Everything that makes it a product (the photograph, the orange bands, the words) has been squeezed into small knots on the shelf, lined up in the order the label was built in Illustrator: photograph first, then the bands, then the type. Run your finger or cursor along the shelf from left to right. Each knot you push climbs, and when it reaches its height it bursts, and its pieces fly out to where they belong on the bag.</p>
+    <p>The bag starts bare. Everything that makes it a product (the pictures, the orange bands, the words) has been squeezed into small knots on the shelf, lined up in the order the label was built in Illustrator: the bottom layer first, the type last. Run your finger or cursor along the shelf from left to right. Each knot you push climbs, and when it reaches its height it bursts, and its pieces fly out to where they belong on the bag.</p>
     <p>So a single sweep builds the label from the bottom of the stack to the top, the same way a designer would.</p>
   </div>
 </main>
@@ -11881,6 +11881,7 @@ const P = {
   burstStagger: 0.2, // pieces leave a little out of step, up to this many seconds
   overshoot: 1.4,    // how far past their places the pieces fly before settling (ease-out-back)
   swirl: 35,         // degrees each piece turns as it flies out
+  swirlSize: 40,     // pieces bigger than this (drawing units) turn less, in proportion
   packTime: 0.7,     // seconds to pack back into a knot
   sparks: 26, sparkSpeed: [70, 210], gravity: 90, sparkLife: [0.7, 1.4], sparkSize: 1.8,
   near: 30,          // a knot swells a little when the finger is this close: it knows it's next
@@ -11907,11 +11908,12 @@ const rng = (s => () => { s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15
 // ---- Pieces and knots -----------------------------------------------------------
 // Every shape gets its own wrapper so it can fly on its own; shapes stay in their
 // Illustrator stacking order the whole time.
+let wrapped = 0;   // pieces are wrapped in stacking order, so this counts from the back
 function wrap(el) {
   const w = document.createElementNS(NS, 'g');
   el.before(w); w.append(el);
   const b = w.getBBox();
-  return { el: w, mx: b.x + b.width / 2, my: b.y + b.height / 2, b, weight: Math.max(b.width * b.height, 0.01) };
+  return { el: w, order: wrapped++, mx: b.x + b.width / 2, my: b.y + b.height / 2, b, weight: Math.max(b.width * b.height, 0.01) };
 }
 
 // Sort pieces into n knots by where they sit (k-means on their middles, weighted by size).
@@ -11942,6 +11944,41 @@ function cluster(pieces, n) {
   return centers.map((_, k) => pieces.filter((_, i) => label[i] === k)).filter(g => g.length);
 }
 
+// Grid split ("grid6x5"): the layer is cut into columns × rows. Each column is one knot;
+// within it, the small pieces in each cell (halftone dots) are gathered into one tile that
+// flies as a single piece. Pieces bigger than a cell (a white sheet) aren't tiled: they keep
+// their own place in the stacking order and fly with the column their middle falls in.
+// Tiles only reorder dots among themselves, which is harmless because dots don't overlap.
+function tile(ps) {
+  const g = document.createElementNS(NS, 'g');
+  ps[0].el.before(g);
+  for (const p of ps) g.append(p.el);
+  const b = g.getBBox();
+  return { el: g, order: ps[0].order, mx: b.x + b.width / 2, my: b.y + b.height / 2, b, weight: Math.max(b.width * b.height, 0.01), parts: ps };
+}
+function grid(pieces, cols, rows) {
+  pieces = pieces.filter(p => p.b.width || p.b.height);   // zero-size dots report their box at 0,0 and would stretch the grid; they stay put, unseen
+  // Size the grid to the small pieces: once over everything to find which pieces are big,
+  // then again without them, so a sheet larger than the dots doesn't leave empty rows.
+  let x0, y0, cw, ch, small = pieces;
+  for (let pass = 0; pass < 2; pass++) {
+    x0 = Math.min(...small.map(p => p.b.x)); y0 = Math.min(...small.map(p => p.b.y));
+    cw = (Math.max(...small.map(p => p.b.x + p.b.width)) - x0) / cols; ch = (Math.max(...small.map(p => p.b.y + p.b.height)) - y0) / rows;
+    small = pieces.filter(p => p.b.width <= cw && p.b.height <= ch);
+  }
+  const col = p => Math.min(cols - 1, Math.max(0, Math.floor((p.mx - x0) / cw)));
+  const row = p => Math.min(rows - 1, Math.max(0, Math.floor((p.my - y0) / ch)));
+  const isSmall = new Set(small), knots = Array.from({ length: cols }, () => []), cells = new Map();
+  for (const p of pieces) {
+    if (!isSmall.has(p)) { knots[col(p)].push(p); continue; }
+    const key = col(p) * rows + row(p);
+    if (!cells.has(key)) cells.set(key, []);
+    cells.get(key).push(p);
+  }
+  for (const [key, ps] of cells) knots[Math.floor(key / rows)].push(tile(ps));
+  return knots.filter(k => k.length);
+}
+
 const base = drawing.querySelector('[data-base]');
 const bag = base.getBBox();
 const lineY = bag.y + bag.height + P.drop;
@@ -11958,6 +11995,9 @@ for (const layer of drawing.querySelectorAll('.layer:not([data-base])')) {
     while (parts.length === 1 && parts[0].tagName === 'g') parts = [...parts[0].children];
     found = parts.map(part => (part.matches(LEAF) ? [part] : [...part.querySelectorAll(LEAF)]).map(wrap)).filter(g => g.length);
     if (split === 'heap') found.forEach(g => g.heap = true);
+  } else if (split.startsWith('grid')) {
+    const [cols, rows] = split.slice(4).split('x').map(Number);
+    found = grid([...layer.querySelectorAll(LEAF)].map(wrap), cols, rows);
   } else {
     found = cluster([...layer.querySelectorAll(LEAF)].map(wrap), +layer.dataset.split);
   }
@@ -11976,7 +12016,8 @@ const groups = packs.map((pieces, k) => {
   // the group in miniature; a heap knot (a line of type) is its letters piled up, each turned
   // at random, because a line of type shrunk whole is only a hairline.
   for (const p of pieces) {
-    p.delay = rng() * P.burstStagger; p.turn = (rng() * 2 - 1) * P.swirl;
+    p.delay = rng() * P.burstStagger;
+    p.turn = (rng() * 2 - 1) * P.swirl * Math.min(1, P.swirlSize / Math.max(p.b.width, p.b.height, 0.01));   // big sheets don't tumble
     if (pieces.heap) {
       const a = rng() * Math.PI * 2, r = Math.sqrt(rng()) * P.heapSpread * P.knot;
       p.hx = Math.cos(a) * r; p.hy = Math.sin(a) * r; p.hr = (rng() * 2 - 1) * P.heapTurn;
@@ -12004,15 +12045,26 @@ const groups = packs.map((pieces, k) => {
   };
 });
 
-// Each type knot's chip takes the color of what the type lands on: the topmost big shape
-// beneath it in the lower layers (an orange band, the photo's slate).
-for (const g of groups.filter(g => g.chip)) {
-  const box = g.pieces.reduce((b, p) => [Math.min(b[0], p.b.x), Math.min(b[1], p.b.y), Math.max(b[2], p.b.x + p.b.width), Math.max(b[3], p.b.y + p.b.height)], [Infinity, Infinity, -Infinity, -Infinity]);
-  const under = groups.filter(o => !o.chip).flatMap(o => o.pieces).filter(p =>
-    p.b.x <= g.cx && p.b.x + p.b.width >= g.cx && p.b.y <= g.cy && p.b.y + p.b.height >= g.cy &&
-    p.weight >= 0.5 * (box[2] - box[0]) * (box[3] - box[1]));
-  const fill = under.length ? getComputedStyle(under.at(-1).el.firstElementChild).fill : '';
-  if (fill.startsWith('rgb')) g.chip.style.fill = fill;
+// Each type knot's chip takes the color of what the type lands on: sample a grid of points
+// across the line of type, find the topmost painted shape under each in the lower layers, and
+// take the color that turns up most (an orange band, the photo's slate). Mostly bare
+// or halftone underneath, it keeps the default chip.
+{
+  const lower = groups.filter(o => !o.chip).flatMap(o => o.pieces.flatMap(p => p.parts || [p])).sort((a, b) => b.order - a.order);
+  for (const g of groups.filter(g => g.chip)) {
+    const box = g.pieces.reduce((b, p) => [Math.min(b[0], p.b.x), Math.min(b[1], p.b.y), Math.max(b[2], p.b.x + p.b.width), Math.max(b[3], p.b.y + p.b.height)], [Infinity, Infinity, -Infinity, -Infinity]);
+    const votes = new Map(); let samples = 0;
+    for (let i = 0; i < 9; i++) for (let j = 0; j < 3; j++) {
+      const pt = new DOMPoint(box[0] + (box[2] - box[0]) * (i + 0.5) / 9, box[1] + (box[3] - box[1]) * (j + 0.5) / 3);
+      const hit = lower.find(p => pt.x >= p.b.x && pt.x <= p.b.x + p.b.width && pt.y >= p.b.y && pt.y <= p.b.y + p.b.height && p.el.firstElementChild.isPointInFill(pt));
+      samples++;
+      if (!hit) continue;
+      const fill = getComputedStyle(hit.el.firstElementChild).fill;
+      if (fill.startsWith('rgb')) votes.set(fill, (votes.get(fill) || 0) + 1);
+    }
+    const [fill, n] = [...votes].sort((a, b) => b[1] - a[1])[0] || [];
+    if (fill && n >= samples * 0.4) g.chip.style.fill = fill;
+  }
 }
 
 // ---- Setup ------------------------------------------------------------------
