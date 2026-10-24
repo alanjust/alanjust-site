@@ -2225,7 +2225,9 @@ const P = {
   sinkSpeed: 0.8,    // how fast it sinks (fraction of the climb per second)
   burstTime: 0.9,    // seconds for a burst to open all the way
   burstStagger: 0.2, // pieces leave a little out of step, up to this many seconds
-  overshoot: 1.4,    // how far past their places the pieces fly before settling (ease-out-back)
+  swarmStagger: 0.45, // swarm dots leave further out of step, so they stream rather than pop
+  overshoot: 1.4,    // swarm dots: how far past their places they fly before settling (ease-out-back)
+  burstEase: 'cubic-bezier(0.3, 1.45, 0.6, 1)',   // fast out, a little past their places, then settle
   swirl: 35,         // degrees each piece turns as it flies out
   swirlSize: 40,     // pieces bigger than this (drawing units) turn less, in proportion
   packTime: 0.7,     // seconds to pack back into a knot
@@ -2247,8 +2249,8 @@ const LEAF = 'path,polygon,rect,circle,ellipse,polyline,line';
 const sparkColor = i => `var(--spark-${i % 5 + 1})`;
 
 const easeOut = t => 1 - (1 - t) ** 2;
-const easeBack = t => { const c = P.overshoot; return 1 + (c + 1) * (t - 1) ** 3 + c * (t - 1) ** 2; };
 const clamp01 = t => Math.max(0, Math.min(1, t));
+const easeBack = t => { const c = P.overshoot; return 1 + (c + 1) * (t - 1) ** 3 + c * (t - 1) ** 2; };
 const rng = (s => () => { s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; })(P.seed);
 
 // ---- Pieces and knots -----------------------------------------------------------
@@ -2334,6 +2336,36 @@ function grid(pieces, cols, rows) {
   return knots.filter(k => k.length);
 }
 
+// Swarm split ("swarm"): like "parts", but the round dots in each part (thousands of them) are
+// redrawn as one shape. Packed and in place, that shape moves like any other piece. In flight,
+// the page redraws it every frame with each dot at its own point along its own trip, so every
+// dot flies on its own while the browser only handles one shape per knot.
+const dotPath = dots => dots.map(d => `M${(d.x - d.r).toFixed(2)} ${d.y.toFixed(2)}a${d.r.toFixed(2)} ${d.r.toFixed(2)} 0 1 0 ${(2 * d.r).toFixed(2)} 0a${d.r.toFixed(2)} ${d.r.toFixed(2)} 0 1 0 ${(-2 * d.r).toFixed(2)} 0Z`).join('');
+function swarmDots(part) {
+  const circles = [...part.querySelectorAll('circle')];
+  if (!circles.length) return;
+  const path = document.createElementNS(NS, 'path');
+  path.setAttribute('class', circles[0].getAttribute('class'));
+  path.dots = circles.map(c => ({ x: +c.getAttribute('cx'), y: +c.getAttribute('cy'), r: +c.getAttribute('r'), delay: rng() * P.swarmStagger }));
+  path.finalD = dotPath(path.dots);
+  path.setAttribute('d', path.finalD);
+  circles[0].before(path);
+  circles.forEach(c => c.remove());
+}
+function flyDots(g, p, now, kx, ky, sw) {
+  const s = g.shrink * sw;
+  const t = clamp01((now - g.t0) / P.packTime);
+  p.el.firstElementChild.setAttribute('d', dotPath(p.dots.map(d => {
+    const open = g.phase === 'burst' ? easeBack(clamp01((now - g.t0 - d.delay) / P.burstTime)) : 1 - t * t;
+    const px = kx + (d.x - g.cx) * s, py = ky + (d.y - g.cy) * s;
+    return { x: px + (d.x - px) * open, y: py + (d.y - py) * open, r: Math.max(0, d.r * (s + (1 - s) * open)) };
+  })));
+  p.drawn = 'flying';
+}
+function settleDots(p) {
+  if (p.dots && p.drawn !== 'final') { p.el.firstElementChild.setAttribute('d', p.el.firstElementChild.finalD); p.drawn = 'final'; }
+}
+
 const base = drawing.querySelector('[data-base]');
 const bag = base.getBBox();
 const lineY = bag.y + bag.height + P.drop;
@@ -2345,10 +2377,12 @@ const packs = [];   // lists of pieces, in the order their knots sit on the shel
 for (const layer of drawing.querySelectorAll('.layer:not([data-base])')) {
   let found;
   const split = layer.dataset.split;
-  if (split === 'parts' || split === 'heap') {
+  if (split === 'parts' || split === 'heap' || split === 'swarm') {
     let parts = [...layer.children];
     while (parts.length === 1 && parts[0].tagName === 'g') parts = [...parts[0].children];
+    if (split === 'swarm') parts.forEach(swarmDots);
     found = parts.map(part => (part.matches(LEAF) ? [part] : [...part.querySelectorAll(LEAF)]).map(wrap)).filter(g => g.length);
+    for (const g of found) for (const p of g) p.dots = p.el.firstElementChild.dots;
     if (split === 'heap') found.forEach(g => g.heap = true);
   } else if (split.startsWith('grid')) {
     const [cols, rows] = split.slice(4).split('x').map(Number);
@@ -2394,7 +2428,8 @@ const groups = packs.map((pieces, k) => {
     chipLayer.append(chip);
   }
   return {
-    k, cx, cy, ext, knotX: firstX + k * spacing,
+    k, cx, cy, ext, shrink, knotX: firstX + k * spacing,
+    flight: P.burstTime + Math.max(P.burstStagger, ...pieces.filter(p => p.dots).flatMap(p => p.dots.map(d => d.delay))),
     restY: lineY - (pieces.heap ? P.knot : (y1 - y0) / 2 * shrink) - 1, pieces, trail, chip,
     phase: 'rest',      // rest → rising → burst → up → packing → rest
     lift: 0, liftGoal: 0, touched: 0, t0: 0,
@@ -2443,6 +2478,7 @@ let pointer = null, lastX = null;
 function place(g, now) {
   if (g.phase === 'up') {
     if (g.mode !== 'none') { for (const p of g.pieces) p.el.style.transform = ''; g.mode = 'none'; }
+    for (const p of g.pieces) settleDots(p);
     g.trail.style.opacity = 0;
     if (g.chip) g.chip.style.display = 'none';
     return;
@@ -2458,18 +2494,16 @@ function place(g, now) {
   if (g.phase === 'rest' || g.phase === 'rising') {
     const v = `translate(${kx.toFixed(2)}px, ${ky.toFixed(2)}px) scale(${sw.toFixed(4)})`;
     if (v !== g.lastVar) { svg.style.setProperty(`--knot-${g.k}`, v); g.lastVar = v; }
-    if (g.mode !== 'var') { for (const p of g.pieces) p.el.style.transform = `var(--knot-${g.k}) ${p.home}`; g.mode = 'var'; }
-  } else {
+    if (g.mode !== 'var') { for (const p of g.pieces) { p.el.style.transform = `var(--knot-${g.k}) ${p.home}`; settleDots(p); } g.mode = 'var'; }
+  } else {   // flying: a burst is flown by the browser (see burst()), except swarm dots, drawn here
+    for (const p of g.pieces) if (p.dots) flyDots(g, p, now, kx, ky, sw);
+  }
+  if (g.phase === 'packing') {
     g.mode = 'own';
     for (const p of g.pieces) {
-      let open, turn;
-      if (g.phase === 'burst') {
-        const t = clamp01((now - g.t0 - p.delay) / P.burstTime);
-        open = easeBack(t); turn = (p.turn + p.hr) * (1 - t);
-      } else {
-        const t = clamp01((now - g.t0) / P.packTime);
-        open = 1 - t * t; turn = p.hr * (1 - open);
-      }
+      if (p.dots) { p.el.style.transform = ''; continue; }
+      const t = clamp01((now - g.t0) / P.packTime);
+      const open = 1 - t * t, turn = p.hr * (1 - open);
       const scale = p.hs * sw + (1 - p.hs * sw) * open;
       const x = kx + p.hx * sw + (p.mx - kx - p.hx * sw) * open, y = ky + p.hy * sw + (p.my - ky - p.hy * sw) * open;
       p.el.style.transform = `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px) rotate(${turn.toFixed(1)}deg) scale(${scale.toFixed(4)}) translate(${-p.mx}px, ${-p.my}px)`;
@@ -2487,6 +2521,18 @@ function place(g, now) {
 function burst(g, now) {
   g.phase = 'burst'; g.t0 = now; g.lift = 1;
   if (still.matches) { g.phase = 'up'; return; }
+  // Each piece's flight is handed to the browser's own animation engine, which plots it once
+  // at launch: from its place in the knot, turned, to its place on the bag. Thousands of dots
+  // can then fly at once without the page working out every position on every frame.
+  const sw = 1 + P.swell * g.swell;
+  for (const p of g.pieces) {
+    if (p.dots) { p.el.style.transform = ''; continue; }
+    const from = `translate(${(g.cx + p.hx * sw).toFixed(2)}px, ${(g.cy + p.hy * sw).toFixed(2)}px) rotate(${(p.turn + p.hr).toFixed(1)}deg) scale(${(p.hs * sw).toFixed(4)}) translate(${-p.mx}px, ${-p.my}px)`;
+    p.el.style.transform = '';
+    p.anim = p.el.animate([{ transform: from }, { transform: `translate(${p.mx}px, ${p.my}px) rotate(0deg) scale(1) translate(${-p.mx}px, ${-p.my}px)` }],
+      { duration: P.burstTime * 1000, delay: p.delay * 1000, easing: P.burstEase, fill: 'backwards' });
+  }
+  g.mode = 'none';
   const flash = document.createElementNS(NS, 'circle');
   flash.setAttribute('class', 'flash');
   flash.style.setProperty('--spark', sparkColor(g.k));
@@ -2525,7 +2571,7 @@ function step(t) {
       if (g.lift > 0.97) burst(g, now);
       else if (g.lift < 0.003 && g.liftGoal === 0) { g.lift = 0; g.phase = 'rest'; }
     }
-    if (g.phase === 'burst') { busy = true; if (now - g.t0 > P.burstTime + P.burstStagger) g.phase = 'up'; }
+    if (g.phase === 'burst') { busy = true; if (now - g.t0 > g.flight) g.phase = 'up'; }
     if (g.phase === 'packing') {
       busy = true;
       g.lift = 1 - easeOut(clamp01((now - g.t0) / P.packTime));
@@ -2585,7 +2631,10 @@ document.getElementById('all').addEventListener('click', () => {
 });
 document.getElementById('again').addEventListener('click', () => {
   const now = performance.now() / 1000;
-  for (const g of groups) if (g.phase === 'burst' || g.phase === 'up') { g.phase = 'packing'; g.t0 = now; }
+  for (const g of groups) if (g.phase === 'burst' || g.phase === 'up') {
+    for (const p of g.pieces) p.anim?.cancel();
+    g.phase = 'packing'; g.t0 = now;
+  }
   wake();
 });
 

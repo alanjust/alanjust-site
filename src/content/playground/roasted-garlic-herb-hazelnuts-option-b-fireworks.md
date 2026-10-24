@@ -1,6 +1,6 @@
 ---
 title: "Roasted Garlic Herb Hazelnuts Option B – Fireworks"
-summary: "The second of three label concepts. Sweep along the shelf and the label goes up in fireworks, one Illustrator layer at a time: the teal halftone in thirty big tiles, then the bands and the hazelnut, then the type."
+summary: "The second of three label concepts. Sweep along the shelf and the label goes up in fireworks, one Illustrator layer at a time: a swarm of teal dots, then the bands and the hazelnut, then the type."
 date: 2026-10-24T23:00:00Z
 type: experiment
 cover: /playground/roasted-garlic-herb-hazelnuts-option-b-fireworks/cover.jpg
@@ -17,9 +17,9 @@ Everything on the label waits in small knots on the shelf underneath, lined up i
 - **Set them all off** launches every knot without you.
 - **Pack it up again** squeezes the label back down onto the shelf.
 
-The teal background is a stand-in made for the screen. The halftone in my print file is about eighteen thousand dots chained together the way Illustrator builds them, which is a lot for a web page to keep redrawing. So Claude measured how the tone fades, from about half-strength under the orange band down to a light dusting at the bottom, and laid down round dots to match. Where it's darker than 50%, they touch and overlap.
+The teal background is a stand-in made for the screen. The halftone in my print file is about eighteen thousand dots chained together the way Illustrator builds them, which is a lot for a web page to keep redrawing. So Claude measured how the tone fades, from about half-strength under the orange band down to a light dusting at the bottom, and laid down round dots to match, a little coarser than the halftone in the hazelnut. Where it's darker than 50%, they touch and overlap.
 
-The background arrives in thirty big tiles, six across and five high. Each column is one knot, and its tiles tumble in like pieces of a puzzle. The white shape behind the hazelnut is tilted and offset on purpose. I wanted it to look a little misregistered, like a print run that slipped.
+The background arrives as a swarm. Each of six knots holds a column of dots, and when it bursts, every one of its dots streams out on its own and settles into place. The white shape behind the hazelnut is tilted and offset on purpose. I wanted it to look a little misregistered, like a print run that slipped.
 
 ## Where this comes from
 
