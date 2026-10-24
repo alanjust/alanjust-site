@@ -1,5 +1,5 @@
 ---
-title: "Roasted Garlic Herb Hazelnuts Option C – Fireworks"
+title: "Roasted Garlic Herb Hazelnuts Option A – Fireworks"
 summary: "A bag of hazelnuts with no label on it. Sweep along the shelf and the label goes up in fireworks, one Illustrator layer at a time: the photo, the orange bands, then the type."
 date: 2026-10-24T22:30:00Z
 type: experiment
@@ -10,7 +10,7 @@ demoHeightPhone: 960
 draft: false
 ---
 
-This is a package I designed for a hazelnut product for Oregon State University's Food Science Department. It's Option C of the label, Roasted Garlic Herb, and the page opens on the bag before it has a label at all. It's just plastic and nuts.
+This is a package I designed for a hazelnut product for Oregon State University's Food Science Department. It's Option A of the label, Roasted Garlic Herb, and the page opens on the bag before it has a label at all. It's just a ziplock bag and nuts.
 
 Everything that makes it a product has been squeezed into small knots on a shelf underneath. The knots are lined up in the order I stacked the layers in Illustrator. The photograph comes first, then the orange bands, then the type. Run your finger or cursor along the shelf from left to right. Each knot you push climbs, bursts, and its pieces fly out to where they belong on the bag. One sweep builds the label from the bottom of the stack to the top, which is more or less how I built it.
 
