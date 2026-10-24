@@ -1,7 +1,7 @@
 ---
 title: "Roasted Garlic Herb Hazelnuts Option C – Fireworks"
 summary: "The third of three label concepts, and the plainest-spoken: a black panel scattered with hazelnuts, garlic and herbs. Sweep along the shelf and it goes up in fireworks, one Illustrator layer at a time."
-date: 2026-10-24T23:30:00Z
+date: 2026-10-24T22:30:00Z
 type: experiment
 cover: /playground/roasted-garlic-herb-hazelnuts-option-c-fireworks/cover.jpg
 demo: true

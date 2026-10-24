@@ -1,7 +1,7 @@
 ---
 title: "Roasted Garlic Herb Hazelnuts Option A – Fireworks"
 summary: "A bag of hazelnuts with no label on it. Sweep along the shelf and the label goes up in fireworks, one Illustrator layer at a time: the photo, the orange bands, then the type."
-date: 2026-10-24T22:30:00Z
+date: 2026-10-24T23:30:00Z
 type: experiment
 cover: /playground/roasted-garlic-herb-hazelnuts-fireworks/cover.jpg
 demo: true
