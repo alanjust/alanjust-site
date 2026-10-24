@@ -17,9 +17,9 @@ Everything on the label waits in small knots on the shelf underneath, lined up i
 - **Set them all off** launches every knot without you.
 - **Pack it up again** squeezes the label back down onto the shelf.
 
-The background here is a teal halftone of about eighteen thousand dots. Rather than send every dot up on its own, the background is cut into thirty big tiles, six across and five high. Each column is one knot, and its tiles tumble in like pieces of a puzzle. The white shape behind the hazelnut is tilted and offset on purpose. I wanted it to look a little misregistered, like a print run that slipped.
+The teal background is a stand-in made for the screen. The halftone in my print file is about eighteen thousand dots chained together the way Illustrator builds them, which is a lot for a web page to keep redrawing. So Claude measured how the tone fades, from about half-strength under the orange band down to a light dusting at the bottom, and laid down round dots to match. Where it's darker than 50%, they touch and overlap.
 
-This one is heavier than Option A, because all those dots get redrawn while anything moves. On an older phone it may stutter a bit.
+The background arrives in thirty big tiles, six across and five high. Each column is one knot, and its tiles tumble in like pieces of a puzzle. The white shape behind the hazelnut is tilted and offset on purpose. I wanted it to look a little misregistered, like a print run that slipped.
 
 ## Where this comes from
 
