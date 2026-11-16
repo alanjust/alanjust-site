@@ -2,6 +2,7 @@
 title: "Harry & David Gift Tower - Concept"
 projectSlug: harry-david-gift-tower-concept
 category: "Packaging"
+alsoIn: ["Illustration"]
 sortOrder: 130
 featured: false
 showProject: true

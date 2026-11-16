@@ -18,7 +18,9 @@ const sizes = await Promise.all(projects.map(async p => {
 }));
 // Filters by kind of work, in this order. Fine Art always last.
 const categoryOrder = ['Packaging', 'Identity', 'Catalogs & Print', 'Illustration', 'Web & Apps', 'Fine Art'];
-const used = new Set(projects.map(p => p.data.category));
+// A project counts under its main category and every "also in" one.
+const kinds = (p: typeof projects[number]) => [p.data.category, ...p.data.alsoIn];
+const used = new Set(projects.flatMap(kinds));
 const categories = ['All', ...categoryOrder.filter(c => used.has(c))];
 ---
 
@@ -54,6 +56,7 @@ const categories = ['All', ...categoryOrder.filter(c => used.has(c))];
               href={`/portfolio/${project.data.projectSlug}`}
               class="masonry-item"
               data-category={project.data.category}
+              data-categories={kinds(project).join('|')}
             >
               {project.data.heroImage && (
                 <img
@@ -132,7 +135,7 @@ const categories = ['All', ...categoryOrder.filter(c => used.has(c))];
     btn.setAttribute('aria-pressed', 'true');
 
     masonry?.querySelectorAll<HTMLElement>('.masonry-item').forEach(item => {
-      const match = filter === 'All' || item.dataset.category === filter;
+      const match = filter === 'All' || (item.dataset.categories ?? '').split('|').includes(filter);
       item.classList.toggle('hidden', !match);
     });
     layout(true);

@@ -2,6 +2,7 @@
 title: "Artists Are Jerks"
 projectSlug: artists-are-jerks
 category: "Web & Apps"
+alsoIn: ["Illustration"]
 sortOrder: 260
 featured: false
 showProject: true

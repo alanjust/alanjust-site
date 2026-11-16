@@ -2,6 +2,7 @@
 title: "Colt Premium Beer Identity"
 projectSlug: colt-premium-beer-identity
 category: "Identity"
+alsoIn: ["Packaging"]
 sortOrder: 220
 featured: false
 showProject: true

@@ -2,6 +2,7 @@
 title: "Wolferman's Holiday Tote and Muffin Labels"
 projectSlug: wolfermans-holiday-tote-and-muffin-labels
 category: "Packaging"
+alsoIn: ["Illustration"]
 sortOrder: 110
 featured: false
 showProject: true

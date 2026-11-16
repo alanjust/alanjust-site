@@ -1,7 +1,8 @@
 ---
 title: "Old Milwaukee Sweepstakes"
 projectSlug: old-milwaukee-sweepstakes
-category: "Catalogs & Print"
+category: "Packaging"
+alsoIn: ["Illustration"]
 sortOrder: 240
 featured: false
 showProject: true

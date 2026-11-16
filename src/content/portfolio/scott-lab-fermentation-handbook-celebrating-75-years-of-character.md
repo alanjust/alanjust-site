@@ -2,6 +2,7 @@
 title: "Scott Lab Fermentation Handbook Celebrating 75 Years of Character"
 projectSlug: scott-lab-fermentation-handbook-celebrating-75-years-of-character
 category: "Catalogs & Print"
+alsoIn: ["Illustration"]
 sortOrder: 180
 featured: false
 showProject: true

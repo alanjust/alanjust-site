@@ -2,6 +2,7 @@
 title: "Anvil by Forgeron Cellars"
 projectSlug: anvil-by-forgeron-cellars
 category: "Packaging"
+alsoIn: ["Identity", "Illustration"]
 sortOrder: 200
 featured: false
 showProject: true

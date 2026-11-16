@@ -6,6 +6,8 @@ const portfolio = defineCollection({
     title: z.string(),
     projectSlug: z.string(),
     category: z.string().default(''),
+    /** Other kinds of work this project also counts as, for the homepage filters. */
+    alsoIn: z.array(z.string()).default([]),
     sortOrder: z.number().default(999),
     featured: z.boolean().default(false),
     showProject: z.boolean().default(true),

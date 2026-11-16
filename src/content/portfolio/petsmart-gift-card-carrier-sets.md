@@ -2,6 +2,7 @@
 title: "PetSmart Gift Card & Carrier Sets"
 projectSlug: petsmart-gift-card-carrier-sets
 category: "Packaging"
+alsoIn: ["Illustration"]
 sortOrder: 170
 featured: false
 showProject: true

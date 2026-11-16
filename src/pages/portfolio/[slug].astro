@@ -14,6 +14,8 @@ export async function getStaticPaths() {
 const { project } = Astro.props;
 const { Content } = await project.render();
 const data = project.data;
+// Main category first, then any others it also counts as.
+const kinds = [data.category, ...data.alsoIn].filter(Boolean);
 
 const allProjects = sortProjects(await getCollection('portfolio', ({ data }) => data.showProject));
 
@@ -28,7 +30,7 @@ const next = currentIndex < allProjects.length - 1 ? allProjects[currentIndex + 
       <img class="project-hero" src={data.heroImage} alt={data.title} />
     )}
 
-    {data.category && <div class="project-meta">{data.category}</div>}
+    {kinds.length > 0 && <div class="project-meta">{kinds.join(' · ')}</div>}
 
     <h1 class="project-title">{data.title}</h1>
 

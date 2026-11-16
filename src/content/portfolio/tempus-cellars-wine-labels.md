@@ -2,6 +2,7 @@
 title: "Tempus Cellars Wine Labels"
 projectSlug: tempus-cellars-wine-labels
 category: "Packaging"
+alsoIn: ["Identity", "Illustration"]
 sortOrder: 30
 featured: true
 showProject: true

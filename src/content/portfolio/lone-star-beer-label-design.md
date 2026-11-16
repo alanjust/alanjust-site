@@ -2,6 +2,7 @@
 title: "Lone Star Beer Label and Packaging Rebrand Design"
 projectSlug: lone-star-beer-label-design
 category: "Packaging"
+alsoIn: ["Identity"]
 sortOrder: 120
 featured: false
 showProject: true

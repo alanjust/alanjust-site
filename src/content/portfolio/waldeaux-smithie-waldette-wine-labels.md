@@ -2,6 +2,7 @@
 title: "Forgeron Cellars Table Red and White Wine Labels"
 projectSlug: waldeaux-smithie-waldette-wine-labels
 category: "Packaging"
+alsoIn: ["Identity", "Illustration"]
 sortOrder: 80
 featured: false
 showProject: true
