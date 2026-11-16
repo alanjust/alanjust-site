@@ -16,7 +16,7 @@ export interface OpeningSquare {
 }
 
 export const openingSquares: OpeningSquare[] = [
-  { slug: "pabst-blue-ribbon-light", name: "PBR Light", fit: 'contain', focus: [0.5, 0.5] },
+  { slug: "pabst-blue-ribbon-light", name: "Pabst Blue Ribbon Light", fit: 'contain', focus: [0.5, 0.5] },
   { slug: "connie-portrait", name: "Connie", fit: 'cover', focus: [0.5, 0.3] },
   { slug: "artists-are-jerks", name: "Artists Are Jerks", fit: 'cover', focus: [0.5, 0.5] },
   { slug: "java-jacket-logo", name: "Java Jacket", fit: 'contain', focus: [0.5, 0.5] },
