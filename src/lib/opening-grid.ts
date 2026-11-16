@@ -1,4 +1,4 @@
-// The opening grid on the test homepage (/home-grid): which projects appear, in
+// The opening grid on the homepage: which projects appear, in
 // what order, and how each one's full picture fits the grid when it's revealed.
 // Each project's square is public/images/portfolio/opening/tile-<slug>.webp, a crop
 // of its single most telling detail. Title, category and the full picture come

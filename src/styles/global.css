@@ -41,7 +41,7 @@
   --ink-magenta:      #ec008c;
   --ink-yellow:       #fff200;
 
-  /* Added for the opening grid on the test homepage (/home-grid) */
+  /* Added for the opening grid on the homepage */
   --og-paper:         #ffffff;
   --og-ink:           #1d1b19;
   --og-ink-soft:      #6b665f;
@@ -1351,10 +1351,10 @@ button:focus-visible {
   .home-headline { font-size: 20px; }
 }
 
-/* ── Opening grid, test homepage (/home-grid) ───────────────────
+/* ── Opening grid (the homepage) ────────────────────────────────
    The Alan Just logo crumbles into one square per project; names
    flash up; click a square to turn the grid into its picture.
-   Script lives in src/pages/home-grid.astro. */
+   Script lives in src/pages/index.astro. */
 
 /* No big logo or maroon banner on this page: the grid's opening is the logo,
    the menu carries a small one, and on phones a logo bar takes the banner's place. */
@@ -1504,6 +1504,7 @@ button:focus-visible {
   overflow: hidden;
 }
 .og .front { background-size: cover; background-position: center; }
+.og .front img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .og .back { transform: rotate3d(var(--ax, 0), var(--ay, 1), 0, 180deg); }
 .og .ink { position: absolute; inset: 0; background: var(--og-ink); opacity: 0; pointer-events: none; }
 
