@@ -75,6 +75,8 @@
   --og-space-5:       40px;
   --og-grid-max:      960px;
   --og-layout-max:    1240px;
+  --og-menu-logo-width: 150px;
+  --og-phone-logo-width: 160px;
   --og-logo-width:    min(76%, 620px);
   --og-perspective:   700px;
   --og-flip-duration: 520ms;
@@ -1354,12 +1356,18 @@ button:focus-visible {
    flash up; click a square to turn the grid into its picture.
    Script lives in src/pages/home-grid.astro. */
 
-/* No big logo or banner on this page: the grid's opening is the logo.
-   On phones the banner stays, because it holds the menu button. */
-.page-home-grid .home-logo { display: none; }
-@media screen and (min-width: 992px) {
-  .page-home-grid .gallery-banner { display: none; }
-}
+/* No big logo or maroon banner on this page: the grid's opening is the logo,
+   the menu carries a small one, and on phones a logo bar takes the banner's place. */
+.page-home-grid .home-logo,
+.page-home-grid .gallery-banner { display: none; }
+
+/* Small logo at the top of the side menu */
+.side-menu-logo { display: block; width: var(--og-menu-logo-width); margin-bottom: var(--og-space-5); }
+.side-menu-logo img { display: block; width: 100%; height: auto; }
+.side-menu-logo:hover { opacity: 0.8; }
+
+/* Phone logo bar: hidden on desktop and iPad */
+.og-phone-bar { display: none; }
 
 /* Menu and grid travel together, centered in the window. */
 .home-grid-layout {
@@ -1575,8 +1583,26 @@ button:focus-visible {
 .og #og-replay:hover { color: var(--white); border-color: var(--border-strong); }
 .og .og-cta { margin-top: var(--og-space-4); }
 
-@media screen and (max-width: 991px) {
+/* iPad: the side menu stays beside the grid on this page. */
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  .home-grid-layout { gap: var(--og-space-4); padding: var(--og-space-4) var(--og-space-3) 0; }
+  .page-home-grid .home-grid-layout .side-menu { display: block; margin-top: 0; padding: 0; }
+  .page-home-grid .home-grid-layout .navbar { float: none; display: block; margin-top: 0; padding-right: 0; }
+}
+
+/* Phones: the logo bar and the row of kinds of work sit above the grid. */
+@media screen and (max-width: 767px) {
   .home-grid-layout { padding: var(--og-space-3) var(--og-space-3) 0; }
+  .og-phone-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--og-space-3);
+  }
+  .og-phone-logo { display: block; width: var(--og-phone-logo-width); opacity: 0; visibility: hidden; transition: opacity var(--og-tagline-fade), visibility var(--og-tagline-fade); }
+  .og-phone-logo img { display: block; width: 100%; height: auto; }
+  .og-intro-done .og-phone-logo { opacity: 1; visibility: visible; }
+  .og-phone-menu { display: flex; }
   .og-filter-mobile {
     display: flex;
     flex-wrap: wrap;

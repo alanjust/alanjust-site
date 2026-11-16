@@ -5,12 +5,19 @@ interface Props {
   currentPath?: string;
   /** Kinds of work to list under Work, as filter buttons (test homepage only). */
   categories?: string[];
+  /** Show the Alan Just logo at the top of the menu (test homepage only). */
+  showLogo?: boolean;
 }
 
-const { currentPath = '/', categories } = Astro.props;
+const { currentPath = '/', categories, showLogo = false } = Astro.props;
 ---
 
 <div class="side-menu">
+  {showLogo && (
+    <a href="/" class="side-menu-logo" aria-label="Alan Just, home">
+      <img src="/images/alan-just-logotype-white.svg" alt="" width="279" height="37" />
+    </a>
+  )}
   <nav class="navbar" aria-label="Main">
     <div class="navbar-side">
       {navGroups.map((group, g) => {

@@ -111,10 +111,13 @@ const {
       const overlay = document.getElementById('mobile-nav');
       const closeBtn = document.getElementById('nav-close');
 
-      toggle?.addEventListener('click', () => {
+      function openNav() {
         overlay?.classList.add('open');
         document.body.style.overflow = 'hidden';
-      });
+      }
+      toggle?.addEventListener('click', openNav);
+      // Pages can add their own menu button (the test homepage does).
+      document.querySelectorAll('[data-nav-toggle]').forEach(b => b.addEventListener('click', openNav));
 
       function closeNav() {
         overlay?.classList.remove('open');

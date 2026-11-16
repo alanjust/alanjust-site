@@ -38,10 +38,22 @@ const countWord = n <= 20 ? countWords[n] : tens[Math.floor(n / 10)] + (n % 10 ?
   <meta slot="head" name="robots" content="noindex" />
 
   <div class="home-grid-layout">
-    <SideNav currentPath="/" categories={categories} />
+    <SideNav currentPath="/" categories={categories} showLogo />
 
     <main class="home-grid-main og">
       <h1 class="og-visually-hidden">Alan Just. Graphic designer and illustrator. Forty years of packaging, identity and illustration.</h1>
+
+      <!-- On phones: the logo and the menu button. The logo fades in once the opening is over. -->
+      <div class="og-phone-bar">
+        <a href="/" class="og-phone-logo" aria-label="Alan Just, home">
+          <img src="/images/alan-just-logotype-white.svg" alt="" width="279" height="37" />
+        </a>
+        <button class="mobile-hamburger og-phone-menu" type="button" data-nav-toggle aria-label="Open navigation">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
 
       <!-- On phones the side menu folds away, so the kinds of work sit above the grid. -->
       <div class="og-filter-mobile" role="group" aria-label="Show one kind of work">
@@ -253,6 +265,7 @@ const countWord = n <= 20 ? countWords[n] : tens[Math.floor(n / 10)] + (n % 10 ?
     state = 'intro';
     io.disconnect();
     window.scrollTo(0, 0);
+    document.body.classList.remove('og-intro-done');
     cancelAnimationFrame(rafId);
     particles = [];
     ctx.clearRect(0, 0, dust.width, dust.height);
@@ -340,6 +353,7 @@ const countWord = n <= 20 ? countWords[n] : tens[Math.floor(n / 10)] + (n % 10 ?
     setTimeout(() => {
       if (run !== introRun) return;
       intro.classList.add('is-gone');
+      document.body.classList.add('og-intro-done');
       flyers.forEach(t => t.el.classList.add('has-landed'));
       all.filter(t => !flyers.includes(t)).forEach(t => { t.el.classList.add('is-waiting'); io.observe(t.el); });
       grid.classList.remove('is-intro');
