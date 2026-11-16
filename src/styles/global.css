@@ -40,6 +40,51 @@
   --ink-cyan:         #00aeef;
   --ink-magenta:      #ec008c;
   --ink-yellow:       #fff200;
+
+  /* Added for the opening grid on the test homepage (/home-grid) */
+  --og-paper:         #ffffff;
+  --og-ink:           #1d1b19;
+  --og-ink-soft:      #6b665f;
+  --og-on-color:      #ffffff;
+  --og-tease-1:       #1f3f8f;
+  --og-tease-2:       #5a1f2b;
+  --og-tease-3:       #b8913a;
+  --og-tease-4:       #3f7d3a;
+  --og-tease-5:       #f2a7d8;
+  --og-tease-5-ink:   #3a1230;
+  --og-caption-bg:    rgba(255, 255, 255, 0.94);
+  --og-caption-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  --og-focus-ring:    #1f3f8f;
+  --og-focus-width:   3px;
+  --og-size-tagline:  clamp(0.8rem, 2.2vw, 1.15rem);
+  --og-size-name:     clamp(0.6rem, 1.4vw, 1rem);
+  --og-size-cat:      clamp(0.45rem, 0.9vw, 0.68rem);
+  --og-size-caption:  16px;
+  --og-size-small:    13px;
+  --og-size-menu-cat: 15px;
+  --og-leading-tight: 1.1;
+  --og-label-cat-opacity: 0.8;
+  --og-dim-opacity:   0.14;
+  --og-gap:           2px;
+  --og-radius-frame:  4px;
+  --og-radius-button: 999px;
+  --og-space-1:       4px;
+  --og-space-2:       8px;
+  --og-space-3:       16px;
+  --og-space-4:       24px;
+  --og-space-5:       40px;
+  --og-grid-max:      960px;
+  --og-layout-max:    1240px;
+  --og-logo-width:    min(76%, 620px);
+  --og-perspective:   700px;
+  --og-flip-duration: 520ms;
+  --og-flip-ease:     cubic-bezier(0.45, 0.05, 0.25, 1);
+  --og-fade-duration: 260ms;
+  --og-tagline-fade:  500ms;
+  --og-z-intro:       0;
+  --og-z-grid:        1;
+  --og-z-dust:        2;
+  --og-z-caption:     3;
 }
 
 /* ── Base ────────────────────────────────────────────────────── */
@@ -1302,4 +1347,254 @@ button:focus-visible {
   .lead-sentence { margin-top: 0; margin-bottom: 5px; font-size: 33px; }
   .deco-color { font-size: 18px; }
   .home-headline { font-size: 20px; }
+}
+
+/* ── Opening grid, test homepage (/home-grid) ───────────────────
+   The Alan Just logo crumbles into one square per project; names
+   flash up; click a square to turn the grid into its picture.
+   Script lives in src/pages/home-grid.astro. */
+
+/* No big logo or banner on this page: the grid's opening is the logo.
+   On phones the banner stays, because it holds the menu button. */
+.page-home-grid .home-logo { display: none; }
+@media screen and (min-width: 992px) {
+  .page-home-grid .gallery-banner { display: none; }
+}
+
+/* Menu and grid travel together, centered in the window. */
+.home-grid-layout {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--og-space-5);
+  max-width: var(--og-layout-max);
+  margin: 0 auto;
+  padding: var(--og-space-5) var(--og-space-4) 0;
+}
+.home-grid-layout .side-menu { padding-left: 0; position: sticky; top: var(--og-space-5); }
+.home-grid-layout .navbar { padding-right: 0; }
+.home-grid-layout .navbar-side { margin-top: 0; }
+.home-grid-main { flex: 0 1 var(--og-grid-max); min-width: 0; }
+
+/* Kinds of work, listed under Work in the side menu */
+.side-menu-categories {
+  list-style: none;
+  margin: var(--og-space-1) 0 var(--og-space-1);
+  padding: 0 0 0 var(--og-space-3);
+}
+.side-menu-categories button,
+.og-filter-mobile button {
+  background: none;
+  border: 0;
+  padding: var(--og-space-1) 0;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: var(--og-size-menu-cat);
+  line-height: var(--leading-tight);
+  text-align: left;
+  cursor: pointer;
+}
+.side-menu-categories button:hover,
+.og-filter-mobile button:hover { color: var(--white); }
+.side-menu-categories button.active,
+.og-filter-mobile button.active { color: var(--accent); }
+
+.og-filter-mobile { display: none; }
+.og-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.og { --og-cols: 5; }
+.og .stage {
+  position: relative;
+  background: var(--og-paper);
+  color: var(--og-ink);
+  border-radius: var(--og-radius-frame);
+  overflow: hidden;
+  padding: var(--og-gap);
+}
+/* The logo covers only the first screenful of squares; the script sets its height. */
+.og .intro {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  z-index: var(--og-z-intro);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--og-space-3);
+  pointer-events: none;
+  transition: opacity var(--og-fade-duration);
+}
+.og .intro.is-gone { opacity: 0; }
+.og .logo { width: var(--og-logo-width); height: auto; display: block; fill: var(--og-ink); }
+.og .tagline {
+  margin: 0;
+  width: var(--og-logo-width);
+  text-align: center;
+  font-size: var(--og-size-tagline);
+  line-height: var(--og-leading-tight);
+  color: var(--og-ink);
+  transition: opacity var(--og-tagline-fade);
+}
+.og .tagline.is-gone { opacity: 0; }
+.og .dust { position: absolute; inset: 0; z-index: var(--og-z-dust); pointer-events: none; }
+
+.og .grid {
+  position: relative;
+  z-index: var(--og-z-grid);
+  display: grid;
+  grid-template-columns: repeat(var(--og-cols), 1fr);
+  gap: var(--og-gap);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.og .grid.is-revealed { cursor: pointer; }
+.og .tile {
+  position: relative;
+  aspect-ratio: 1;
+  perspective: var(--og-perspective);
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+}
+.og .grid.is-intro .tile { opacity: 0; }
+.og .grid.is-intro .tile.has-landed { opacity: 1; }
+/* Squares below the first screen wait, invisible, until you scroll to them. */
+.og .tile.is-waiting { opacity: 0; }
+.og .tile.is-filler { cursor: default; }
+.og .tile[hidden] { display: none; }
+/* A category is picked: everything else fades back. */
+.og .tile.is-dimmed { cursor: default; }
+.og .tile.is-dimmed .front { opacity: var(--og-dim-opacity); }
+.og .front { transition: opacity var(--og-fade-duration); }
+
+.og .card {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform var(--og-flip-duration) var(--og-flip-ease) var(--delay, 0ms);
+}
+.og .tile.in-reveal .card,
+.og .tile.is-flipped .card { transform: rotate3d(var(--ax, 0), var(--ay, 1), 0, 180deg); }
+.og .face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background-color: var(--og-paper);
+  background-repeat: no-repeat;
+  overflow: hidden;
+}
+.og .front { background-size: cover; background-position: center; }
+.og .back { transform: rotate3d(var(--ax, 0), var(--ay, 1), 0, 180deg); }
+.og .ink { position: absolute; inset: 0; background: var(--og-ink); opacity: 0; pointer-events: none; }
+
+/* The name side of a square, shown during the flashes. */
+.og .label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--og-space-1);
+  padding: 8%;
+  color: var(--og-on-color);
+}
+.og .label strong { font-size: var(--og-size-name); font-weight: var(--weight-bold); line-height: var(--og-leading-tight); }
+.og .label span {
+  font-size: var(--og-size-cat);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  opacity: var(--og-label-cat-opacity);
+}
+.og .back.is-slice .label { display: none; }
+.og .front.tease-1, .og .back.tease-1 { background-color: var(--og-tease-1); }
+.og .front.tease-2, .og .back.tease-2 { background-color: var(--og-tease-2); }
+.og .front.tease-3, .og .back.tease-3 { background-color: var(--og-tease-3); }
+.og .front.tease-4, .og .back.tease-4 { background-color: var(--og-tease-4); }
+.og .front.tease-5, .og .back.tease-5 { background-color: var(--og-tease-5); }
+.og .back.tease-5 .label { color: var(--og-tease-5-ink); }
+.og .back.is-slice { background-color: var(--og-paper); }
+.og .tile:focus-visible .front { box-shadow: inset 0 0 0 var(--og-focus-width) var(--og-focus-ring); }
+
+.og .caption {
+  position: absolute;
+  left: var(--og-space-3);
+  top: var(--og-space-3);
+  z-index: var(--og-z-caption);
+  display: flex;
+  flex-direction: column;
+  gap: var(--og-space-1);
+  max-width: calc(100% - 2 * var(--og-space-3));
+  padding: var(--og-space-2) var(--og-space-3);
+  background: var(--og-caption-bg);
+  color: var(--og-ink);
+  border-radius: var(--og-radius-frame);
+  box-shadow: var(--og-caption-shadow);
+  text-decoration: none;
+  opacity: 0;
+  transform: translateY(calc(-1 * var(--og-space-2)));
+  pointer-events: none;
+  transition: opacity var(--og-fade-duration), transform var(--og-fade-duration);
+}
+.og .caption.is-on { opacity: 1; transform: none; pointer-events: auto; }
+.og .caption strong { font-size: var(--og-size-caption); line-height: var(--og-leading-tight); }
+.og .caption span { font-size: var(--og-size-small); color: var(--og-ink-soft); }
+
+.og .below {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--og-space-3);
+  margin-top: var(--og-space-3);
+  font-size: var(--og-size-small);
+  color: var(--text-muted);
+}
+.og .below p { margin: 0; max-width: 36em; }
+.og #og-replay {
+  font-family: inherit;
+  font-size: var(--og-size-small);
+  color: var(--text-muted);
+  background: none;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--og-radius-button);
+  padding: var(--og-space-1) var(--og-space-3);
+  cursor: pointer;
+}
+.og #og-replay:hover { color: var(--white); border-color: var(--border-strong); }
+.og .og-cta { margin-top: var(--og-space-4); }
+
+@media screen and (max-width: 991px) {
+  .home-grid-layout { padding: var(--og-space-3) var(--og-space-3) 0; }
+  .og-filter-mobile {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--og-space-1) var(--og-space-3);
+    margin-bottom: var(--og-space-3);
+  }
+  .og-filter-mobile button { font-size: var(--og-size-small); letter-spacing: var(--tracking-label); text-transform: uppercase; }
+}
+@media screen and (max-width: 600px) {
+  .og { --og-cols: 4; }
+  .og .caption { left: var(--og-space-2); top: var(--og-space-2); padding: var(--og-space-1) var(--og-space-2); }
+  .og .caption strong { font-size: var(--og-size-small); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .og .card { transition: none; transform: none !important; }
+  .og .back { transform: none; opacity: 0; transition: opacity var(--og-fade-duration); }
+  .og .in-reveal .back, .og .is-flipped .back { opacity: 1; }
+  .og .in-reveal .front, .og .is-flipped .front { opacity: 0; }
+  .og .grid.is-intro .tile { transition: opacity var(--og-fade-duration); }
+  .og .caption { transform: none; }
 }

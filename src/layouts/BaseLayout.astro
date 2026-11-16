@@ -6,12 +6,15 @@ interface Props {
   title?: string;
   description?: string;
   currentPath?: string;
+  /** Optional class on <body>, for a page that needs its own layout tweaks. */
+  bodyClass?: string;
 }
 
 const {
   title = 'Alan Just',
   description = 'Art, Design, and portfolio of Alan Just — graphic designer and illustrator.',
   currentPath = Astro.url.pathname,
+  bodyClass,
 } = Astro.props;
 
 ---
@@ -31,7 +34,7 @@ const {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
   </head>
-  <body>
+  <body class={bodyClass}>
 
     <!-- Logo -->
     <section class="section home-logo">

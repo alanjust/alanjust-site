@@ -3,9 +3,11 @@ import { navGroups, isCurrent, groupIsCurrent } from '../lib/nav';
 
 interface Props {
   currentPath?: string;
+  /** Kinds of work to list under Work, as filter buttons (test homepage only). */
+  categories?: string[];
 }
 
-const { currentPath = '/' } = Astro.props;
+const { currentPath = '/', categories } = Astro.props;
 ---
 
 <div class="side-menu">
@@ -23,6 +25,15 @@ const { currentPath = '/' } = Astro.props;
               >
                 {link.label}
               </a>
+              {link.href === '/' && categories && (
+                <ul class="side-menu-categories" role="group" aria-label="Show one kind of work">
+                  {categories.map(cat => (
+                    <li>
+                      <button type="button" data-filter={cat} aria-pressed={cat === 'All' ? 'true' : 'false'} class={cat === 'All' ? 'active' : undefined}>{cat}</button>
+                    </li>
+                  ))}
+                </ul>
+              )}
               <div class={`divider-2-px${g === 0 && i === 0 ? ' _4px-space' : ' with-space'}`}></div>
             </div>
           ));
